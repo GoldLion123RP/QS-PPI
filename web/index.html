@@ -281,15 +281,15 @@
                 <p style="margin-bottom: 20px; color: #666;">Enter your income and the threshold you need to prove against. The system will generate a zero-knowledge proof.</p>
                 
                 <div class="form-group">
-                    <label for="income">Your Income (₹ in paisa)</label>
-                    <input type="number" id="income" placeholder="e.g., 750000000 (7.5 LPA)" value="750000000">
-                    <small style="color: #888;">Example: ₹7,50,000 = 750000000 paisa</small>
+                    <label for="income">Your Income (₹ INR)</label>
+                    <input type="number" id="income" placeholder="e.g., 750000 (7.5 LPA)" value="750000">
+                    <small style="color: #888;">Example: ₹7,50,000 = 750000 INR (7.5 LPA)</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="threshold">Threshold (₹ in paisa)</label>
-                    <input type="number" id="threshold" placeholder="e.g., 500000000 (5 LPA)" value="500000000">
-                    <small style="color: #888;">Example: ₹5,00,000 = 500000000 paisa</small>
+                    <label for="threshold">Threshold (₹ INR)</label>
+                    <input type="number" id="threshold" placeholder="e.g., 500000 (5 LPA)" value="500000">
+                    <small style="color: #888;">Example: ₹5,00,000 = 500000 INR (5 LPA)</small>
                 </div>
 
                 <button onclick="generateProof()" id="generateBtn">🔒 Generate Zero-Knowledge Proof</button>
@@ -525,10 +525,9 @@ ${isValid === 1 ? '✅ User income EXCEEDS threshold (exact amount hidden)' : '�
             return '0x' + result;
         }
 
-        function formatIncome(paisa) {
-            const rupees = paisa / 100;
-            const lpa = (rupees / 100000).toFixed(2);
-            return `₹${rupees.toLocaleString('en-IN')} (${lpa} LPA)`;
+        function formatIncome(inr) {
+            const lpa = (inr / 100000).toFixed(2);
+            return `₹${inr.toLocaleString('en-IN')} (${lpa} LPA)`;
         }
     </script>
 </body>
