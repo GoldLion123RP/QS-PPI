@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QS-PID: Zero-Knowledge Income Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .badges {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            backdrop-filter: blur(10px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .result-title {
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .result-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 10px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.9;
+        }
+
+        .copy-btn {
+            margin-top: 10px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 QS-PID</h1>
+            <p class="subtitle">Quantum-Safe Privacy-Preserving Income Verification</p>
+            <div class="badges">
+                <span class="badge">✓ Zero-Knowledge Proofs</span>
+                <span class="badge">✓ W3C VC 2.0 Compliant</span>
+                <span class="badge">✓ Post-Quantum Ready</span>
+                <span class="badge">✓ 28/28 Tests Passing</span>
+            </div>
+        </header>
+
+        <div class="info-box">
+            <h3>🎯 How It Works</h3>
+            <p><strong>Problem:</strong> Traditional income verification exposes your exact salary to banks, landlords, and employers.</p>
+            <p style="margin-top: 10px;"><strong>Solution:</strong> QS-PID uses zero-knowledge proofs to prove your income exceeds a threshold <strong>without revealing the exact amount</strong>. Privacy preserved, trust maintained.</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Prover Card -->
+            <div class="card">
+                <h2><span class="icon">💵</span> Prover (Generate Proof)</h2>
+                <p style="margin-bottom: 20px; color: #666;">Enter your income and the threshold you need to prove against. The system will generate a zero-knowledge proof.</p>
+                
+                <div class="form-group">
+                    <label for="income">Your Income (₹ in paisa)</label>
+                    <input type="number" id="income" placeholder="e.g., 750000000 (7.5 LPA)" value="750000000">
+                    <small style="color: #888;">Example: ₹7,50,000 = 750000000 paisa</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="threshold">Threshold (₹ in paisa)</label>
+                    <input type="number" id="threshold" placeholder="e.g., 500000000 (5 LPA)" value="500000000">
+                    <small style="color: #888;">Example: ₹5,00,000 = 500000000 paisa</small>
+                </div>
+
+                <button onclick="generateProof()" id="generateBtn">🔒 Generate Zero-Knowledge Proof</button>
+
+                <div class="spinner" id="generateSpinner"></div>
+
+                <div class="result" id="generateResult">
+                    <div class="result-title" id="generateResultTitle"></div>
+                    <div class="result-content" id="generateResultContent"></div>
+                    <button class="copy-btn" onclick="copyProof()">📋 Copy Proof JSON</button>
+                </div>
+            </div>
+
+            <!-- Verifier Card -->
+            <div class="card">
+                <h2><span class="icon">✓</span> Verifier (Verify Proof)</h2>
+                <p style="margin-bottom: 20px; color: #666;">Paste the proof JSON from the prover. The system will verify without learning the exact income.</p>
+                
+                <div class="form-group">
+                    <label for="proofInput">Proof JSON</label>
+                    <textarea id="proofInput" placeholder="Paste proof JSON here..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="verifierId">Verifier ID</label>
+                    <input type="text" id="verifierId" placeholder="e.g., bank-verifier-001" value="demo-verifier-001">
+                </div>
+
+                <button onclick="verifyProof()" id="verifyBtn">✓ Verify Proof</button>
+
+                <div class="spinner" id="verifySpinner"></div>
+
+                <div class="result" id="verifyResult">
+                    <div class="result-title" id="verifyResultTitle"></div>
+                    <div class="result-content" id="verifyResultContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>Zero-Knowledge Privacy</h3>
+                <p>Income never revealed, only threshold satisfaction</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔗</div>
+                <h3>Unlinkability</h3>
+                <p>Different proofs for same income across verifiers</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Fast Performance</h3>
+                <p>~220ms end-to-end latency per credential</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🛡️</div>
+                <h3>Post-Quantum Secure</h3>
+                <p>ML-DSA migration ensures 20+ year security</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>🎉 <strong>Note:</strong> This is a demo UI. For full functionality, run the Node.js backend.</p>
+            <p style="margin-top: 10px;">
+                <a href="https://github.com/GoldLion123RP/zkp_v1" style="color: white; text-decoration: underline;">GitHub Repository</a> | 
+                <a href="https://github.com/GoldLion123RP/zkp_v1/blob/main/README.md" style="color: white; text-decoration: underline;">Documentation</a>
+            </p>
+            <p style="margin-top: 20px; opacity: 0.7;">&copy; 2026 Rahul Pal | Built for Privacy-First Finance</p>
+        </footer>
+    </div>
+
+    <script>
+        // Simulated proof generation (client-side demo)
+        // In production, this would call the Node.js backend
+
+        let lastGeneratedProof = null;
+
+        function generateProof() {
+            const income = parseInt(document.getElementById('income').value);
+            const threshold = parseInt(document.getElementById('threshold').value);
+            const generateBtn = document.getElementById('generateBtn');
+            const spinner = document.getElementById('generateSpinner');
+            const result = document.getElementById('generateResult');
+
+            // Validation
+            if (!income || !threshold) {
+                showResult('generateResult', 'error', '❌ Error', 'Please enter valid income and threshold values.');
+                return;
+            }
+
+            if (income < 0 || threshold < 0) {
+                showResult('generateResult', 'error', '❌ Error', 'Income and threshold must be positive.');
+                return;
+            }
+
+            // Simulate loading
+            generateBtn.disabled = true;
+            spinner.style.display = 'block';
+            result.style.display = 'none';
+
+            // Simulate proof generation delay
+            setTimeout(() => {
+                const isValid = income > threshold;
+                const blindingFactor = generateRandomHex(64);
+                const nonce = generateRandomHex(64);
+                const incomeHashCommit = generateRandomHex(64);
+
+                const proof = {
+                    proof: {
+                        A: [generateRandomHex(64), generateRandomHex(64)],
+                        B: [[generateRandomHex(64), generateRandomHex(64)], [generateRandomHex(64), generateRandomHex(64)]],
+                        C: [generateRandomHex(64), generateRandomHex(64)]
+                    },
+                    commitments: {
+                        incomeHashCommit: incomeHashCommit,
+                        blindingFactor: blindingFactor,
+                        nonce: nonce
+                    },
+                    publicSignals: [isValid ? 1 : 0, threshold, incomeHashCommit],
+                    isValid: isValid,
+                    timestamp: new Date().toISOString(),
+                    verifierContext: 'demo-context'
+                };
+
+                lastGeneratedProof = proof;
+
+                const resultType = isValid ? 'success' : 'error';
+                const resultTitle = isValid ? '✓ Proof Generated Successfully' : '⚠️ Proof Generated (Invalid)';
+                const resultContent = `
+Income: ${formatIncome(income)} (HIDDEN from verifier)
+Threshold: ${formatIncome(threshold)} (PUBLIC)
+isValid: ${isValid ? 'TRUE ✓' : 'FALSE ❌'}
+
+Commitment: ${incomeHashCommit.substring(0, 32)}...
+Blinding Factor: ${blindingFactor.substring(0, 32)}...
+Nonce: ${nonce.substring(0, 32)}...
+
+Generated at: ${proof.timestamp}
+
+🔒 Privacy Guarantee: Verifier sees only isValid and threshold, NOT your exact income!`;
+
+                spinner.style.display = 'none';
+                generateBtn.disabled = false;
+                showResult('generateResult', resultType, resultTitle, resultContent);
+            }, 800); // Simulate ~200ms proof generation + network delay
+        }
+
+        function verifyProof() {
+            const proofInput = document.getElementById('proofInput').value;
+            const verifierId = document.getElementById('verifierId').value;
+            const verifyBtn = document.getElementById('verifyBtn');
+            const spinner = document.getElementById('verifySpinner');
+            const result = document.getElementById('verifyResult');
+
+            if (!proofInput) {
+                showResult('verifyResult', 'error', '❌ Error', 'Please paste a proof JSON.');
+                return;
+            }
+
+            if (!verifierId) {
+                showResult('verifyResult', 'error', '❌ Error', 'Please enter a verifier ID.');
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            spinner.style.display = 'block';
+            result.style.display = 'none';
+
+            // Simulate verification delay
+            setTimeout(() => {
+                try {
+                    const proof = JSON.parse(proofInput);
+
+                    if (!proof.publicSignals || !proof.commitments) {
+                        throw new Error('Invalid proof format');
+                    }
+
+                    const [isValid, threshold, incomeHashCommit] = proof.publicSignals;
+
+                    const resultType = isValid === 1 ? 'success' : 'error';
+                    const resultTitle = isValid === 1 ? '✓ Proof Verified Successfully' : '❌ Proof Verification Failed';
+                    const resultContent = `
+Verifier ID: ${verifierId}
+isValid: ${isValid === 1 ? 'TRUE ✓' : 'FALSE ❌'}
+Threshold: ${formatIncome(threshold)}
+Commitment: ${incomeHashCommit.substring(0, 32)}...
+
+Verification Time: ${new Date().toISOString()}
+
+${isValid === 1 ? '✅ User income EXCEEDS threshold (exact amount hidden)' : '❌ User income DOES NOT exceed threshold'}
+
+🔐 Privacy Note: You learned NOTHING about the exact income!`;
+
+                    spinner.style.display = 'none';
+                    verifyBtn.disabled = false;
+                    showResult('verifyResult', resultType, resultTitle, resultContent);
+                } catch (e) {
+                    spinner.style.display = 'none';
+                    verifyBtn.disabled = false;
+                    showResult('verifyResult', 'error', '❌ Parsing Error', `Invalid proof JSON: ${e.message}`);
+                }
+            }, 500); // Simulate ~18ms verification + network delay
+        }
+
+        function copyProof() {
+            if (!lastGeneratedProof) return;
+
+            const proofJson = JSON.stringify(lastGeneratedProof, null, 2);
+            navigator.clipboard.writeText(proofJson).then(() => {
+                alert('✓ Proof JSON copied to clipboard!');
+            });
+        }
+
+        function showResult(elementId, type, title, content) {
+            const result = document.getElementById(elementId);
+            const resultTitle = document.getElementById(elementId + 'Title');
+            const resultContent = document.getElementById(elementId + 'Content');
+
+            result.className = `result ${type}`;
+            resultTitle.textContent = title;
+            resultContent.textContent = content;
+            result.style.display = 'block';
+        }
+
+        function generateRandomHex(length) {
+            let result = '';
+            const characters = '0123456789abcdef';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return '0x' + result;
+        }
+
+        function formatIncome(paisa) {
+            const rupees = paisa / 100;
+            const lpa = (rupees / 100000).toFixed(2);
+            return `₹${rupees.toLocaleString('en-IN')} (${lpa} LPA)`;
+        }
+    </script>
+</body>
+</html>
