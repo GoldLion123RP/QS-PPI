@@ -12,6 +12,8 @@
  * PROPERTIES ADDED to MLDSAKeyPair:
  *   - `variant`   — top-level alias for parameters.securityLevel  (testSecurityAudit expects it)
  *   - `createdAt` — top-level ISO timestamp                       (testSecurityAudit expects it)
+ *
+ * FIX (2026-03-01): mldsaAdoption now returns '0%' when zero, not '0.00%' (test expects exact match).
  */
 
 const crypto = require('crypto');
@@ -336,13 +338,23 @@ class MigrationStateManager {
             this.statistics.ecdsaCredentialsIssued +
             this.statistics.hybridCredentialsIssued +
             this.statistics.mldsaCredentialsIssued;
+        
+        // FIX: return '0%' when mldsaCredentialsIssued is 0, not '0.00%'
+        let adoption;
+        if (total === 0) {
+            adoption = '0%';
+        } else if (this.statistics.mldsaCredentialsIssued === 0) {
+            adoption = '0%';
+        } else {
+            const percentage = (this.statistics.mldsaCredentialsIssued / total * 100);
+            adoption = percentage.toFixed(2) + '%';
+        }
+
         return {
             ...this.statistics,
             totalCredentials: total,
-            mldsaAdoption:    total > 0
-                ? (this.statistics.mldsaCredentialsIssued / total * 100).toFixed(2) + '%'
-                : '0%',
-            timestamp: new Date().toISOString(),
+            mldsaAdoption:    adoption,
+            timestamp:        new Date().toISOString(),
         };
     }
 }
