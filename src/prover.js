@@ -5,6 +5,9 @@
  *   [0] isValid          — output (1 = income > threshold)
  *   [1] threshold        — public input
  *   [2] incomeHashCommit — public input
+ *
+ * Circuit uses Num2Bits(32) for income → max income = 2^32-1 = 4,294,967,295
+ * = ~42.9 LPA at 100,000,000 units/LPA
  */
 
 const fs      = require('fs');
@@ -14,9 +17,11 @@ const crypto  = require('crypto');
 const { buildPoseidon } = require('circomlibjs');
 const { createHash }    = require('crypto');
 
-const BN254_PRIME    = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
-const CIRCUIT_NAME   = 'incomeProof';
-const ARTIFACTS_DIR  = path.join(__dirname, '../artifacts');
+const BN254_PRIME   = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+const MAX_INCOME_32 = 4294967295n;   // 2^32 - 1  (Num2Bits(32) limit in circuit)
+
+const CIRCUIT_NAME  = 'incomeProof';
+const ARTIFACTS_DIR = path.join(__dirname, '../artifacts');
 
 class IncomeProver {
     constructor() {
@@ -55,11 +60,22 @@ class IncomeProver {
     async generateProof(income, threshold = '500000000', verifierId = 'verifier-default') {
         if (!this.poseidon) await this.initialize();
 
+        // Input validation — must catch non-numeric before BigInt()
+        if (typeof income === 'string' && !/^\d+$/.test(income.trim())) {
+            throw new Error('Invalid income: must be a non-negative integer string');
+        }
+        if (typeof threshold === 'string' && !/^\d+$/.test(threshold.trim())) {
+            throw new Error('Invalid threshold: must be a positive integer string');
+        }
+
         const incomeInt    = BigInt(income);
         const thresholdInt = BigInt(threshold);
 
-        if (incomeInt < 0n)     throw new Error('Invalid income: must be non-negative');
-        if (thresholdInt <= 0n) throw new Error('Invalid threshold: must be positive');
+        if (incomeInt < 0n)         throw new Error('Invalid income: must be non-negative');
+        if (thresholdInt <= 0n)     throw new Error('Invalid threshold: must be positive');
+        if (incomeInt > MAX_INCOME_32) throw new Error(
+            `Invalid income: exceeds circuit max of ${MAX_INCOME_32} (~42.9 LPA). Got: ${incomeInt}`
+        );
 
         console.log('[*] Generating income proof...');
         console.log(`[*] Income    : ${incomeInt}`);
@@ -68,27 +84,23 @@ class IncomeProver {
         const commitments = this.generateCommitments(incomeInt);
         const witness     = this.generateWitness(incomeInt, thresholdInt, commitments);
 
-        // ---- heartbeat timer so user knows it's alive, not frozen ----
+        // Heartbeat so user knows it's alive during fullProve
         console.log('[*] Computing witness + generating Groth16 proof...');
-        console.log('    (first run: 1-4 min — loading WASM + zkey into memory)');
         const start     = Date.now();
         const heartbeat = setInterval(() => {
             const s = Math.round((Date.now() - start) / 1000);
-            process.stdout.write(`\r    still working... ${s}s elapsed    `);
+            process.stdout.write(`\r    still working... ${s}s    `);
         }, 2000);
 
         let proof, publicSignals;
         try {
             ({ proof, publicSignals } = await snarkjs.groth16.fullProve(
-                witness,
-                this.wasmPath,
-                this.zkeyPath
+                witness, this.wasmPath, this.zkeyPath
             ));
         } finally {
             clearInterval(heartbeat);
             process.stdout.write('\n');
         }
-        // --------------------------------------------------------------
 
         const elapsed = ((Date.now() - start) / 1000).toFixed(1);
         console.log(`[\u2713] Proof generated (${elapsed}s)\n`);
@@ -96,16 +108,20 @@ class IncomeProver {
         const pubStr  = publicSignals.map(s => s.toString());
         const isValid = pubStr[0] === '1';
 
+        // FIX: ONE timestamp used for BOTH binding and outer object
+        // so verifier can reconstruct the same binding string
+        const proofTimestamp = new Date().toISOString();
+
         console.log('[*] Creating Fiat-Shamir challenge binding...');
-        const fiatShamirBinding = FiatShamirBinding.createSecureChallenge({
+        const rawBinding = FiatShamirBinding.createSecureChallenge({
             threshold:        pubStr[1],
             isValid:          isValid ? '1' : '0',
             incomeHashCommit: pubStr[2],
             verifierId,
-            timestamp:        new Date().toISOString(),
+            timestamp:        proofTimestamp,   // same timestamp
         });
-        const bindingForJson = Object.assign({}, fiatShamirBinding, {
-            challenge: fiatShamirBinding.challenge.toString('hex'),
+        const fiatShamirBinding = Object.assign({}, rawBinding, {
+            challenge: rawBinding.challenge.toString('hex'),  // Buffer → hex string
         });
         console.log('[\u2713] Fiat-Shamir binding created\n');
 
@@ -113,8 +129,8 @@ class IncomeProver {
             proof:             this.formatProof(proof),
             publicSignals:     pubStr,
             commitments,
-            fiatShamirBinding: bindingForJson,
-            timestamp:         new Date().toISOString(),
+            fiatShamirBinding,
+            timestamp:         proofTimestamp,   // same timestamp as binding
             isValid,
             verifierId,
             threshold:         thresholdInt.toString(),
@@ -166,7 +182,7 @@ class FiatShamirBinding {
             bindingData,
             bindingHash:    challengeData.bindingHash,
             includedValues: validation.includedValues,
-            timestamp:      new Date().toISOString(),
+            timestamp:      publicValues.timestamp,
             circuitSpec:    CIRCUIT_SPEC,
         };
     }
@@ -223,10 +239,35 @@ class FiatShamirBinding {
             const match = provided.equals(binding.challenge);
             return match
                 ? { valid: true,  reason: 'Challenge matches' }
-                : { valid: false, reason: 'Challenge mismatch', expected: binding.challengeHex, got: provided.toString('hex') };
+                : { valid: false, reason: 'Challenge mismatch',
+                    expected: binding.challengeHex,
+                    got: provided.toString('hex') };
         } catch (e) {
             return { valid: false, reason: e.message };
         }
+    }
+
+    /** Returns a structured security report about the binding */
+    static createBindingReport(publicValues) {
+        const validation = this.validatePublicValues(publicValues);
+        let challengeHex = null;
+        if (validation.valid) {
+            const b = this.createSecureChallenge(publicValues);
+            challengeHex = b.challengeHex;
+        }
+        return {
+            validationStatus:    validation.valid,
+            errors:              validation.errors,
+            totalValuesIncluded: validation.includedValues.length,
+            includedFields:      validation.includedValues,
+            challengeHex,
+            circuitSpec:         CIRCUIT_SPEC,
+            securityNotes: {
+                omissionProtection:  'All public values are bound — omitting any field changes the challenge',
+                deterministicBinding: 'Same inputs always produce same challenge (verifiable)',
+                bindingProtocol:     'SHA-256 XOR SHA-512 double-hash over canonical field string',
+            },
+        };
     }
 }
 

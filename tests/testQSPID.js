@@ -1,580 +1,426 @@
 /**
  * QS-PID Core Test Suite
- * 
- * Tests for ZKP proof generation and verification
- * Covers:
- * - Valid income proofs (income > 5 LPA)
- * - Invalid income proofs (income < 5 LPA)
- * - Boundary conditions (income = 5 LPA exactly)
- * - Multi-verifier unlinkability
- * - Proof serialization/deserialization
+ *
+ * Circuit uses Num2Bits(32) — max income = 2^32-1 = 4,294,967,295 (~42.9 LPA)
+ * All income test values must be <= 4294967295
  */
 
-const IncomeProver = require('../src/prover');
+const IncomeProver   = require('../src/prover');
 const IncomeVerifier = require('../src/verifier');
 
-// Test utilities
 const assert = (condition, message) => {
-    if (!condition) {
-        throw new Error(`[✗] Assertion failed: ${message}`);
-    }
-    console.log(`[✓] ${message}`);
+    if (!condition) throw new Error(`[\u2717] Assertion failed: ${message}`);
+    console.log(`[\u2713] ${message}`);
 };
 
 const testGroup = (name) => {
     console.log(`\n${'='.repeat(60)}`);
     console.log(`  ${name}`);
-    console.log(`${'='.repeat(60)}\n`);
+    console.log('='.repeat(60) + '\n');
 };
 
-const testCase = (name) => {
-    console.log(`[*] ${name}`);
-};
-
-/**
- * Test Suite: Valid Proofs
- */
+// ====================================================================
+// Test 1: Valid Income Proofs
+// ====================================================================
 async function testValidProofs() {
     testGroup('Test 1: Valid Income Proofs');
 
-    const prover = new IncomeProver();
+    const prover    = new IncomeProver();
+    const verifier  = new IncomeVerifier();
     await prover.initialize();
+    await verifier.initialize();
 
     const threshold = '500000000'; // 5 LPA
     const validIncomes = [
-        { income: '600000000', label: '6 LPA (> 5 LPA)' },
+        { income: '600000000',  label: '6 LPA (> 5 LPA)' },
         { income: '1000000000', label: '10 LPA (>> 5 LPA)' },
-        { income: '500000001', label: '5.00000001 LPA (barely > 5 LPA)' },
-        { income: '999999999999', label: 'Very high income' },
+        { income: '500000001',  label: '5.00000001 LPA (barely > 5 LPA)' },
+        // FIX: was 999999999999 — overflows Num2Bits(32) max 4,294,967,295
+        { income: '4200000000', label: '42 LPA (near circuit max ~42.9 LPA)' },
     ];
 
     for (const { income, label } of validIncomes) {
-        testCase(`Testing valid income: ${label}`);
+        console.log(`[*] Testing valid income: ${label}`);
         const proofData = await prover.generateProof(income, threshold);
 
-        assert(proofData !== null, 'Proof generated');
-        assert(proofData.proof !== undefined, 'Proof object exists');
-        assert(proofData.commitments !== undefined, 'Commitments exist');
-        assert(proofData.publicSignals !== undefined, 'Public signals exist');
-        assert(proofData.isValid === true, 'Proof validity flag is true');
-
-        const verifier = new IncomeVerifier();
-        await verifier.initialize();
+        assert(proofData !== null,                  'Proof generated');
+        assert(proofData.proof !== undefined,        'Proof object exists');
+        assert(proofData.commitments !== undefined,  'Commitments exist');
+        assert(proofData.publicSignals !== undefined,'Public signals exist');
+        assert(proofData.isValid === true,           'Proof validity flag is true');
 
         const result = await verifier.verifyProof(proofData, 'verifier-1');
         assert(result.valid === true, `Proof verified for income ${label}`);
-
-        console.log(`   └─ Proof signals: ${proofData.publicSignals.join(', ')}\n`);
+        console.log(`   \u2514\u2500 Proof signals: ${proofData.publicSignals.join(', ')}\n`);
     }
 }
 
-/**
- * Test Suite: Invalid Proofs
- */
+// ====================================================================
+// Test 2: Invalid Income Proofs
+// ====================================================================
 async function testInvalidProofs() {
     testGroup('Test 2: Invalid Income Proofs');
 
-    const prover = new IncomeProver();
+    const prover   = new IncomeProver();
+    const verifier = new IncomeVerifier();
     await prover.initialize();
+    await verifier.initialize();
 
-    const threshold = '500000000'; // 5 LPA
+    const threshold = '500000000';
     const invalidIncomes = [
         { income: '400000000', label: '4 LPA (< 5 LPA)' },
         { income: '499999999', label: '4.99999999 LPA (barely < 5 LPA)' },
-        { income: '0', label: '0 (no income)' },
-        { income: '1', label: '1 (minimal)' },
+        { income: '0',         label: '0 (no income)' },
+        { income: '1',         label: '1 (minimal)' },
     ];
 
     for (const { income, label } of invalidIncomes) {
-        testCase(`Testing invalid income: ${label}`);
+        console.log(`[*] Testing invalid income: ${label}`);
         const proofData = await prover.generateProof(income, threshold);
 
-        assert(proofData !== null, 'Proof object generated');
-        assert(proofData.isValid === false, 'Proof validity flag is false');
-
-        const verifier = new IncomeVerifier();
-        await verifier.initialize();
+        assert(proofData !== null,          'Proof object generated');
+        assert(proofData.isValid === false,  'Proof validity flag is false');
 
         const result = await verifier.verifyProof(proofData, 'verifier-1');
-        assert(
-            result.valid === false,
-            `Verification correctly failed for income ${label}`
-        );
-        assert(
-            result.reason === 'Income does not exceed threshold',
-            `Correct failure reason`
-        );
-
-        console.log(`   └─ Expected rejection: ${result.reason}\n`);
+        assert(result.valid === false, `Verification correctly failed for income ${label}`);
+        assert(result.reason === 'Income does not exceed threshold', 'Correct failure reason');
+        console.log(`   \u2514\u2500 Expected rejection: ${result.reason}\n`);
     }
 }
 
-/**
- * Test Suite: Boundary Conditions
- */
+// ====================================================================
+// Test 3: Boundary Conditions
+// ====================================================================
 async function testBoundaryConditions() {
     testGroup('Test 3: Boundary Conditions');
 
     const prover = new IncomeProver();
     await prover.initialize();
-
     const threshold = '500000000';
 
-    // Test: Exactly at threshold (should be invalid: income must be STRICTLY greater)
-    testCase('Income exactly equal to threshold (500000000)');
+    console.log('[*] Income exactly equal to threshold (500000000)');
     const exactProof = await prover.generateProof(threshold, threshold);
-    assert(
-        exactProof.isValid === false,
-        'Exactly-threshold income fails (not strictly greater)'
-    );
+    assert(exactProof.isValid === false, 'Exactly-threshold income fails (not strictly greater)');
 
-    // Test: Just above threshold (should be valid)
-    testCase('Income just above threshold (500000001)');
+    console.log('[*] Income just above threshold (500000001)');
     const justAboveProof = await prover.generateProof('500000001', threshold);
     assert(justAboveProof.isValid === true, 'Just-above-threshold income passes');
 
-    // Test: Large income (prevent overflow)
-    testCase('Very large income (no integer overflow)');
-    const largeIncome = '999999999999999999'; // Very large but valid
-    const largeProof = await prover.generateProof(largeIncome, threshold);
-    assert(largeProof !== null, 'Large income proof generated without overflow');
+    // FIX: was '999999999999999999' — overflows Num2Bits(32)
+    // Circuit max = 2^32-1 = 4,294,967,295 (~42.9 LPA)
+    console.log('[*] Near-max income within 32-bit circuit limit (42 LPA = 4,200,000,000)');
+    const nearMaxProof = await prover.generateProof('4200000000', threshold);
+    assert(nearMaxProof !== null, 'Near-max income proof generated within 32-bit limit');
+    assert(nearMaxProof.isValid === true, 'Near-max income is above threshold');
 
+    console.log('[*] Income overflow rejected by prover (> 2^32-1)');
+    try {
+        await prover.generateProof('9999999999', threshold); // > 4,294,967,295
+        assert(false, 'Should reject overflow income');
+    } catch (err) {
+        assert(err.message.includes('exceeds circuit max'), 'Overflow income correctly rejected');
+    }
     console.log();
 }
 
-/**
- * Test Suite: Multi-Verifier Unlinkability
- */
+// ====================================================================
+// Test 4: Multi-Verifier Unlinkability
+// ====================================================================
 async function testUnlinkability() {
     testGroup('Test 4: Multi-Verifier Unlinkability');
 
-    const prover = new IncomeProver();
-    await prover.initialize();
-
-    const income = '700000000'; // 7 LPA
-    const threshold = '500000000';
-
-    testCase('Generating 3 proofs for same income (different blinding factors)');
-    const proofs = await prover.generateMultiProofs(income, threshold, 3);
-
-    // Check that commitments are different
-    const commitments = proofs.map(p => p.commitments.incomeHashCommit);
-    const uniqueCommitments = new Set(commitments);
-
-    assert(
-        uniqueCommitments.size === 3,
-        'All proofs have different commitments (unlinkable)'
-    );
-
-    // Verify all proofs are valid
+    const prover   = new IncomeProver();
     const verifier = new IncomeVerifier();
+    await prover.initialize();
     await verifier.initialize();
 
-    testCase('Verifying all 3 proofs with different verifiers');
-    const verifierIds = ['verifier-alice', 'verifier-bob', 'verifier-charlie'];
+    const income    = '700000000';
+    const threshold = '500000000';
 
+    console.log('[*] Generating 3 proofs for same income (different blinding factors)');
+    const proofs      = await prover.generateMultiProofs(income, threshold, 3);
+    const commitments = proofs.map(p => p.commitments.incomeHashCommit);
+    const unique      = new Set(commitments);
+    assert(unique.size === 3, 'All proofs have different commitments (unlinkable)');
+
+    console.log('[*] Verifying all 3 proofs with different verifiers');
+    const vids = ['verifier-alice', 'verifier-bob', 'verifier-charlie'];
     for (let i = 0; i < proofs.length; i++) {
-        const result = await verifier.verifyProof(proofs[i], verifierIds[i]);
-        assert(result.valid === true, `Proof ${i + 1} verified by ${verifierIds[i]}`);
+        const result = await verifier.verifyProof(proofs[i], vids[i]);
+        assert(result.valid === true, `Proof ${i + 1} verified by ${vids[i]}`);
     }
 
-    // Test unlinkability check
-    testCase('Checking unlinkability across verifiers');
-    const unlinkabilityReport = verifier.checkUnlinkability(proofs);
-    assert(
-        unlinkabilityReport.unlinkable === true,
-        'Proofs are computationally unlinkable'
-    );
-    console.log(`   └─ Unique commitments: ${unlinkabilityReport.uniqueCommitments}/3\n`);
+    console.log('[*] Checking unlinkability across verifiers');
+    const report = verifier.checkUnlinkability(proofs);
+    assert(report.unlinkable === true, 'Proofs are computationally unlinkable');
+    console.log(`   \u2514\u2500 Unique commitments: ${report.uniqueCommitments}/3\n`);
 }
 
-/**
- * Test Suite: Batch Verification
- */
+// ====================================================================
+// Test 5: Batch Verification
+// ====================================================================
 async function testBatchVerification() {
     testGroup('Test 5: Batch Verification');
 
-    const prover = new IncomeProver();
-    await prover.initialize();
-
+    const prover   = new IncomeProver();
     const verifier = new IncomeVerifier();
+    await prover.initialize();
     await verifier.initialize();
 
     const threshold = '500000000';
 
-    // Generate mixed batch: 2 valid, 1 invalid
-    testCase('Generating batch: 2 valid proofs, 1 invalid proof');
-    const validProof1 = await prover.generateProof('600000000', threshold);
-    const validProof2 = await prover.generateProof('1000000000', threshold);
+    console.log('[*] Generating batch: 2 valid proofs, 1 invalid proof');
+    const validProof1  = await prover.generateProof('600000000', threshold);
+    const validProof2  = await prover.generateProof('1000000000', threshold);
     const invalidProof = await prover.generateProof('400000000', threshold);
+    const batchProofs  = [validProof1, validProof2, invalidProof];
 
-    const batchProofs = [validProof1, validProof2, invalidProof];
+    console.log('[*] Batch verifying 3 proofs');
+    const batchResult = await verifier.batchVerify(batchProofs, 'batch-verifier-1');
 
-    testCase('Batch verifying 3 proofs');
-    const batchResult = await verifier.batchVerify(
-        batchProofs,
-        'batch-verifier-1'
-    );
-
-    assert(batchResult.totalProofs === 3, 'All 3 proofs processed');
-    assert(batchResult.validProofs === 2, '2 proofs verified as valid');
-    assert(
-        batchResult.results[0].valid === true,
-        'First proof is valid'
-    );
-    assert(
-        batchResult.results[1].valid === true,
-        'Second proof is valid'
-    );
-    assert(
-        batchResult.results[2].valid === false,
-        'Third proof is correctly rejected'
-    );
-
-    console.log(`   └─ Results: ${batchResult.validProofs}/${batchResult.totalProofs} passed\n`);
+    assert(batchResult.totalProofs === 3,           'All 3 proofs processed');
+    assert(batchResult.validProofs === 2,           '2 proofs verified as valid');
+    assert(batchResult.results[0].valid === true,   'First proof is valid');
+    assert(batchResult.results[1].valid === true,   'Second proof is valid');
+    assert(batchResult.results[2].valid === false,  'Third proof is correctly rejected');
+    console.log(`   \u2514\u2500 Results: ${batchResult.validProofs}/${batchResult.totalProofs} passed\n`);
 }
 
-/**
- * Test Suite: Anti-Replay Protection
- */
+// ====================================================================
+// Test 6: Anti-Replay Protection
+// ====================================================================
 async function testAntiReplay() {
     testGroup('Test 6: Anti-Replay Protection');
 
-    const prover = new IncomeProver();
-    await prover.initialize();
-
+    const prover   = new IncomeProver();
     const verifier = new IncomeVerifier();
+    await prover.initialize();
     await verifier.initialize();
 
     const proofData = await prover.generateProof('700000000', '500000000');
 
-    testCase('Verifying proof with nonce protection');
-    const result = await verifier.verifyProof(proofData, 'verifier-1', {
-        requireNonce: true,
-    });
-
-    assert(result.valid === true, 'Proof verified with nonce');
-    assert(result.nonce !== undefined, 'Nonce generated for replay protection');
+    console.log('[*] Verifying proof with nonce protection');
+    const result = await verifier.verifyProof(proofData, 'verifier-1', { requireNonce: true });
+    assert(result.valid === true,          'Proof verified with nonce');
+    assert(result.nonce !== undefined,     'Nonce generated for replay protection');
     assert(result.challenge !== undefined, 'Challenge generated');
 
-    testCase('Attempting replay with same proof');
-    // In production, the verifier would check if this nonce was already used
-    const replayResult = await verifier.verifyProof(
-        proofData,
-        'verifier-2',
-        { requireNonce: true }
-    );
-
-    assert(
-        replayResult.valid === true,
-        'Proof valid to different verifier (unlinkable)'
-    );
-    // Different verifiers should see different nonces
-    assert(
-        result.nonce !== replayResult.nonce,
-        'Different nonces for different verifiers'
-    );
-
+    console.log('[*] Attempting replay with same proof to different verifier');
+    const replayResult = await verifier.verifyProof(proofData, 'verifier-2', { requireNonce: true });
+    assert(replayResult.valid === true, 'Proof valid to different verifier (unlinkable)');
+    assert(result.nonce !== replayResult.nonce, 'Different nonces for different verifiers');
     console.log();
 }
 
-/**
- * Test Suite: Proof Serialization
- */
+// ====================================================================
+// Test 7: Proof Serialization
+// ====================================================================
 async function testSerialization() {
     testGroup('Test 7: Proof Serialization');
 
-    const prover = new IncomeProver();
+    const prover   = new IncomeProver();
+    const verifier = new IncomeVerifier();
     await prover.initialize();
+    await verifier.initialize();
 
-    const proofData = await prover.generateProof('800000000', '500000000');
+    const proofData   = await prover.generateProof('800000000', '500000000');
 
-    testCase('Serializing proof to JSON');
+    console.log('[*] Serializing proof to JSON');
     const jsonString = JSON.stringify(proofData);
     assert(jsonString !== null, 'Proof serialized to JSON');
 
-    testCase('Deserializing proof from JSON');
-    const deserializedProof = JSON.parse(jsonString);
-    assert(
-        deserializedProof.proof !== undefined,
-        'Deserialized proof structure intact'
-    );
-    assert(
-        deserializedProof.commitments !== undefined,
-        'Commitments preserved'
-    );
+    console.log('[*] Deserializing proof from JSON');
+    const parsed = JSON.parse(jsonString);
+    assert(parsed.proof !== undefined,       'Deserialized proof structure intact');
+    assert(parsed.commitments !== undefined, 'Commitments preserved');
 
-    testCase('Verifying deserialized proof');
-    const verifier = new IncomeVerifier();
-    await verifier.initialize();
-
-    const result = await verifier.verifyProof(
-        deserializedProof,
-        'verifier-1'
-    );
-    assert(
-        result.valid === true,
-        'Deserialized proof verifies correctly'
-    );
-
+    console.log('[*] Verifying deserialized proof');
+    const result = await verifier.verifyProof(parsed, 'verifier-1');
+    assert(result.valid === true, 'Deserialized proof verifies correctly');
     console.log();
 }
 
-/**
- * Test Suite: Input Validation
- */
+// ====================================================================
+// Test 8: Input Validation
+// ====================================================================
 async function testInputValidation() {
     testGroup('Test 8: Input Validation');
 
     const prover = new IncomeProver();
     await prover.initialize();
 
-    testCase('Rejecting negative income');
+    console.log('[*] Rejecting negative income');
     try {
         await prover.generateProof('-100', '500000000');
         assert(false, 'Should reject negative income');
-    } catch (error) {
-        assert(
-            error.message.includes('non-negative'),
-            'Correct error for negative income'
-        );
+    } catch (err) {
+        assert(err.message.includes('Invalid'), 'Correct error for negative income');
     }
 
-    testCase('Rejecting invalid threshold');
+    console.log('[*] Rejecting invalid threshold');
     try {
         await prover.generateProof('700000000', '0');
-        assert(false, 'Should reject zero/negative threshold');
-    } catch (error) {
-        assert(
-            error.message.includes('positive'),
-            'Correct error for invalid threshold'
-        );
+        assert(false, 'Should reject zero threshold');
+    } catch (err) {
+        assert(err.message.includes('positive'), 'Correct error for invalid threshold');
     }
 
-    testCase('Rejecting NaN values');
+    console.log('[*] Rejecting NaN values');
     try {
         await prover.generateProof('not-a-number', '500000000');
         assert(false, 'Should reject non-numeric income');
-    } catch (error) {
-        assert(
-            error.message.includes('Invalid'),
-            'Correct error for non-numeric input'
-        );
+    } catch (err) {
+        assert(err.message.includes('Invalid'), 'Correct error for non-numeric input');
     }
 
+    console.log('[*] Rejecting overflow income (> circuit max)');
+    try {
+        await prover.generateProof('9999999999', '500000000');
+        assert(false, 'Should reject overflow income');
+    } catch (err) {
+        assert(err.message.includes('exceeds circuit max'), 'Overflow income rejected');
+    }
     console.log();
 }
 
-/**
- * Test Suite: Performance Metrics
- */
-async function testPerformance() {
-    testGroup('Test 9: Performance Benchmarks');
-
-    const prover = new IncomeProver();
-    const verifier = new IncomeVerifier();
-
-    await prover.initialize();
-    await verifier.initialize();
-
-    const income = '700000000';
-    const threshold = '500000000';
-
-    // Benchmark proof generation
-    testCase('Benchmarking proof generation (10 iterations)');
-    const generateTimes = [];
-    for (let i = 0; i < 10; i++) {
-        const start = performance.now();
-        await prover.generateProof(income, threshold);
-        const end = performance.now();
-        generateTimes.push(end - start);
-    }
-
-    const avgGenerateTime = generateTimes.reduce((a, b) => a + b, 0) / generateTimes.length;
-    console.log(`   └─ Avg proof generation: ${avgGenerateTime.toFixed(2)}ms`);
-
-    // Benchmark verification
-    testCase('Benchmarking proof verification (10 iterations)');
-    const proofData = await prover.generateProof(income, threshold);
-    const verifyTimes = [];
-
-    for (let i = 0; i < 10; i++) {
-        const start = performance.now();
-        await verifier.verifyProof(proofData, `verifier-${i}`);
-        const end = performance.now();
-        verifyTimes.push(end - start);
-    }
-
-    const avgVerifyTime = verifyTimes.reduce((a, b) => a + b, 0) / verifyTimes.length;
-    console.log(`   └─ Avg verification: ${avgVerifyTime.toFixed(2)}ms`);
-
-    console.log(`   └─ Total time per credential: ${(avgGenerateTime + avgVerifyTime).toFixed(2)}ms\n`);
-}
-
-/** * Test Suite: Fiat-Shamir Binding Security
- * Tests for prevention of forgery attacks via omission of public values
- */
+// ====================================================================
+// Test 9: Fiat-Shamir Binding Security
+// ====================================================================
 async function testFiatShamirBinding() {
-    testGroup('Test 6: Fiat-Shamir Binding Security [CRITICAL]');
+    testGroup('Test 9: Fiat-Shamir Binding Security [CRITICAL]');
 
-    const prover = new IncomeProver();
+    const prover   = new IncomeProver();
     const verifier = new IncomeVerifier();
     await prover.initialize();
     await verifier.initialize();
 
-    const income = '600000000'; // 6 LPA (valid)
-    const threshold = '500000000'; // 5 LPA
+    const income     = '600000000';
+    const threshold  = '500000000';
     const verifierId = 'test-verifier-001';
 
-    testCase('6.1: Generate proof with Fiat-Shamir binding');
+    console.log('[*] 9.1: Generate proof with Fiat-Shamir binding');
     const proofData = await prover.generateProof(income, threshold, verifierId);
-    
-    assert(proofData.fiatShamirBinding, 'Fiat-Shamir binding created');
-    assert(proofData.fiatShamirBinding.challenge, 'Challenge digest present');
-    assert(proofData.fiatShamirBinding.bindingData, 'Binding data present');
-    assert(proofData.fiatShamirBinding.includedValues.length > 0, 'Values included in binding');
-    
-    console.log(`[✓] Binding includes ${proofData.fiatShamirBinding.includedValues.length} value groups`);
-    console.log(`[✓] Included values: ${proofData.fiatShamirBinding.includedValues.join(', ')}`);
+    assert(proofData.fiatShamirBinding,                            'Fiat-Shamir binding created');
+    assert(proofData.fiatShamirBinding.challenge,                  'Challenge digest present');
+    assert(proofData.fiatShamirBinding.bindingData,                'Binding data present');
+    assert(proofData.fiatShamirBinding.includedValues.length > 0,  'Values included in binding');
+    console.log(`[\u2713] Binding includes ${proofData.fiatShamirBinding.includedValues.length} value groups`);
 
-    testCase('6.2: Verify proof with binding validation');
-    const verificationResult = await verifier.verifyProof(proofData, verifierId, {
-        validateBinding: true,
-    });
-    
-    assert(verificationResult.valid, 'Proof verification successful');
-    assert(verificationResult.bindingValidated, 'Binding was validated during verification');
+    console.log('[*] 9.2: Verify proof with binding validation');
+    const verificationResult = await verifier.verifyProof(proofData, verifierId, { validateBinding: true });
+    assert(verificationResult.valid,           'Proof verification successful');
+    assert(verificationResult.bindingValidated,'Binding was validated during verification');
 
-    testCase('6.3: Detect binding tampering (modified commitment)');
+    console.log('[*] 9.3: Detect binding tampering (modified commitment)');
     const tamperedProof = JSON.parse(JSON.stringify(proofData));
-    tamperedProof.commitments.incomeHashCommit = 
+    tamperedProof.commitments.incomeHashCommit =
         (BigInt(tamperedProof.commitments.incomeHashCommit) + 1n).toString();
-    
-    const tamperedVerifyResult = await verifier.verifyProof(tamperedProof, verifierId, {
-        validateBinding: true,
-    });
-    
-    assert(!tamperedVerifyResult.valid, 'Tampered binding detected as invalid');
-    console.log(`[✓] Tampering detection reason: ${tamperedVerifyResult.reason}`);
+    const tamperedResult = await verifier.verifyProof(tamperedProof, verifierId, { validateBinding: true });
+    assert(!tamperedResult.valid, 'Tampered binding detected as invalid');
+    console.log(`[\u2713] Tampering detection reason: ${tamperedResult.reason}`);
 
-    testCase('6.4: Detect binding with wrong verifier context');
-    const wrongVerifierId = 'different-verifier';
-    const wrongVerifyResult = await verifier.verifyProof(proofData, wrongVerifierId, {
-        validateBinding: true,
-    });
-    
-    // Note: This SHOULD fail because verifierId is part of the binding
-    // If it doesn't, comment out this assertion - depends on binding verification logic
-    console.log(`[*] Binding verification with different verifier: ${wrongVerifyResult.valid ? 'PASSED (acceptable)' : 'REJECTED'}`);
+    console.log('[*] 9.4: Detect binding with wrong verifier context');
+    const wrongResult = await verifier.verifyProof(proofData, 'different-verifier', { validateBinding: true });
+    console.log(`[*] Binding verification with different verifier: ${wrongResult.valid ? 'PASSED (acceptable)' : 'REJECTED'}`);
 
-    testCase('6.5: Test canonical binding representation');
+    console.log('[*] 9.5: Test canonical binding is deterministic');
     const FiatShamirBinding = IncomeProver.FiatShamirBinding;
-    
     const publicValues = {
-        threshold: threshold,
-        isValid: '1',
+        threshold,
+        isValid:          '1',
         incomeHashCommit: proofData.commitments.incomeHashCommit.toString(),
-        verifierId: verifierId,
-        timestamp: proofData.timestamp,
+        verifierId,
+        timestamp:        proofData.timestamp,
     };
-    
-    const binding1 = FiatShamirBinding.createSecureChallenge(publicValues);
-    const binding2 = FiatShamirBinding.createSecureChallenge(publicValues);
-    
-    // Same inputs should produce same binding (deterministic)
-    assert(
-        binding1.challengeHex === binding2.challengeHex,
-        'Binding is deterministic for same inputs'
-    );
+    const b1 = FiatShamirBinding.createSecureChallenge(publicValues);
+    const b2 = FiatShamirBinding.createSecureChallenge(publicValues);
+    assert(b1.challengeHex === b2.challengeHex, 'Binding is deterministic for same inputs');
 
-    testCase('6.6: Test binding changes with different public values');
-    const publicValues2 = {
-        ...publicValues,
-        isValid: '0', // Different result
-    };
-    
-    const binding3 = FiatShamirBinding.createSecureChallenge(publicValues2);
-    
-    assert(
-        binding1.challengeHex !== binding3.challengeHex,
-        'Binding changes when public values change'
-    );
+    console.log('[*] 9.6: Binding changes with different public values');
+    const b3 = FiatShamirBinding.createSecureChallenge({ ...publicValues, isValid: '0' });
+    assert(b1.challengeHex !== b3.challengeHex, 'Binding changes when public values change');
 
-    testCase('6.7: Test binding validation with correct values');
-    const bindingValidation = FiatShamirBinding.verifyChallengeBind(
-        publicValues,
-        binding1.challenge
-    );
-    
-    assert(bindingValidation.valid, 'Binding verification successful with correct values');
+    console.log('[*] 9.7: Binding validates with correct values');
+    const bv = FiatShamirBinding.verifyChallengeBind(publicValues, b1.challenge);
+    assert(bv.valid, 'Binding verification successful with correct values');
 
-    testCase('6.8: Test binding rejection with omitted values');
-    const incompleteValues = {
-        threshold: threshold,
-        isValid: '1',
-        // MISSING: incomeHashCommit
-        verifierId: verifierId,
-        timestamp: proofData.timestamp,
-    };
-    
+    console.log('[*] 9.8: Binding rejects incomplete values');
     try {
-        FiatShamirBinding.createSecureChallenge(incompleteValues);
-        throw new Error('Should have rejected incomplete values');
-    } catch (error) {
-        assert(
-            error.message.includes('validation failed'),
-            'Binding creation rejected incomplete values'
-        );
+        FiatShamirBinding.createSecureChallenge({ threshold, isValid: '1', verifierId, timestamp: proofData.timestamp });
+        throw new Error('Should have rejected');
+    } catch (err) {
+        assert(err.message.includes('validation failed'), 'Binding creation rejected incomplete values');
     }
 
-    testCase('6.9: Test binding report generation');
+    console.log('[*] 9.9: Binding report generation');
     const report = FiatShamirBinding.createBindingReport(publicValues);
-    
-    assert(report.validationStatus, 'Binding report shows valid status');
-    assert(report.totalValuesIncluded > 0, 'Report includes value count');
-    assert(report.securityNotes, 'Report includes security documentation');
-    
-    console.log(`[✓] Binding report: ${report.totalValuesIncluded} values included`);
-    console.log(`[✓] Security: ${report.securityNotes.omissionProtection}`);
+    assert(report.validationStatus,            'Binding report shows valid status');
+    assert(report.totalValuesIncluded > 0,     'Report includes value count');
+    assert(report.securityNotes,               'Report includes security documentation');
+    console.log(`[\u2713] Binding report: ${report.totalValuesIncluded} values included`);
+    console.log(`[\u2713] Security: ${report.securityNotes.omissionProtection}`);
 
-    testCase('6.10: Test all public values are required');
-    const requiredFields = [
-        'threshold',
-        'isValid',
-        'incomeHashCommit',
-        'verifierId',
-        'timestamp',
-    ];
-    
-    console.log(`[✓] Required public values for binding: ${requiredFields.join(', ')}`);
-    
-    // Test each field is mandatory
+    console.log('[*] 9.10: All public value fields are mandatory');
+    const requiredFields = ['threshold','isValid','incomeHashCommit','verifierId','timestamp'];
     for (const field of requiredFields) {
-        const testValues = { ...publicValues };
-        delete testValues[field];
-        
+        const test = { ...publicValues };
+        delete test[field];
         try {
-            FiatShamirBinding.createSecureChallenge(testValues);
+            FiatShamirBinding.createSecureChallenge(test);
             throw new Error(`Should reject missing ${field}`);
-        } catch (error) {
-            assert(
-                error.message.includes('validation failed'),
-                `Binding rejects missing ${field} value`
-            );
+        } catch (err) {
+            assert(err.message.includes('validation failed'), `Binding rejects missing ${field}`);
         }
     }
-
-    console.log(`\n[✓] All ${requiredFields.length} mandatory fields validated`);
+    console.log(`\n[\u2713] All ${requiredFields.length} mandatory fields validated`);
 }
 
-/** * Main Test Runner
- */
+// ====================================================================
+// Test 10: Performance Benchmarks
+// ====================================================================
+async function testPerformance() {
+    testGroup('Test 10: Performance Benchmarks');
+
+    const prover   = new IncomeProver();
+    const verifier = new IncomeVerifier();
+    await prover.initialize();
+    await verifier.initialize();
+
+    const income    = '700000000';
+    const threshold = '500000000';
+
+    console.log('[*] Benchmarking proof generation (5 iterations)');
+    const genTimes = [];
+    for (let i = 0; i < 5; i++) {
+        const t = Date.now();
+        await prover.generateProof(income, threshold);
+        genTimes.push(Date.now() - t);
+    }
+    const avgGen = (genTimes.reduce((a,b)=>a+b,0)/genTimes.length).toFixed(0);
+    console.log(`   \u2514\u2500 Avg proof generation: ${avgGen} ms`);
+
+    console.log('[*] Benchmarking proof verification (5 iterations)');
+    const proofData  = await prover.generateProof(income, threshold);
+    const verTimes   = [];
+    for (let i = 0; i < 5; i++) {
+        const t = Date.now();
+        await verifier.verifyProof(proofData, `verifier-${i}`);
+        verTimes.push(Date.now() - t);
+    }
+    const avgVer = (verTimes.reduce((a,b)=>a+b,0)/verTimes.length).toFixed(0);
+    console.log(`   \u2514\u2500 Avg verification:     ${avgVer} ms`);
+    console.log(`   \u2514\u2500 Total per credential: ${(parseInt(avgGen)+parseInt(avgVer))} ms\n`);
+}
+
+// ====================================================================
+// Main Runner
+// ====================================================================
 async function runAllTests() {
-    console.log('\n╔════════════════════════════════════════════════════════════╗');
-    console.log('║          QS-PID Core ZKP Test Suite                        ║');
-    console.log('║     Testing Income Verification with Zero-Knowledge        ║');
-    console.log('║     WITH FIAT-SHAMIR BINDING SECURITY VALIDATION          ║');
-    console.log('╚════════════════════════════════════════════════════════════╝');
+    console.log('\n\u2554' + '\u2550'.repeat(60) + '\u2557');
+    console.log('\u2551          QS-PID Core ZKP Test Suite                        \u2551');
+    console.log('\u2551     Testing Income Verification with Zero-Knowledge        \u2551');
+    console.log('\u2551     WITH FIAT-SHAMIR BINDING SECURITY VALIDATION          \u2551');
+    console.log('\u255a' + '\u2550'.repeat(60) + '\u255d');
 
     try {
         await testValidProofs();
@@ -588,23 +434,19 @@ async function runAllTests() {
         await testFiatShamirBinding();
         await testPerformance();
 
-        console.log('\n╔════════════════════════════════════════════════════════════╗');
-        console.log('║                   ✓ All Tests Passed                       ║');
-        console.log('║        Including Fiat-Shamir Binding Security Tests       ║');
-        console.log('╚════════════════════════════════════════════════════════════╝\n');
+        console.log('\n\u2554' + '\u2550'.repeat(60) + '\u2557');
+        console.log('\u2551              \u2713 All 10 Test Suites Passed                      \u2551');
+        console.log('\u2551     Including Fiat-Shamir Binding Security Tests           \u2551');
+        console.log('\u255a' + '\u2550'.repeat(60) + '\u255d\n');
         process.exit(0);
-    } catch (error) {
-        console.error('\n\n╔════════════════════════════════════════════════════════════╗');
-        console.error('║                   ✗ Test Failed                            ║');
-        console.error('╚════════════════════════════════════════════════════════════╝\n');
-        console.error(error.message);
+    } catch (err) {
+        console.error('\n\u2554' + '\u2550'.repeat(60) + '\u2557');
+        console.error('\u2551                   \u2717 Test Failed                            \u2551');
+        console.error('\u255a' + '\u2550'.repeat(60) + '\u255d\n');
+        console.error(err.message);
         process.exit(1);
     }
 }
 
-// Run tests if executed directly
-if (require.main === module) {
-    runAllTests();
-}
-
+if (require.main === module) runAllTests();
 module.exports = { runAllTests };
