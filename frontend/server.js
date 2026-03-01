@@ -1,14 +1,14 @@
 /**
- * server.js — Local Express backend for QS-PID frontend
+ * server.js — Local HTTP backend for QS-PID frontend
  *
- * Run: npm run frontend
+ * Run:  npm run frontend
  * Open: http://localhost:3000
  *
- * FIX (2026-03-01): replaced deprecated url.parse() with WHATWG URL API.
- *
- * ⚠️ This server requires compiled artifacts to exist for real proofs.
- *    Run `npm run compile && npm run setup` first.
- *    Without artifacts it runs in demo mode (mock data returned).
+ * FIXES (2026-03-01):
+ *   - serveStatic: read file BEFORE writing headers to avoid
+ *     ERR_HTTP_HEADERS_SENT crash on missing favicon/files
+ *   - Added headersSent guard in catch block
+ *   - Replaced deprecated url.parse() with WHATWG URL API
  */
 
 const http = require('http');
@@ -25,19 +25,36 @@ const MIME = {
     '.js'  : 'application/javascript',
     '.json': 'application/json',
     '.ico' : 'image/x-icon',
+    '.png' : 'image/png',
+    '.svg' : 'image/svg+xml',
 };
 
+/**
+ * Serve a static file.
+ * FIX: read file FIRST, then write headers.
+ * This prevents ERR_HTTP_HEADERS_SENT when the file doesn't exist
+ * (e.g. /favicon.ico, /robots.txt) because if readFileSync throws,
+ * no headers have been sent yet and we can cleanly return 404.
+ */
 function serveStatic(res, filePath) {
+    if (res.headersSent) return;   // guard: nothing to do if already responded
     const mime = MIME[path.extname(filePath)] || 'text/plain';
+    let data;
     try {
-        res.writeHead(200, { 'Content-Type': mime });
-        res.end(fs.readFileSync(filePath));
+        data = fs.readFileSync(filePath);   // read FIRST — may throw ENOENT
     } catch {
-        res.writeHead(404); res.end('Not found');
+        // File not found — headers NOT sent yet, safe to send 404
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('404 Not Found');
+        return;
     }
+    // File read successfully — now send headers + body
+    res.writeHead(200, { 'Content-Type': mime });
+    res.end(data);
 }
 
 function jsonResponse(res, data, status = 200) {
+    if (res.headersSent) return;
     res.writeHead(status, {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
@@ -57,7 +74,7 @@ const artifactsReady = () =>
     fs.existsSync(path.join(ARTIFACTS, 'incomeProof_final.zkey')) &&
     fs.existsSync(path.join(ARTIFACTS, 'incomeProof_js', 'incomeProof.wasm'));
 
-// ── API Handlers ────────────────────────────────────────────────────────────
+// ── API Handlers ──────────────────────────────────────────────────────
 
 async function handleProve(req, res) {
     const body = await parseBody(req);
@@ -157,21 +174,26 @@ const server = http.createServer(async (req, res) => {
         return res.end();
     }
 
-    // FIX: use WHATWG URL API instead of deprecated url.parse()
+    // Parse URL using WHATWG URL API (no deprecated url.parse)
     const reqUrl   = new URL(req.url, `http://localhost:${PORT}`);
     const pathname = reqUrl.pathname;
 
-    // API routes
-    if (pathname === '/api/prove')  return handleProve(req, res);
-    if (pathname === '/api/verify') return handleVerify(req, res);
-    if (pathname === '/api/pq')     return handlePQ(req, res);
-    if (pathname === '/api/status') return handleStatus(req, res);
+    // API routes — return early so static handler is never reached
+    if (pathname === '/api/prove')  return await handleProve(req, res);
+    if (pathname === '/api/verify') return await handleVerify(req, res);
+    if (pathname === '/api/pq')     return await handlePQ(req, res);
+    if (pathname === '/api/status') { handleStatus(req, res); return; }
 
-    // Static files
+    // Static file serving
     const filePath = (pathname === '/' || pathname === '')
         ? path.join(FRONTEND, 'index.html')
         : path.join(FRONTEND, pathname.replace(/^\//, ''));
+
     serveStatic(res, filePath);
+});
+
+server.on('error', (err) => {
+    console.error('[!] Server error:', err.message);
 });
 
 server.listen(PORT, () => {
