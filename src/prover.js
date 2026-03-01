@@ -1,16 +1,10 @@
 /**
  * QS-PID Prover
  *
- * Generates Groth16 zero-knowledge proofs for income verification.
- *
- * publicSignals[] order from the circuit:
- *   [0] isValid          — output signal (1 = income > threshold)
+ * publicSignals[] order:
+ *   [0] isValid          — output (1 = income > threshold)
  *   [1] threshold        — public input
  *   [2] incomeHashCommit — public input
- *
- * ALL BigInt values are converted to strings before returning,
- * so JSON.stringify works without a custom replacer on most fields.
- * The proof object itself is already string-based from formatProof().
  */
 
 const fs      = require('fs');
@@ -20,17 +14,15 @@ const crypto  = require('crypto');
 const { buildPoseidon } = require('circomlibjs');
 const { createHash }    = require('crypto');
 
-// BN254 field prime — all Poseidon inputs must be < this
-const BN254_PRIME = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
-
-const CIRCUIT_NAME  = 'incomeProof';
-const ARTIFACTS_DIR = path.join(__dirname, '../artifacts');
+const BN254_PRIME    = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+const CIRCUIT_NAME   = 'incomeProof';
+const ARTIFACTS_DIR  = path.join(__dirname, '../artifacts');
 
 class IncomeProver {
     constructor() {
-        this.poseidon  = null;
-        this.zkeyPath  = path.join(ARTIFACTS_DIR, `${CIRCUIT_NAME}_final.zkey`);
-        this.wasmPath  = path.join(ARTIFACTS_DIR, `${CIRCUIT_NAME}_js/${CIRCUIT_NAME}.wasm`);
+        this.poseidon = null;
+        this.zkeyPath = path.join(ARTIFACTS_DIR, `${CIRCUIT_NAME}_final.zkey`);
+        this.wasmPath = path.join(ARTIFACTS_DIR, `${CIRCUIT_NAME}_js/${CIRCUIT_NAME}.wasm`);
     }
 
     async initialize() {
@@ -38,17 +30,11 @@ class IncomeProver {
         this.poseidon = await buildPoseidon();
     }
 
-    /** Generate salt + nonce as valid BN254 field elements, return as strings */
     generateCommitments(income) {
-        const salt  = BigInt('0x' + crypto.randomBytes(32).toString('hex')) % BN254_PRIME;
-        const nonce = BigInt('0x' + crypto.randomBytes(32).toString('hex')) % BN254_PRIME;
+        const salt        = BigInt('0x' + crypto.randomBytes(32).toString('hex')) % BN254_PRIME;
+        const nonce       = BigInt('0x' + crypto.randomBytes(32).toString('hex')) % BN254_PRIME;
         const incomeField = BigInt(income) % BN254_PRIME;
-
-        const commitment = this.poseidon.F.toObject(
-            this.poseidon([incomeField, salt, nonce])
-        );
-
-        // Return all as strings — snarkjs witness expects string or number, not BigInt
+        const commitment  = this.poseidon.F.toObject(this.poseidon([incomeField, salt, nonce]));
         return {
             incomeHashCommit: commitment.toString(),
             salt:             salt.toString(),
@@ -56,7 +42,6 @@ class IncomeProver {
         };
     }
 
-    /** Build witness object — keys must exactly match circuit signal names */
     generateWitness(income, threshold, commitments) {
         return {
             income:           income.toString(),
@@ -83,28 +68,42 @@ class IncomeProver {
         const commitments = this.generateCommitments(incomeInt);
         const witness     = this.generateWitness(incomeInt, thresholdInt, commitments);
 
-        console.log('[*] Computing witness...');
-        const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-            witness,
-            this.wasmPath,
-            this.zkeyPath
-        );
-        console.log('[\u2713] Proof generated successfully\n');
+        // ---- heartbeat timer so user knows it's alive, not frozen ----
+        console.log('[*] Computing witness + generating Groth16 proof...');
+        console.log('    (first run: 1-4 min — loading WASM + zkey into memory)');
+        const start     = Date.now();
+        const heartbeat = setInterval(() => {
+            const s = Math.round((Date.now() - start) / 1000);
+            process.stdout.write(`\r    still working... ${s}s elapsed    `);
+        }, 2000);
 
-        // Convert publicSignals to plain strings (snarkjs may return BigInt)
-        // Order: [0]=isValid  [1]=threshold  [2]=incomeHashCommit
-        const pubStr   = publicSignals.map(s => s.toString());
-        const isValid  = pubStr[0] === '1';
+        let proof, publicSignals;
+        try {
+            ({ proof, publicSignals } = await snarkjs.groth16.fullProve(
+                witness,
+                this.wasmPath,
+                this.zkeyPath
+            ));
+        } finally {
+            clearInterval(heartbeat);
+            process.stdout.write('\n');
+        }
+        // --------------------------------------------------------------
+
+        const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+        console.log(`[\u2713] Proof generated (${elapsed}s)\n`);
+
+        const pubStr  = publicSignals.map(s => s.toString());
+        const isValid = pubStr[0] === '1';
 
         console.log('[*] Creating Fiat-Shamir challenge binding...');
         const fiatShamirBinding = FiatShamirBinding.createSecureChallenge({
-            threshold:        pubStr[1],          // publicSignals[1] = threshold
+            threshold:        pubStr[1],
             isValid:          isValid ? '1' : '0',
-            incomeHashCommit: pubStr[2],           // publicSignals[2] = incomeHashCommit
+            incomeHashCommit: pubStr[2],
             verifierId,
             timestamp:        new Date().toISOString(),
         });
-        // Serialize Buffer in binding to hex string for JSON safety
         const bindingForJson = Object.assign({}, fiatShamirBinding, {
             challenge: fiatShamirBinding.challenge.toString('hex'),
         });
@@ -113,7 +112,7 @@ class IncomeProver {
         return {
             proof:             this.formatProof(proof),
             publicSignals:     pubStr,
-            commitments:       commitments,
+            commitments,
             fiatShamirBinding: bindingForJson,
             timestamp:         new Date().toISOString(),
             isValid,
@@ -159,10 +158,10 @@ class FiatShamirBinding {
         const validation = this.validatePublicValues(publicValues);
         if (!validation.valid)
             throw new Error(`Fiat-Shamir validation failed: ${validation.errors.join('; ')}`);
-        const bindingData  = this.createCanonicalBinding(publicValues, options);
+        const bindingData   = this.createCanonicalBinding(publicValues, options);
         const challengeData = this.computeSecureHash(bindingData);
         return {
-            challenge:      challengeData.digest,          // Buffer
+            challenge:      challengeData.digest,
             challengeHex:   challengeData.hex,
             bindingData,
             bindingHash:    challengeData.bindingHash,
