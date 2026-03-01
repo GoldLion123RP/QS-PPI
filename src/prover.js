@@ -6,8 +6,11 @@
  *   [1] threshold        — public input
  *   [2] incomeHashCommit — public input
  *
- * Circuit uses Num2Bits(32) for income → max income = 2^32-1 = 4,294,967,295
- * = ~42.9 LPA at 100,000,000 units/LPA
+ * CURRENCY SCALING (CORRECTED):
+ * - 1 Lakh = 100,000 (₹1,00,000)
+ * - 1 LPA = 100,000 per annum  
+ * - 5 LPA = 500,000 (₹5,00,000)
+ * - Circuit uses Num2Bits(32) for income → max = 2^32-1 = 4,294,967,295 (~42,949 LPA)
  */
 
 const fs      = require('fs');
@@ -57,7 +60,7 @@ class IncomeProver {
         };
     }
 
-    async generateProof(income, threshold = '500000000', verifierId = 'verifier-default') {
+    async generateProof(income, threshold = '500000', verifierId = 'verifier-default') {
         if (!this.poseidon) await this.initialize();
 
         // Input validation — must catch non-numeric before BigInt()
@@ -74,7 +77,7 @@ class IncomeProver {
         if (incomeInt < 0n)         throw new Error('Invalid income: must be non-negative');
         if (thresholdInt <= 0n)     throw new Error('Invalid threshold: must be positive');
         if (incomeInt > MAX_INCOME_32) throw new Error(
-            `Invalid income: exceeds circuit max of ${MAX_INCOME_32} (~42.9 LPA). Got: ${incomeInt}`
+            `Invalid income: exceeds circuit max of ${MAX_INCOME_32} (~42,949 LPA). Got: ${incomeInt}`
         );
 
         console.log('[*] Generating income proof...');
@@ -147,7 +150,7 @@ class IncomeProver {
         };
     }
 
-    async generateMultiProofs(income, threshold = '500000000', count = 3) {
+    async generateMultiProofs(income, threshold = '500000', count = 3) {
         const proofs = [];
         for (let i = 0; i < count; i++) {
             console.log(`[*] Generating proof ${i + 1}/${count}...`);
