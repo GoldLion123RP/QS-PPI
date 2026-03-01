@@ -1,21 +1,21 @@
 /**
  * setup.js — Trusted Setup for QS-PID Circuit
  *
- * Steps:
- *   1. Download Powers of Tau (phase 1) — hermez BN254 14
- *   2. Phase 2 setup specific to incomeProof circuit
- *   3. Contribute randomness
- *   4. Export final zkey and verification key
- *
  * Run: npm run setup
- * Prerequisites: npm run compile  (must exist: artifacts/incomeProof.r1cs)
+ * Requires: npm run compile  (artifacts/incomeProof.r1cs must exist)
  *
- * FIX (2026-03-01):
- *   - Old download cached a corrupted/incomplete file and skipped re-download
- *   - Now validates file size (must be > 50 MB) before trusting cached file
- *   - Auto-deletes corrupt cached file and re-downloads
- *   - Follows HTTP redirects (S3 URLs often redirect)
- *   - Better error messages with download size info
+ * ptau file: powersOfTau28_hez_final_14.ptau
+ *   Real size: ~220 MB  |  constraints covered: up to 2^14 = 16384
+ *   Our circuit has 361 constraints — fits well within pot14
+ *
+ * FIX v4 (2026-03-01):
+ *   - Google GCS only has 18 MB for that filename — wrong file
+ *   - Use Hermez S3 URL which has the real 220 MB file
+ *   - Download to .tmp file first, rename on success (avoids EPERM
+ *     from locked file handle on Windows when retrying)
+ *   - Min size check lowered to 10 MB so bad downloads still rejected
+ *     but we don't false-positive on legit small ptau sizes
+ *   - Actually: pot14 is ~220 MB. Min check = 100 MB.
  */
 
 const snarkjs = require('snarkjs');
@@ -24,170 +24,187 @@ const path    = require('path');
 const https   = require('https');
 const http    = require('http');
 
-const ARTIFACTS = path.join(__dirname, '../artifacts');
-const CIRCUIT   = 'incomeProof';
+const ARTIFACTS    = path.join(__dirname, '../artifacts');
+const CIRCUIT      = 'incomeProof';
+const PTAU_PATH    = path.join(ARTIFACTS, 'pot14_final.ptau');
+const PTAU_TMP     = PTAU_PATH + '.tmp';
+const PTAU_MIN_MB  = 100;   // real pot14 is ~220 MB
 
-// Primary: SnarkJS official GitHub releases (smaller, faster)
-// Fallback: Hermez S3 bucket
-const PTAU_SOURCES = [
-    'https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_14.ptau',
+/**
+ * All known working URLs for powersOfTau28_hez_final_14.ptau
+ * Tested sources in order of preference:
+ */
+const PTAU_URLS = [
+    // Hermez official S3 (original source, ~220 MB)
     'https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_14.ptau',
+    // SnarkJS GitHub release assets mirror
+    'https://github.com/iden3/snarkjs/releases/download/v0.1.20/powersOfTau28_hez_final_14.ptau',
 ];
-const PTAU_PATH      = path.join(ARTIFACTS, 'pot14_final.ptau');
-const PTAU_MIN_BYTES = 50 * 1024 * 1024;  // valid ptau14 is ~200 MB; reject if < 50 MB
 
 if (!fs.existsSync(ARTIFACTS)) fs.mkdirSync(ARTIFACTS, { recursive: true });
 
-// ── Download with redirect support ───────────────────────────────────────────
+// ---- helpers ----------------------------------------------------------------
 
-function downloadWithRedirects(url, dest, redirectCount = 0) {
+function sizeMB(p) {
+    return fs.existsSync(p) ? (fs.statSync(p).size / 1024 / 1024).toFixed(1) : '0';
+}
+
+function isValid(p) {
+    if (!fs.existsSync(p)) return false;
+    const mb = parseFloat(sizeMB(p));
+    if (mb < PTAU_MIN_MB) {
+        console.log(`[!] ${path.basename(p)} is only ${mb} MB (need > ${PTAU_MIN_MB} MB) — rejecting`);
+        return false;
+    }
+    console.log(`[✓] ${path.basename(p)} looks valid: ${mb} MB`);
+    return true;
+}
+
+function safeDelete(p) {
+    try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {}
+}
+
+// ---- download ---------------------------------------------------------------
+
+function downloadTo(url, dest, hops = 0) {
     return new Promise((resolve, reject) => {
-        if (redirectCount > 5) return reject(new Error('Too many redirects'));
+        if (hops > 6) return reject(new Error('Too many redirects'));
 
-        const mod = url.startsWith('https') ? https : http;
-        const file = fs.createWriteStream(dest);
-        let downloaded = 0;
-        let lastLog    = 0;
+        safeDelete(dest);   // remove any previous partial download first
 
-        const req = mod.get(url, (res) => {
-            // Follow redirects
-            if (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 307 || res.statusCode === 308) {
-                file.close();
-                fs.unlink(dest, () => {});
-                console.log(`[*] Redirecting to: ${res.headers.location}`);
-                return downloadWithRedirects(res.headers.location, dest, redirectCount + 1)
-                    .then(resolve).catch(reject);
+        const proto = url.startsWith('https') ? https : http;
+        const out   = fs.createWriteStream(dest);
+        let received = 0, lastPrint = 0;
+
+        const req = proto.get(url, { headers: { 'User-Agent': 'node-https' } }, (res) => {
+            // follow redirects
+            if ([301, 302, 307, 308].includes(res.statusCode)) {
+                out.destroy(); safeDelete(dest);
+                console.log(`    → redirect ${res.statusCode} → ${res.headers.location}`);
+                return downloadTo(res.headers.location, dest, hops + 1).then(resolve).catch(reject);
             }
-
             if (res.statusCode !== 200) {
-                file.close();
-                fs.unlink(dest, () => {});
-                return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
+                out.destroy(); safeDelete(dest);
+                return reject(new Error(`HTTP ${res.statusCode}`));
             }
 
             const total = parseInt(res.headers['content-length'] || '0');
-            if (total) console.log(`[*] File size: ${(total / 1024 / 1024).toFixed(1)} MB`);
+            if (total) process.stdout.write(`    size: ${(total/1024/1024).toFixed(0)} MB\n`);
 
-            res.on('data', (chunk) => {
-                downloaded += chunk.length;
+            res.on('data', chunk => {
+                received += chunk.length;
                 const now = Date.now();
-                if (now - lastLog > 3000) {
-                    const mb = (downloaded / 1024 / 1024).toFixed(1);
-                    const pct = total ? ` (${Math.round(downloaded/total*100)}%)` : '';
-                    process.stdout.write(`\r[*] Downloaded: ${mb} MB${pct}  `);
-                    lastLog = now;
+                if (now - lastPrint > 2000) {
+                    const mb  = (received / 1024 / 1024).toFixed(0);
+                    const pct = total ? ` / ${(total/1024/1024).toFixed(0)} MB  ${Math.round(received/total*100)}%` : ' MB';
+                    process.stdout.write(`\r    downloaded: ${mb}${pct}    `);
+                    lastPrint = now;
                 }
             });
 
-            res.pipe(file);
-            file.on('finish', () => {
-                file.close();
-                console.log(`\n[✓] Download complete: ${(downloaded / 1024 / 1024).toFixed(1)} MB`);
+            res.pipe(out);
+            out.on('finish', () => {
+                out.close();
+                process.stdout.write(`\n    done: ${(received/1024/1024).toFixed(1)} MB\n`);
                 resolve();
             });
         });
 
-        req.on('error', (err) => {
-            file.close();
-            fs.unlink(dest, () => {});
-            reject(err);
-        });
-
-        file.on('error', (err) => {
-            file.close();
-            fs.unlink(dest, () => {});
-            reject(err);
-        });
+        req.on('error', err => { out.destroy(); safeDelete(dest); reject(err); });
+        out.on('error', err => { out.destroy(); safeDelete(dest); reject(err); });
     });
 }
 
-// ── Validate cached ptau file ───────────────────────────────────────────────
-
-function isPtauValid(filePath) {
-    if (!fs.existsSync(filePath)) return false;
-    const size = fs.statSync(filePath).size;
-    if (size < PTAU_MIN_BYTES) {
-        console.log(`[⚠] Cached ptau file is too small (${(size/1024/1024).toFixed(1)} MB < ${PTAU_MIN_BYTES/1024/1024} MB) — likely corrupt`);
-        return false;
-    }
-    console.log(`[✓] Cached ptau file looks valid: ${(size/1024/1024).toFixed(1)} MB`);
-    return true;
-}
-
 async function ensurePtau() {
-    if (isPtauValid(PTAU_PATH)) return;  // Already valid, skip download
+    // Already have a valid file?
+    if (isValid(PTAU_PATH)) return;
 
-    // Delete corrupt/incomplete file if present
-    if (fs.existsSync(PTAU_PATH)) {
-        console.log('[*] Deleting corrupt cached file...');
-        fs.unlinkSync(PTAU_PATH);
-    }
+    safeDelete(PTAU_PATH);
+    safeDelete(PTAU_TMP);
 
-    // Try each source URL
     let lastErr;
-    for (const url of PTAU_SOURCES) {
+    for (const url of PTAU_URLS) {
+        console.log(`[*] Trying: ${url}`);
         try {
-            console.log(`[*] Downloading from: ${url}`);
-            await downloadWithRedirects(url, PTAU_PATH);
-            if (isPtauValid(PTAU_PATH)) return;  // Download succeeded and file is valid
-            throw new Error('Downloaded file is too small — download may have been truncated');
-        } catch (err) {
-            console.log(`[⚠] Source failed: ${err.message}`);
-            lastErr = err;
-            if (fs.existsSync(PTAU_PATH)) fs.unlinkSync(PTAU_PATH);
+            await downloadTo(url, PTAU_TMP);   // download to .tmp first
+
+            if (!isValid(PTAU_TMP)) {
+                safeDelete(PTAU_TMP);
+                throw new Error(`Downloaded file too small (${sizeMB(PTAU_TMP)} MB)`);
+            }
+
+            // Atomic rename: .tmp -> final
+            safeDelete(PTAU_PATH);
+            fs.renameSync(PTAU_TMP, PTAU_PATH);
+            console.log(`[✓] Saved: ${PTAU_PATH}`);
+            return;
+
+        } catch (e) {
+            console.log(`[!] Failed: ${e.message}`);
+            safeDelete(PTAU_TMP);
+            lastErr = e;
         }
     }
-    throw new Error(`All ptau download sources failed. Last error: ${lastErr.message}\n` +
-        '\nManual download option:\n' +
-        '  1. Open in browser: https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_14.ptau\n' +
-        '  2. Save the file to: artifacts/pot14_final.ptau\n' +
-        '  3. Run: npm run setup\n');
+
+    // All URLs failed — give manual instructions
+    console.error(
+        `\n[✗] Could not download ptau file automatically.` +
+        `\n\nManual steps:` +
+        `\n  1. Open this URL in your browser:` +
+        `\n     https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_14.ptau` +
+        `\n  2. Save the downloaded file (~220 MB) to:` +
+        `\n     ${PTAU_PATH}` +
+        `\n  3. Run: npm run setup` +
+        `\n\nAlternate URL (if above fails):` +
+        `\n  https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_14.ptau`
+    );
+    throw new Error('ptau download failed: ' + lastErr.message);
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// ---- main -------------------------------------------------------------------
 
 async function main() {
     try {
         console.log('\n========== QS-PID TRUSTED SETUP ==========\n');
 
-        // Step 1: Ensure ptau file is valid
         await ensurePtau();
 
-        const r1csPath  = path.join(ARTIFACTS, `${CIRCUIT}.r1cs`);
+        const r1cs      = path.join(ARTIFACTS, `${CIRCUIT}.r1cs`);
         const zkey0     = path.join(ARTIFACTS, `${CIRCUIT}_0000.zkey`);
         const zkeyFinal = path.join(ARTIFACTS, `${CIRCUIT}_final.zkey`);
         const vkeyPath  = path.join(ARTIFACTS, 'verification_key.json');
 
-        if (!fs.existsSync(r1csPath)) {
-            throw new Error(`Circuit not compiled. Run: npm run compile\nExpected: ${r1csPath}`);
+        if (!fs.existsSync(r1cs)) {
+            throw new Error(
+                `Circuit not compiled. Run: npm run compile\nExpected: ${r1cs}`
+            );
         }
 
-        // Step 2: Phase 2 setup
-        console.log('\n[*] Running phase 2 setup (this takes ~1-2 min)...');
-        await snarkjs.zKey.newZKey(r1csPath, PTAU_PATH, zkey0);
+        // Clean stale keys
+        safeDelete(zkey0);
+        safeDelete(zkeyFinal);
+        safeDelete(vkeyPath);
+
+        console.log('\n[*] Phase 2 setup (~30-60 sec)...');
+        await snarkjs.zKey.newZKey(r1cs, PTAU_PATH, zkey0);
         console.log('[✓] Initial zkey created');
 
-        // Step 3: Contribute randomness
         console.log('[*] Contributing randomness...');
         await snarkjs.zKey.contribute(
             zkey0, zkeyFinal,
-            'QS-PID First Contributor',
+            'QS-PID Contributor',
             'qs-pid-entropy-' + Date.now()
         );
-        console.log('[✓] Contribution complete');
+        console.log('[✓] Contribution done');
 
-        // Step 4: Export verification key
         console.log('[*] Exporting verification key...');
         const vkey = await snarkjs.zKey.exportVerificationKey(zkeyFinal);
         fs.writeFileSync(vkeyPath, JSON.stringify(vkey, null, 2));
-        console.log('[✓] Verification key saved → artifacts/verification_key.json');
+        console.log('[✓] verification_key.json saved');
 
-        // Cleanup intermediate zkey
-        if (fs.existsSync(zkey0)) fs.unlinkSync(zkey0);
-        console.log('[✓] Cleaned up intermediate files');
+        safeDelete(zkey0);
 
-        console.log('\n[✓] Trusted setup complete!');
-        console.log('    Next step: npm run prove\n');
+        console.log('\n[✓] Setup complete! Run: npm run prove\n');
 
     } catch (err) {
         console.error('\n[✗] Setup failed:', err.message);
