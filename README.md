@@ -4,9 +4,9 @@
 
 ---
 
-## 🎉 Live Demo
+<!-- ## 🎉 Live Demo
 
-**🔗 [https://goldlion123rp.github.io/zkp_v1/](https://goldlion123rp.github.io/zkp_v1/)** — Interactive dashboard (enable GitHub Pages first, see [docs/README.md](./docs/README.md))
+**🔗 [https://goldlion123rp.github.io/zkp_v1/](https://goldlion123rp.github.io/zkp_v1/)** — Interactive dashboard (enable GitHub Pages first, see [docs/README.md](./docs/README.md)) -->
 
 ---
 
@@ -309,11 +309,11 @@ zkp_v1/
 
 ## 🏆 Hackathon Submission
 
-**Team**: Rahul Pal (Solo)  
+**Team**: Rahul Pal & Akash Dutta 
 **Track**: Privacy-First Finance  
 **Built With**: ZKP + Post-Quantum Cryptography  
-**Demo**: https://goldlion123rp.github.io/zkp_v1/  
-**GitHub**: https://github.com/GoldLion123RP/zkp_v1  
+<!-- **Demo**: https://goldlion123rp.github.io/zkp_v1/  
+**GitHub**: https://github.com/GoldLion123RP/zkp_v1   -->
 
 ---
 
@@ -333,7 +333,7 @@ MIT License - See [LICENSE](./LICENSE) for details.
 
 ---
 
-## 👤 Author
+## 👥 Developers:
 
 **Rahul Pal**  
 - Age: 26  
@@ -341,6 +341,14 @@ MIT License - See [LICENSE](./LICENSE) for details.
 - Education: Engineering Student (3rd Year, 6th Semester)  
 - Email: goldlion123.rp@gmail.com  
 - GitHub: [@GoldLion123RP](https://github.com/GoldLion123RP)  
+
+**Akash Dutta**  
+- Age: 26  
+- Location: Kolkata, West Bengal, India  
+- Education: Engineering Student (3rd Year, 6th Semester)  
+- Email: akashdutta0701@gmail.com
+- GitHub: [@Escape-thematrix](https://github.com/Escape-thematrix)  
+
 
 ---
 
