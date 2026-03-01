@@ -4,6 +4,10 @@
  * Defines the structure and validation for income proof credentials
  * Compliant with W3C Verifiable Credentials Data Model 2.0
  * 
+ * CURRENCY SCALING (CORRECTED):
+ * - 1 Lakh = 100,000 (₹1,00,000)
+ * - 5 LPA = 500,000 (₹5,00,000 per annum)
+ * 
  * SECURITY: Includes W3C Status List 2021 revocation verification
  * to check credentials against off-chain and smart-contract registries
  */
@@ -19,7 +23,7 @@ const W3C_STATUS_LIST_2021_CONTEXT = 'https://w3id.org/vc/status-list/2021/v1';
 const IncomeProofCredentialSchema = {
     $schema: 'http://json-schema.org/draft-07/schema#',
     title: 'Income Proof Credential',
-    description: 'Verifiable credential proving annual income > 5 LPA',
+    description: 'Verifiable credential proving annual income > 5 LPA (₹5,00,000)',
     type: 'object',
     required: ['@context', 'type', 'issuer', 'issuanceDate', 'credentialSubject', 'proof'],
     properties: {
@@ -640,7 +644,7 @@ class IncomeProofCredential {
                     proofValue: Buffer.from(JSON.stringify(this.zkProofData.proof)).toString('base64'),
                     verificationMethod: 'BLS12-381#ZK-SNARK-Groth16',
                     curve: 'BN254',
-                    threshold: '500000000', // 5 LPA
+                    threshold: '500000', // 5 LPA = 5 × 100,000
                     commitments: {
                         incomeHashCommit: this.zkProofData.commitments.incomeHashCommit,
                         blindingFactor: '***redacted***',
@@ -649,7 +653,7 @@ class IncomeProofCredential {
                 },
                 claims: {
                     incomeExceedsThreshold: this.zkProofData.isValid,
-                    thresholdValue: '500000000',
+                    thresholdValue: '500000', // 5 LPA = ₹5,00,000
                     currency: 'INR',
                     period: 'annual',
                 },
