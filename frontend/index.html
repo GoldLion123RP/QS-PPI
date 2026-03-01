@@ -20,20 +20,33 @@
     <section class="card" id="proveSection">
       <h2>1. Generate Income Proof</h2>
       <p class="hint">Your actual income is <strong>never revealed</strong> — only whether it exceeds the threshold.</p>
+
       <div class="form-group">
-        <label for="income">Your Annual Income (in paise / basic units)</label>
-        <input type="number" id="income" placeholder="e.g. 700000000  (= 7 LPA)" min="0" />
+        <label for="incomeLPA">Your Annual Income <span class="unit-badge">LPA</span></label>
+        <div class="input-wrap">
+          <input type="number" id="incomeLPA" placeholder="e.g. 7" min="0" step="0.1"
+                 oninput="onLPAInput('income')" />
+          <span class="inr-tag" id="incomeINR">&#8377;0</span>
+        </div>
+        <span class="helper">1 LPA = &#8377;1,00,000 &nbsp;·&nbsp; 5 LPA = &#8377;5,00,000</span>
       </div>
+
       <div class="form-group">
-        <label for="threshold">Threshold (default 5 LPA = 500000000)</label>
-        <input type="number" id="threshold" value="500000000" min="1" />
+        <label for="thresholdLPA">Threshold <span class="unit-badge">LPA</span></label>
+        <div class="input-wrap">
+          <input type="number" id="thresholdLPA" value="5" min="1" step="0.1"
+                 oninput="onLPAInput('threshold')" />
+          <span class="inr-tag" id="thresholdINR">&#8377;5,00,000</span>
+        </div>
       </div>
+
       <div class="form-group">
         <label for="verifierId">Verifier ID</label>
         <input type="text" id="verifierId" value="demo-verifier-001" />
       </div>
+
       <button id="proveBtn" class="btn primary" onclick="generateProof()">⚡ Generate Proof</button>
-      <div id="proveLoader" class="loader hidden">Generating proof...</div>
+      <div id="proveLoader" class="loader hidden">Generating proof…</div>
       <pre id="proveOutput" class="output hidden"></pre>
     </section>
 
@@ -43,14 +56,14 @@
       <p class="hint">Paste a proof JSON below or it auto-fills after generation.</p>
       <div class="form-group">
         <label for="proofInput">Proof JSON</label>
-        <textarea id="proofInput" rows="8" placeholder='{ "proof": {...}, "publicSignals": [...] }'></textarea>
+        <textarea id="proofInput" rows="8" placeholder='{"proof": {...}, "publicSignals": [...]}'></textarea>
       </div>
       <button class="btn success" onclick="verifyProof()">✅ Verify Proof</button>
-      <div id="verifyLoader" class="loader hidden">Verifying...</div>
+      <div id="verifyLoader" class="loader hidden">Verifying…</div>
       <pre id="verifyOutput" class="output hidden"></pre>
     </section>
 
-    <!-- SECTION: PQ Key Info -->
+    <!-- SECTION: PQ Info -->
     <section class="card" id="pqSection">
       <h2>3. Post-Quantum (ML-DSA) Info</h2>
       <p class="hint">View current migration phase and generate a demo ML-DSA key pair.</p>
@@ -67,7 +80,7 @@
   </main>
 
   <footer>
-    <p>QS-PID v1.0 · W3C VC 2.0 · Groth16 · ML-DSA Post-Quantum · MIT License</p>
+    <p>QS-PID v1.0 &nbsp;·&nbsp; W3C VC 2.0 &nbsp;·&nbsp; Groth16 &nbsp;·&nbsp; ML-DSA Post-Quantum &nbsp;·&nbsp; MIT License</p>
   </footer>
 
   <script src="app.js"></script>
