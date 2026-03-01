@@ -5,6 +5,9 @@
  *   [0] isValid          — 1 if income > threshold
  *   [1] threshold        — public input
  *   [2] incomeHashCommit — public input
+ *
+ * SECURITY: commitments.incomeHashCommit is cross-checked against
+ * publicSignals[2].  If they differ, the proof object has been tampered.
  */
 
 const fs      = require('fs');
@@ -50,6 +53,23 @@ class IncomeVerifier {
             console.log(`[*] Verifier ID      : ${verifierId}`);
             console.log(`[*] isValid signal   : ${isValidSignal}`);
             console.log(`[*] threshold signal : ${thresholdSig}`);
+
+            // ── TAMPER CHECK ────────────────────────────────────────────────
+            // commitments.incomeHashCommit must equal publicSignals[2].
+            // If an attacker modifies the commitments object but not
+            // publicSignals, this mismatch exposes the tampering.
+            if (proofData.commitments && proofData.commitments.incomeHashCommit !== undefined) {
+                if (proofData.commitments.incomeHashCommit.toString() !== commitSig) {
+                    return {
+                        valid:            false,
+                        reason:           'Commitment mismatch: incomeHashCommit tampered',
+                        bindingValidated: false,
+                        verifierId,
+                        timestamp:        new Date().toISOString(),
+                    };
+                }
+            }
+            // ────────────────────────────────────────────────────────────────
 
             // Fiat-Shamir binding check
             let bindingValidated = false;
@@ -123,7 +143,7 @@ class IncomeVerifier {
                     isValid:          isValidSignal,
                     incomeHashCommit: commitSig,
                     verifierId:       proofData.verifierId,
-                    timestamp:        proofData.timestamp,  // same timestamp (now fixed in prover)
+                    timestamp:        proofData.timestamp,
                 },
                 challenge
             );
@@ -138,7 +158,7 @@ class IncomeVerifier {
     }
 
     _checkUnlinkability(proofs) {
-        if (proofs.length < 2) return { unlinkable: true, reason: 'Need ≥ 2 proofs to check', uniqueCommitments: proofs.length, totalProofs: proofs.length };
+        if (proofs.length < 2) return { unlinkable: true, reason: 'Need \u2265 2 proofs to check', uniqueCommitments: proofs.length, totalProofs: proofs.length };
         const commits = proofs.map(p => p.commitments.incomeHashCommit);
         const unique  = new Set(commits);
         return {
