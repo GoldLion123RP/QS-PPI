@@ -52,13 +52,13 @@ Traditional income verification exposes sensitive financial data:
 
 ---
 
-## 🖥️ Web Demo (Live)
+## 🖥️ User Interfaces
+
+### 1. Web Demo (Basic - Interactive HTML)
 
 **Try it now**: [Open Web Demo](web/index.html)
 
 ![Web Demo Screenshot](https://img.shields.io/badge/demo-interactive-brightgreen)
-
-### Quick Demo
 
 ```bash
 # Open the web interface
@@ -75,18 +75,55 @@ python3 -m http.server 8000
 - 🔄 **Unlinkability Demo**: Generate 3 proofs for same income → all unique
 - 📱 **Responsive Design**: Works on desktop & mobile
 
-**Usage**:
-1. Enter income (e.g., 750000000 paisa = ₹7.5 LPA)
-2. Set threshold (e.g., 500000000 paisa = ₹5 LPA)
-3. Click "Generate Proof" → Copy proof JSON
-4. Paste in verifier panel → Verify
-5. Result: ✅ Valid (income hidden!)
-
 See [web/README.md](web/README.md) for detailed instructions.
 
 ---
 
-## 🏗️ Architecture
+### 2. React/Next.js Dashboard (Advanced - Enterprise UI)
+
+**Location**: [`dashboard/`](dashboard/)
+
+![Dashboard](https://img.shields.io/badge/dashboard-React%2FNext.js-blue)
+![Tailwind](https://img.shields.io/badge/styled-Tailwind%20CSS-06B6D4)
+
+**Components**:
+
+#### 🏦 Issuer Dashboard (Bank/Employer View)
+- Header with QS-PID logo and navigation
+- Post-Quantum status banner (ML-DSA-65 ACTIVE, BN254 curve)
+- 4 stats cards (Issued Credentials, Circuit Constraints, Avg Proof Time, Jaccard Similarity)
+- Registry table with PRIVATE/PUBLIC badges on income/salt/commitment columns
+
+#### 📝 Income Credential Issuance Form
+- Two-column layout: Input form (left) + W3C VC 2.0 JSON preview (right)
+- Input fields: Name, Annual Income (INR), Employer, Issuance Date
+- Cryptographic toggles: 32-byte Salt, HybridSigner (ECDSA + ML-DSA), JSON-LD format
+- Live preview updates with form inputs
+
+#### 💼 Holder Wallet & Verifiable Presentation View
+- Top cards: Private personal info + Cryptographic artifacts (Poseidon hash, nonce, ML-DSA sig)
+- Middle panel: ZKP circuit visualization (Num2Bits, Income > Threshold, Fiat-Shamir)
+- Bottom section: Verifier challenge input + "Generate Proof" button
+
+**Setup**:
+```bash
+cd dashboard
+npm install lucide-react
+# Copy components to your Next.js project
+# See dashboard/README.md for full setup
+```
+
+**Design**:
+- Dark mode theme (`bg-slate-900`) with teal/emerald accents
+- Monospace font for all cryptographic hashes/signatures
+- Fully responsive grid layouts
+- Uses Lucide React icons
+
+**Documentation**: [dashboard/README.md](dashboard/README.md)
+
+---
+
+## 🏯 Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -117,8 +154,8 @@ See [web/README.md](web/README.md) for detailed instructions.
 
 1. **Proof Generation** (Prover side):
    ```javascript
-   income = 750000000  // 7.5 LPA (hidden)
-   threshold = 500000000  // 5 LPA (public)
+   income = 750000  // 7.5 LPA in INR (hidden)
+   threshold = 500000  // 5 LPA in INR (public)
    proof = generateIncomeProof(income, threshold)
    // Output: { proof, commitments, publicSignals: [isValid=1, threshold] }
    ```
@@ -266,8 +303,8 @@ const { IncomeProofGenerator } = require('./src/prover');
 
 const prover = new IncomeProofGenerator();
 const proof = await prover.generateIncomeProof(
-  750000000,  // Income: 7.5 LPA (paisa)
-  500000000   // Threshold: 5 LPA
+  750000,  // Income: 7.5 LPA (INR)
+  500000   // Threshold: 5 LPA (INR)
 );
 
 console.log(proof);
@@ -279,7 +316,7 @@ console.log(proof);
 //     blindingFactor: "random123...",
 //     nonce: "nonce456..."
 //   },
-//   publicSignals: [1, 500000000, "0x1a2b3c..."],
+//   publicSignals: [1, 500000, "0x1a2b3c..."],
 //   isValid: true
 // }
 ```
@@ -301,7 +338,7 @@ console.log(result);
 //   reason: "Income exceeds threshold",
 //   timestamp: "2026-03-01T12:00:00Z"
 // }
-// Note: Verifier never sees income = 750000000
+// Note: Verifier never sees income = 750000
 ```
 
 #### 3. Create W3C Verifiable Credential
@@ -343,6 +380,13 @@ zkp_v1/
 ├── web/
 │   ├── index.html               # Interactive demo UI
 │   └── README.md                # Web demo documentation
+├── dashboard/                   # ⭐ NEW: React/Next.js Dashboard
+│   ├── components/
+│   │   ├── IssuerDashboard.tsx  # Bank/Employer view
+│   │   ├── IncomeIssuanceForm.tsx # Credential issuance UI
+│   │   └── HolderWalletView.tsx # Wallet & presentation
+│   ├── README.md                # Dashboard setup guide
+│   └── package.json.template    # Next.js dependencies
 ├── docs/
 │   ├── ARCHITECTURE.md          # System design deep dive
 │   ├── SECURITY.md              # Threat model & guarantees
@@ -451,6 +495,7 @@ commitment2 = Hash(7.5L || random2 || nonce2)  // → 0x9f8e7d...
 - [x] Fiat-Shamir binding security
 - [x] Comprehensive test coverage (28/28 tests)
 - [x] Web demo UI
+- [x] React/Next.js dashboard components
 
 ### Phase 2: Post-Quantum Migration (🚧 In Progress)
 - [x] ML-DSA integration (NIST FIPS 204)
@@ -479,6 +524,7 @@ commitment2 = Hash(7.5L || random2 || nonce2)  // → 0x9f8e7d...
 - **[Post-Quantum Migration](docs/PQ-MIGRATION.md)**: ML-DSA transition roadmap
 - **[Demo Script](docs/DEMO-SCRIPT.md)**: Hackathon presentation guide (3-5 min)
 - **[Web Demo Guide](web/README.md)**: Interactive UI usage instructions
+- **[Dashboard Guide](dashboard/README.md)**: React/Next.js component setup
 
 ---
 
