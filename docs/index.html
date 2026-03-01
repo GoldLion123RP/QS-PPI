@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QS-PID Dashboard | Quantum-Safe Privacy-Preserving Identity</title>
+    <meta name="description" content="Zero-knowledge income verification that protects privacy while maintaining trust. Post-quantum secure, W3C VC 2.0 compliant.">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-teal: #14b8a6;
+            --accent-emerald: #10b981;
+            --border: #475569;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-teal: #0d9488;
+            --accent-emerald: #059669;
+            --border: #cbd5e1;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-emerald));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .logo-text h1 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--accent-teal);
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--accent-teal);
+            background: var(--bg-card);
+        }
+
+        .tab.active {
+            color: var(--accent-teal);
+            background: var(--bg-card);
+        }
+
+        .theme-switcher {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--bg-card);
+            padding: 0.25rem;
+            border-radius: 6px;
+        }
+
+        .theme-btn {
+            padding: 0.375rem 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .theme-btn.active {
+            background: var(--accent-teal);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .banner {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .banner-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .banner-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-emerald);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .banner-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-emerald);
+        }
+
+        .banner-sub {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-label {
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .stat-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-card);
+            color: var(--accent-teal);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+
+        thead {
+            background: var(--bg-card);
+        }
+
+        th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-card);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.625rem;
+            font-weight: 600;
+        }
+
+        .badge-private {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .badge-public {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-emerald);
+        }
+
+        .mono {
+            font-family: 'Courier New', monospace;
+            font-size: 0.6875rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+        }
+
+        textarea {
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+        }
+
+        .small-text {
+            font-size: 0.6875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .toggle-group {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-title {
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--accent-teal);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--accent-emerald);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .preview-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.75rem;
+        }
+
+        .preview-box pre {
+            font-family: 'Courier New', monospace;
+            font-size: 0.6875rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            overflow-x: auto;
+        }
+
+        .split-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .split-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .circuit-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .circuit-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .step-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-desc {
+            font-size: 0.6875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.625rem;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .artifact {
+            margin-bottom: 0.75rem;
+        }
+
+        .artifact-label {
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .artifact-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.6875rem;
+            background: var(--bg-card);
+            padding: 0.5rem;
+            border-radius: 4px;
+            color: var(--accent-teal);
+            overflow-wrap: break-word;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            width: auto;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🔒</div>
+            <div class="logo-text">
+                <h1>QS-PID</h1>
+                <p>Quantum-Safe Privacy-Preserving Identity</p>
+            </div>
+        </div>
+        <nav class="nav-tabs">
+            <button class="tab active" data-tab="issuer">Dashboard</button>
+            <button class="tab" data-tab="issue">Issue Credential</button>
+            <button class="tab" data-tab="wallet">Holder Wallet</button>
+        </nav>
+        <div class="theme-switcher">
+            <button class="theme-btn" data-theme="dark">🌙 Dark</button>
+            <button class="theme-btn" data-theme="light">☀️ Light</button>
+            <button class="theme-btn" data-theme="auto">🔄 Auto</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- ISSUER DASHBOARD TAB -->
+        <div class="tab-content active" id="issuer">
+            <div class="banner">
+                <div class="banner-left">
+                    <div class="banner-icon">🔐</div>
+                    <div>
+                        <div class="banner-text">NIST FIPS 204: ML-DSA-65 ACTIVE</div>
+                        <div class="banner-sub">ZKP Curve: <span style="color: var(--accent-teal);">BN254 (Groth16)</span></div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--text-secondary);">
+                    <span style="display: inline-block; width: 8px; height: 8px; background: var(--accent-emerald); border-radius: 50%;"></span>
+                    Post-Quantum mode · Verified configuration
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-label">Issued Credentials</div>
+                        <div class="stat-icon">🛡️</div>
+                    </div>
+                    <div class="stat-value">1,248</div>
+                    <div class="stat-sub">Last 24h: 132</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-label">Est. Circuit Constraints</div>
+                        <div class="stat-icon">🧠</div>
+                    </div>
+                    <div class="stat-value">~145K</div>
+                    <div class="stat-sub">Groth16 · Income Circuit</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-label">Avg. Proof Time</div>
+                        <div class="stat-icon">⚡</div>
+                    </div>
+                    <div class="stat-value">220 ms</div>
+                    <div class="stat-sub">Prover (Browser WASM)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-label">Jaccard Similarity</div>
+                        <div class="stat-icon">✨</div>
+                    </div>
+                    <div class="stat-value">&lt; 0.05</div>
+                    <div class="stat-sub">Cross-verifier presentations</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    🗂️ Issuer Registry
+                    <span style="margin-left: auto; font-size: 0.75rem; font-weight: 400; background: var(--bg-card); padding: 0.25rem 0.75rem; border-radius: 9999px;">Live pseudonymized ledger</span>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Holder ID</th>
+                                <th>Annual Income <span class="badge badge-private">PRIVATE</span></th>
+                                <th>Blinding Salt <span class="badge badge-private">PRIVATE</span></th>
+                                <th>Poseidon Commitment <span class="badge badge-public">PUBLIC</span></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td class="mono">did:key:z6Mkh...a91</td>
+                                <td>₹9,00,000 (9 LPA)</td>
+                                <td class="mono">0x8f3a...d21c</td>
+                                <td class="mono" style="color: var(--accent-teal);">0x1267...89ab</td>
+                                <td><button class="btn btn-secondary btn-small">View VP</button></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td class="mono">did:key:z6Mkf...b72</td>
+                                <td>₹6,00,000 (6 LPA)</td>
+                                <td class="mono">0x4bc1...aa09</td>
+                                <td class="mono" style="color: var(--accent-teal);">0x9f42...77cd</td>
+                                <td><button class="btn btn-secondary btn-small">View VP</button></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td class="mono">did:key:z6Mkq...c33</td>
+                                <td>₹5,00,000 (5 LPA)</td>
+                                <td class="mono">0xbe23...01ff</td>
+                                <td class="mono" style="color: var(--accent-teal);">0x3a91...10ef</td>
+                                <td><button class="btn btn-secondary btn-small">View VP</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ISSUE CREDENTIAL TAB -->
+        <div class="tab-content" id="issue">
+            <div class="card">
+                <div class="card-title">📝 Income Credential Issuance</div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Issue W3C VC 2.0 income credentials with quantum-safe signatures.</p>
+                
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label>FULL NAME</label>
+                            <input type="text" id="name" placeholder="e.g., Rahul Pal" value="Rahul Pal">
+                        </div>
+                        <div class="form-group">
+                            <label>ANNUAL INCOME (INR)</label>
+                            <input type="number" id="incomeInput" placeholder="e.g., 750000 for 7.5 LPA" value="750000">
+                            <div class="small-text">Scaling: 1 Lakh = 100,000 INR. Example: 5 LPA = 500,000.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>EMPLOYER</label>
+                            <select id="employer">
+                                <option>HDFC Bank</option>
+                                <option>ICICI Bank</option>
+                                <option>TCS</option>
+                                <option>Infosys</option>
+                                <option>Reliance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>ISSUANCE DATE</label>
+                            <input type="date" id="issueDate" value="2026-03-01">
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-title">Cryptographic Pipeline</div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" checked disabled>
+                                <span>Inject 32-byte Salt</span>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" checked disabled>
+                                <span>Apply HybridSigner (ECDSA + ML-DSA)</span>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" checked disabled>
+                                <span>Format as JSON-LD</span>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="issueCredential()">
+                            ✓ Issue Quantum-Safe Credential & Generate Wallet
+                        </button>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <div class="card-title" style="margin: 0;">W3C VC 2.0 Credential Preview</div>
+                            <span style="background: var(--bg-card); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--accent-teal);">application/vc+ld+json</span>
+                        </div>
+                        <div class="preview-box">
+                            <pre id="vcPreview">{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://schema.org"
+  ],
+  "type": ["VerifiableCredential", "IncomeCredential"],
+  "issuer": "did:key:issuer-bank-001",
+  "issuanceDate": "2026-03-01",
+  "credentialSubject": {
+    "id": "did:key:subject-xyz",
+    "name": "Rahul Pal",
+    "employer": "HDFC Bank",
+    "annualIncomeINR": 750000,
+    "thresholdINR": 500000,
+    "jurisdiction": "IN",
+    "scaleNote": "1 Lakh = 100000 INR; 5 LPA = 500000."
+  }
+}</pre>
+                        </div>
+                        <div style="margin-top: 0.75rem; font-size: 0.6875rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: space-between;">
+                            <span>📦 Hybrid-signed (ECDSA + ML-DSA-65)</span>
+                            <span>Poseidon commitment hides exact income from verifiers</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOLDER WALLET TAB -->
+        <div class="tab-content" id="wallet">
+            <div class="split-cards">
+                <div class="card">
+                    <div class="card-title">
+                        Holder Wallet · Personal Information
+                        <span class="badge badge-private" style="margin-left: auto;">PRIVATE</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Name</span>
+                            <span style="font-weight: 500;">Rahul Pal</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Employer</span>
+                            <span style="font-weight: 500;">HDFC Bank</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Annual Income (INR)</span>
+                            <span style="font-weight: 500;">₹7,50,000 (7.5 LPA)</span>
+                        </div>
+                        <div class="small-text" style="margin-top: 0.5rem;">
+                            Raw income stays in the holder wallet. Verifiers only see range proofs like "income &gt; 5 LPA" via zero-knowledge.
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">
+                        Cryptographic Artifacts
+                        <span class="badge badge-public" style="margin-left: auto;">ZK-READY</span>
+                    </div>
+                    <div class="artifact">
+                        <div class="artifact-label">incomeHashCommit (Poseidon)</div>
+                        <div class="artifact-value">0x1267942178626015729959527860566833613012679421786260157...</div>
+                    </div>
+                    <div class="artifact">
+                        <div class="artifact-label">Session Nonce</div>
+                        <div class="artifact-value">0x9f83b1c0ee14a2f9d7c4a8bbd2ac019f...</div>
+                    </div>
+                    <div class="artifact">
+                        <div class="artifact-label">ML-DSA-65 Signature</div>
+                        <div class="artifact-value" style="color: var(--accent-emerald);">mldsa65_sig_01fdd92d4f9b3c1a7e6c9b0e2a3f4d5c6b7a8e9f0d1c2b3...</div>
+                    </div>
+                    <div class="btn-group" style="margin-top: 0.75rem;">
+                        <button class="btn btn-secondary btn-small">⬇️ Download Wallet</button>
+                        <button class="btn btn-secondary btn-small">📦 View JSON-LD</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    💻 ZKP Range Proof Logic (circuits_incomeProof.circom)
+                    <span style="margin-left: auto; font-size: 0.6875rem; font-weight: 400; background: var(--bg-card); padding: 0.25rem 0.75rem; border-radius: 9999px; font-family: 'Courier New', monospace;">income: 750,000 · threshold: 500,000</span>
+                </div>
+                <div class="circuit-steps">
+                    <div class="step">
+                        <div class="step-title">
+                            <span style="color: var(--accent-emerald);">✓</span>
+                            Step 1: Num2Bits(32)
+                        </div>
+                        <div class="step-desc">
+                            Decompose income and threshold into 32 bits to prevent field overflow and keep values within the BN254 scalar field.
+                        </div>
+                        <div class="step-code">assert(income &lt; 2^32);</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-title">
+                            <span style="color: var(--accent-emerald);">✓</span>
+                            Step 2: Income &gt; Threshold
+                        </div>
+                        <div class="step-desc">
+                            Compare private income against public threshold (5 LPA = 500000 INR) via a GreaterThan(32) gadget inside the circuit.
+                        </div>
+                        <div class="step-code">isValid &lt;== income &gt; threshold;</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-title">
+                            <span style="color: var(--accent-emerald);">✓</span>
+                            Step 3: Fiat-Shamir Binding
+                        </div>
+                        <div class="step-desc">
+                            Bind isValid, threshold, incomeHashCommit, verifierId, and timestamp into a single SHA-256 challenge to prevent tampering.
+                        </div>
+                        <div class="step-code">challenge = H(isValid || threshold || commit || verifierId || ts);</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    🔑 Verifier Challenge · 5 LPA Threshold
+                    <span style="margin-left: auto; font-size: 0.6875rem; font-weight: 400; background: var(--bg-card); padding: 0.25rem 0.75rem; border-radius: 9999px; font-family: 'Courier New', monospace;">Public threshold = 500000 INR (5 LPA)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                    <div>
+                        <div class="form-group">
+                            <label>Verifier Challenge (hex / UUID / random string)</label>
+                            <input type="text" id="verifierChallenge" placeholder="e.g., verif-5lpa-demo-0x9f3a2b...">
+                            <div class="small-text">The challenge is included in the Fiat-Shamir transcript; replaying this proof with a different challenge will fail.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: end;">
+                        <button class="btn" onclick="generateProofForVerifier()">
+                            ✓ Generate Proof for Verifier (5 LPA Threshold)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // Theme switcher
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                if (theme === 'auto') {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    document.body.dataset.theme = prefersDark ? 'dark' : 'light';
+                } else {
+                    document.body.dataset.theme = theme;
+                }
+                localStorage.setItem('qspid-theme', theme);
+            });
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('qspid-theme') || 'dark';
+        document.querySelector(`[data-theme="${savedTheme}"]`).click();
+
+        // Live VC preview update
+        function updateVCPreview() {
+            const name = document.getElementById('name').value || 'Rahul Pal';
+            const income = document.getElementById('incomeInput').value || 750000;
+            const employer = document.getElementById('employer').value;
+            const date = document.getElementById('issueDate').value || '2026-03-01';
+            
+            const vcData = {
+                "@context": [
+                    "https://www.w3.org/ns/credentials/v2",
+                    "https://schema.org"
+                ],
+                "type": ["VerifiableCredential", "IncomeCredential"],
+                "issuer": "did:key:issuer-bank-001",
+                "issuanceDate": date,
+                "credentialSubject": {
+                    "id": "did:key:subject-xyz",
+                    "name": name,
+                    "employer": employer,
+                    "annualIncomeINR": parseInt(income),
+                    "thresholdINR": 500000,
+                    "jurisdiction": "IN",
+                    "scaleNote": "1 Lakh = 100000 INR; 5 LPA = 500000."
+                }
+            };
+            
+            document.getElementById('vcPreview').textContent = JSON.stringify(vcData, null, 2);
+        }
+
+        document.getElementById('name').addEventListener('input', updateVCPreview);
+        document.getElementById('incomeInput').addEventListener('input', updateVCPreview);
+        document.getElementById('employer').addEventListener('change', updateVCPreview);
+        document.getElementById('issueDate').addEventListener('change', updateVCPreview);
+
+        function issueCredential() {
+            alert('✅ Credential Issued!\n\nIn production, this would:\n1. Generate 32-byte salt\n2. Create Poseidon commitment\n3. Sign with ML-DSA-65\n4. Store in holder wallet\n\nDemo mode: See preview above.');
+        }
+
+        function generateProofForVerifier() {
+            const challenge = document.getElementById('verifierChallenge').value || 'demo-challenge-' + Date.now();
+            alert('✅ ZK Proof Generated!\n\nProof demonstrates:\n• Income > 500,000 INR (5 LPA)\n• Challenge: ' + challenge + '\n• Exact income: HIDDEN\n\nIn production, this would call the Groth16 prover with circuit constraints.');
+        }
+    </script>
+</body>
+</html>
