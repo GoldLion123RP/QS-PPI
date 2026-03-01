@@ -16,6 +16,9 @@
  *      and that credential contains identical proofValue.
  *    - Unlinkability is evaluated using presentation-level randomness
  *      (challenge/domain/nonce/signature), not the credential's proofValue.
+ *
+ * 3) Cleanup
+ *    - maxAge=0 means "delete everything" (>= comparison, not >).
  */
 
 const crypto = require('crypto');
@@ -261,12 +264,13 @@ class PresentationHandler {
 
     /**
      * Cleanup old presentation logs (prevent memory leak).
+     * Uses >= so maxAge=0 deletes all entries (including same-millisecond).
      */
     cleanupOldLogs(maxAge = 60 * 60 * 1000) {
         const now = Date.now();
         for (const [nonce, data] of this.presentationLog.entries()) {
             const t = data.usedAt || data.createdAt || 0;
-            if (now - t > maxAge) {
+            if (now - t >= maxAge) {  // Changed from > to >=
                 this.presentationLog.delete(nonce);
             }
         }
