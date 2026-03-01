@@ -1,8 +1,14 @@
 /**
  * QS-PID Core Test Suite
  *
- * Circuit uses Num2Bits(32) — max income = 2^32-1 = 4,294,967,295 (~42.9 LPA)
- * All income test values must be <= 4294967295
+ * CURRENCY SCALING (CORRECTED):
+ * - 1 Lakh = 100,000 (₹1,00,000)
+ * - 1 LPA = 100,000 per annum
+ * - 5 LPA = 500,000 (₹5,00,000)
+ * - 10 LPA = 1,000,000 (₹10,00,000)
+ * 
+ * Circuit uses Num2Bits(32) — max income = 2^32-1 = 4,294,967,295 (~42,949 LPA)
+ * All income test values must be <= 4,294,967,295
  */
 
 const IncomeProver   = require('../src/prover');
@@ -30,13 +36,12 @@ async function testValidProofs() {
     await prover.initialize();
     await verifier.initialize();
 
-    const threshold = '500000000'; // 5 LPA
+    const threshold = '500000'; // 5 LPA = 5 × 100,000
     const validIncomes = [
-        { income: '600000000',  label: '6 LPA (> 5 LPA)' },
-        { income: '1000000000', label: '10 LPA (>> 5 LPA)' },
-        { income: '500000001',  label: '5.00000001 LPA (barely > 5 LPA)' },
-        // FIX: was 999999999999 — overflows Num2Bits(32) max 4,294,967,295
-        { income: '4200000000', label: '42 LPA (near circuit max ~42.9 LPA)' },
+        { income: '600000',  label: '6 LPA (> 5 LPA) = ₹6,00,000' },
+        { income: '1000000', label: '10 LPA (>> 5 LPA) = ₹10,00,000' },
+        { income: '500001',  label: '5.00001 LPA (barely > 5 LPA)' },
+        { income: '4200000', label: '42 LPA = ₹42,00,000' },
     ];
 
     for (const { income, label } of validIncomes) {
@@ -66,12 +71,12 @@ async function testInvalidProofs() {
     await prover.initialize();
     await verifier.initialize();
 
-    const threshold = '500000000';
+    const threshold = '500000'; // 5 LPA
     const invalidIncomes = [
-        { income: '400000000', label: '4 LPA (< 5 LPA)' },
-        { income: '499999999', label: '4.99999999 LPA (barely < 5 LPA)' },
-        { income: '0',         label: '0 (no income)' },
-        { income: '1',         label: '1 (minimal)' },
+        { income: '400000', label: '4 LPA (< 5 LPA) = ₹4,00,000' },
+        { income: '499999', label: '4.99999 LPA (barely < 5 LPA)' },
+        { income: '0',      label: '0 (no income)' },
+        { income: '1',      label: '1 (minimal)' },
     ];
 
     for (const { income, label } of invalidIncomes) {
@@ -96,20 +101,18 @@ async function testBoundaryConditions() {
 
     const prover = new IncomeProver();
     await prover.initialize();
-    const threshold = '500000000';
+    const threshold = '500000'; // 5 LPA
 
-    console.log('[*] Income exactly equal to threshold (500000000)');
+    console.log('[*] Income exactly equal to threshold (500000)');
     const exactProof = await prover.generateProof(threshold, threshold);
     assert(exactProof.isValid === false, 'Exactly-threshold income fails (not strictly greater)');
 
-    console.log('[*] Income just above threshold (500000001)');
-    const justAboveProof = await prover.generateProof('500000001', threshold);
+    console.log('[*] Income just above threshold (500001)');
+    const justAboveProof = await prover.generateProof('500001', threshold);
     assert(justAboveProof.isValid === true, 'Just-above-threshold income passes');
 
-    // FIX: was '999999999999999999' — overflows Num2Bits(32)
-    // Circuit max = 2^32-1 = 4,294,967,295 (~42.9 LPA)
-    console.log('[*] Near-max income within 32-bit circuit limit (42 LPA = 4,200,000,000)');
-    const nearMaxProof = await prover.generateProof('4200000000', threshold);
+    console.log('[*] Near-max income within 32-bit circuit limit (42,949 LPA = 4,294,900,000)');
+    const nearMaxProof = await prover.generateProof('4294900000', threshold);
     assert(nearMaxProof !== null, 'Near-max income proof generated within 32-bit limit');
     assert(nearMaxProof.isValid === true, 'Near-max income is above threshold');
 
@@ -134,8 +137,8 @@ async function testUnlinkability() {
     await prover.initialize();
     await verifier.initialize();
 
-    const income    = '700000000';
-    const threshold = '500000000';
+    const income    = '700000';  // 7 LPA
+    const threshold = '500000';  // 5 LPA
 
     console.log('[*] Generating 3 proofs for same income (different blinding factors)');
     const proofs      = await prover.generateMultiProofs(income, threshold, 3);
@@ -167,12 +170,12 @@ async function testBatchVerification() {
     await prover.initialize();
     await verifier.initialize();
 
-    const threshold = '500000000';
+    const threshold = '500000';  // 5 LPA
 
     console.log('[*] Generating batch: 2 valid proofs, 1 invalid proof');
-    const validProof1  = await prover.generateProof('600000000', threshold);
-    const validProof2  = await prover.generateProof('1000000000', threshold);
-    const invalidProof = await prover.generateProof('400000000', threshold);
+    const validProof1  = await prover.generateProof('600000', threshold);   // 6 LPA
+    const validProof2  = await prover.generateProof('1000000', threshold);  // 10 LPA
+    const invalidProof = await prover.generateProof('400000', threshold);   // 4 LPA
     const batchProofs  = [validProof1, validProof2, invalidProof];
 
     console.log('[*] Batch verifying 3 proofs');
@@ -197,7 +200,7 @@ async function testAntiReplay() {
     await prover.initialize();
     await verifier.initialize();
 
-    const proofData = await prover.generateProof('700000000', '500000000');
+    const proofData = await prover.generateProof('700000', '500000');  // 7 LPA > 5 LPA
 
     console.log('[*] Verifying proof with nonce protection');
     const result = await verifier.verifyProof(proofData, 'verifier-1', { requireNonce: true });
@@ -223,7 +226,7 @@ async function testSerialization() {
     await prover.initialize();
     await verifier.initialize();
 
-    const proofData   = await prover.generateProof('800000000', '500000000');
+    const proofData   = await prover.generateProof('800000', '500000');  // 8 LPA > 5 LPA
 
     console.log('[*] Serializing proof to JSON');
     const jsonString = JSON.stringify(proofData);
@@ -251,7 +254,7 @@ async function testInputValidation() {
 
     console.log('[*] Rejecting negative income');
     try {
-        await prover.generateProof('-100', '500000000');
+        await prover.generateProof('-100', '500000');
         assert(false, 'Should reject negative income');
     } catch (err) {
         assert(err.message.includes('Invalid'), 'Correct error for negative income');
@@ -259,7 +262,7 @@ async function testInputValidation() {
 
     console.log('[*] Rejecting invalid threshold');
     try {
-        await prover.generateProof('700000000', '0');
+        await prover.generateProof('700000', '0');
         assert(false, 'Should reject zero threshold');
     } catch (err) {
         assert(err.message.includes('positive'), 'Correct error for invalid threshold');
@@ -267,7 +270,7 @@ async function testInputValidation() {
 
     console.log('[*] Rejecting NaN values');
     try {
-        await prover.generateProof('not-a-number', '500000000');
+        await prover.generateProof('not-a-number', '500000');
         assert(false, 'Should reject non-numeric income');
     } catch (err) {
         assert(err.message.includes('Invalid'), 'Correct error for non-numeric input');
@@ -275,7 +278,7 @@ async function testInputValidation() {
 
     console.log('[*] Rejecting overflow income (> circuit max)');
     try {
-        await prover.generateProof('9999999999', '500000000');
+        await prover.generateProof('9999999999', '500000');
         assert(false, 'Should reject overflow income');
     } catch (err) {
         assert(err.message.includes('exceeds circuit max'), 'Overflow income rejected');
@@ -294,8 +297,8 @@ async function testFiatShamirBinding() {
     await prover.initialize();
     await verifier.initialize();
 
-    const income     = '600000000';
-    const threshold  = '500000000';
+    const income     = '600000';   // 6 LPA
+    const threshold  = '500000';   // 5 LPA
     const verifierId = 'test-verifier-001';
 
     console.log('[*] 9.1: Generate proof with Fiat-Shamir binding');
@@ -386,8 +389,8 @@ async function testPerformance() {
     await prover.initialize();
     await verifier.initialize();
 
-    const income    = '700000000';
-    const threshold = '500000000';
+    const income    = '700000';  // 7 LPA
+    const threshold = '500000';  // 5 LPA
 
     console.log('[*] Benchmarking proof generation (5 iterations)');
     const genTimes = [];
@@ -420,6 +423,7 @@ async function runAllTests() {
     console.log('\u2551          QS-PID Core ZKP Test Suite                        \u2551');
     console.log('\u2551     Testing Income Verification with Zero-Knowledge        \u2551');
     console.log('\u2551     WITH FIAT-SHAMIR BINDING SECURITY VALIDATION          \u2551');
+    console.log('\u2551     CURRENCY: Indian Rupees (1 Lakh = 1,00,000)           \u2551');
     console.log('\u255a' + '\u2550'.repeat(60) + '\u255d');
 
     try {
