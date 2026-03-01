@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QS-PID — Quantum-Safe Proof of Income</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">🔐 QS-PID</div>
+    <p class="tagline">Quantum-Safe Zero-Knowledge Proof of Income Declaration</p>
+  </header>
+
+  <main>
+    <!-- STATUS BANNER -->
+    <div id="statusBanner" class="banner hidden"></div>
+
+    <!-- SECTION: Generate Proof -->
+    <section class="card" id="proveSection">
+      <h2>1. Generate Income Proof</h2>
+      <p class="hint">Your actual income is <strong>never revealed</strong> — only whether it exceeds the threshold.</p>
+      <div class="form-group">
+        <label for="income">Your Annual Income (in paise / basic units)</label>
+        <input type="number" id="income" placeholder="e.g. 700000000  (= 7 LPA)" min="0" />
+      </div>
+      <div class="form-group">
+        <label for="threshold">Threshold (default 5 LPA = 500000000)</label>
+        <input type="number" id="threshold" value="500000000" min="1" />
+      </div>
+      <div class="form-group">
+        <label for="verifierId">Verifier ID</label>
+        <input type="text" id="verifierId" value="demo-verifier-001" />
+      </div>
+      <button id="proveBtn" class="btn primary" onclick="generateProof()">⚡ Generate Proof</button>
+      <div id="proveLoader" class="loader hidden">Generating proof...</div>
+      <pre id="proveOutput" class="output hidden"></pre>
+    </section>
+
+    <!-- SECTION: Verify Proof -->
+    <section class="card" id="verifySection">
+      <h2>2. Verify Proof</h2>
+      <p class="hint">Paste a proof JSON below or it auto-fills after generation.</p>
+      <div class="form-group">
+        <label for="proofInput">Proof JSON</label>
+        <textarea id="proofInput" rows="8" placeholder='{ "proof": {...}, "publicSignals": [...] }'></textarea>
+      </div>
+      <button class="btn success" onclick="verifyProof()">✅ Verify Proof</button>
+      <div id="verifyLoader" class="loader hidden">Verifying...</div>
+      <pre id="verifyOutput" class="output hidden"></pre>
+    </section>
+
+    <!-- SECTION: PQ Key Info -->
+    <section class="card" id="pqSection">
+      <h2>3. Post-Quantum (ML-DSA) Info</h2>
+      <p class="hint">View current migration phase and generate a demo ML-DSA key pair.</p>
+      <button class="btn accent" onclick="getPQInfo()">🔑 Generate ML-DSA Key Pair</button>
+      <pre id="pqOutput" class="output hidden"></pre>
+    </section>
+
+    <!-- SECTION: System Status -->
+    <section class="card" id="statusSection">
+      <h2>4. System Status</h2>
+      <button class="btn secondary" onclick="getStatus()">📊 Check Status</button>
+      <pre id="statusOutput" class="output hidden"></pre>
+    </section>
+  </main>
+
+  <footer>
+    <p>QS-PID v1.0 · W3C VC 2.0 · Groth16 · ML-DSA Post-Quantum · MIT License</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

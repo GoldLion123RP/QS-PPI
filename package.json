@@ -4,7 +4,7 @@
   "description": "Quantum-Safe Proof of Income Declaration - ZKP using Circom/SnarkJS with W3C VC 2.0 compliance",
   "main": "src/index.js",
   "scripts": {
-    "compile": "circom circuits/incomeProof.circom --r1cs --wasm --sym",
+    "compile": "circom circuits/incomeProof.circom --r1cs --wasm --sym -o artifacts/",
     "setup": "node scripts/setup.js",
     "prove": "node scripts/prove.js",
     "verify": "node scripts/verify.js",
@@ -12,7 +12,8 @@
     "test:vc": "node tests/testVC.js",
     "test:pq": "node tests/testPQ.js",
     "test:security": "node tests/testSecurityAudit.js",
-    "test:all": "npm test && npm run test:vc && npm run test:pq && npm run test:security"
+    "test:all": "npm test && npm run test:vc && npm run test:pq && npm run test:security",
+    "frontend": "node frontend/server.js"
   },
   "keywords": [
     "zkp",
@@ -23,14 +24,12 @@
     "ml-dsa",
     "proof-of-income"
   ],
-  "author": "Cryptography Expert",
+  "author": "Rahul Pal",
   "license": "MIT",
   "dependencies": {
-    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
     "snarkjs": "^0.7.0",
-    "crypto": "^1.0.1"
+    "ffjavascript": "^0.3.0"
   },
-  "devDependencies": {
-    "circom": "^2.1.6"
-  }
+  "devDependencies": {}
 }
