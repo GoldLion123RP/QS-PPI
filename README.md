@@ -52,6 +52,40 @@ Traditional income verification exposes sensitive financial data:
 
 ---
 
+## 🖥️ Web Demo (Live)
+
+**Try it now**: [Open Web Demo](web/index.html)
+
+![Web Demo Screenshot](https://img.shields.io/badge/demo-interactive-brightgreen)
+
+### Quick Demo
+
+```bash
+# Open the web interface
+cd web
+open index.html  # macOS
+# OR use Python HTTP server
+python3 -m http.server 8000
+# Visit http://localhost:8000
+```
+
+**Features**:
+- 🎨 **Prover Panel**: Generate zero-knowledge proofs (income hidden)
+- ✅ **Verifier Panel**: Verify proofs (learn only validity, not income)
+- 🔄 **Unlinkability Demo**: Generate 3 proofs for same income → all unique
+- 📱 **Responsive Design**: Works on desktop & mobile
+
+**Usage**:
+1. Enter income (e.g., 750000000 paisa = ₹7.5 LPA)
+2. Set threshold (e.g., 500000000 paisa = ₹5 LPA)
+3. Click "Generate Proof" → Copy proof JSON
+4. Paste in verifier panel → Verify
+5. Result: ✅ Valid (income hidden!)
+
+See [web/README.md](web/README.md) for detailed instructions.
+
+---
+
 ## 🏗️ Architecture
 
 ```
@@ -214,6 +248,16 @@ npm run test:pq         # Post-Quantum tests (8)
 npm run test:security   # Security audit (14)
 ```
 
+### Web Demo (Interactive)
+```bash
+# Option 1: Open directly
+cd web && open index.html
+
+# Option 2: Local server
+cd web && python3 -m http.server 8000
+# Visit http://localhost:8000
+```
+
 ### Basic Usage
 
 #### 1. Generate Income Proof
@@ -296,6 +340,14 @@ zkp_v1/
 │   ├── testVC.js                # W3C VC 2.0 tests
 │   ├── testPQ.js                # Post-quantum tests
 │   └── testSecurityAudit.js     # Security validation
+├── web/
+│   ├── index.html               # Interactive demo UI
+│   └── README.md                # Web demo documentation
+├── docs/
+│   ├── ARCHITECTURE.md          # System design deep dive
+│   ├── SECURITY.md              # Threat model & guarantees
+│   ├── PQ-MIGRATION.md          # Post-quantum roadmap
+│   └── DEMO-SCRIPT.md           # Hackathon presentation guide
 ├── build/
 │   ├── incomeProof_js/          # Compiled circuit (witness gen)
 │   ├── incomeProof.wasm         # WASM witness calculator
@@ -398,6 +450,7 @@ commitment2 = Hash(7.5L || random2 || nonce2)  // → 0x9f8e7d...
 - [x] W3C VC 2.0 compliance
 - [x] Fiat-Shamir binding security
 - [x] Comprehensive test coverage (28/28 tests)
+- [x] Web demo UI
 
 ### Phase 2: Post-Quantum Migration (🚧 In Progress)
 - [x] ML-DSA integration (NIST FIPS 204)
@@ -424,7 +477,8 @@ commitment2 = Hash(7.5L || random2 || nonce2)  // → 0x9f8e7d...
 - **[Architecture Guide](docs/ARCHITECTURE.md)**: System design and component interactions
 - **[Security Model](docs/SECURITY.md)**: Threat analysis and cryptographic guarantees
 - **[Post-Quantum Migration](docs/PQ-MIGRATION.md)**: ML-DSA transition roadmap
-- **[API Reference](docs/API.md)**: Function signatures and usage examples
+- **[Demo Script](docs/DEMO-SCRIPT.md)**: Hackathon presentation guide (3-5 min)
+- **[Web Demo Guide](web/README.md)**: Interactive UI usage instructions
 
 ---
 
