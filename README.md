@@ -3,7 +3,7 @@
 ![Tests](https://img.shields.io/badge/tests-28%2F28%20passing-brightgreen)
 ![Security](https://img.shields.io/badge/security-audited-blue)
 ![Post-Quantum](https://img.shields.io/badge/quantum-resistant-purple)
-![W3C](https://img.shields.io/badge/W3C-VC%202.0%20compliant-orange)
+<!-- ![W3C](https://img.shields.io/badge/W3C-VC%202.0%20compliant-orange) -->
 
 **Zero-knowledge income verification that protects privacy while maintaining trust.**
 
@@ -499,7 +499,8 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## 👥 Team
 
-**Lead Developer**: Rahul Pal ([@GoldLion123RP](https://github.com/GoldLion123RP))
+**Developer 1**: Rahul Pal ([@GoldLion123RP](https://github.com/GoldLion123RP))  
+**Developer 2**: Akash Dutta ([@Escape-thematrix](https://github.com/Escape-thematrix))
 
 ---
 
@@ -517,7 +518,8 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 For questions, feedback, or collaboration:
 - **GitHub Issues**: [zkp_v1/issues](https://github.com/GoldLion123RP/zkp_v1/issues)
-- **Email**: [Your contact email]
+- **Email (Dev 1)**: goldlion123.rp@gmail.com (Rahul Pal)
+- **Email (Dev 2)**: akashdutta123456@gmail.com (Akash Dutta)
 
 ---
 
