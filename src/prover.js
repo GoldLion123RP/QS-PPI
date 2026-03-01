@@ -1,23 +1,26 @@
 /**
  * QS-PID Prover
  *
- * Handles proof generation for income verification.
- * Uses Circom circuit with SnarkJS Groth16.
+ * Generates Groth16 zero-knowledge proofs for income verification.
  *
- * FIXES applied (2026-03-01):
- *   - Renamed 'blindingFactor' -> 'salt' to match circuit signal name
- *   - All random BigInts reduced mod BN254_PRIME (prevents "Cannot convert BigInt" error)
- *   - Removed duplicate module.exports.FiatShamirBinding defineProperty
+ * publicSignals[] order from the circuit:
+ *   [0] isValid          — output signal (1 = income > threshold)
+ *   [1] threshold        — public input
+ *   [2] incomeHashCommit — public input
+ *
+ * ALL BigInt values are converted to strings before returning,
+ * so JSON.stringify works without a custom replacer on most fields.
+ * The proof object itself is already string-based from formatProof().
  */
 
-const fs     = require('fs');
-const path   = require('path');
+const fs      = require('fs');
+const path    = require('path');
 const snarkjs = require('snarkjs');
 const crypto  = require('crypto');
 const { buildPoseidon } = require('circomlibjs');
 const { createHash }    = require('crypto');
 
-// BN254 field prime — all inputs to Poseidon must be reduced mod this
+// BN254 field prime — all Poseidon inputs must be < this
 const BN254_PRIME = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
 const CIRCUIT_NAME  = 'incomeProof';
@@ -35,10 +38,7 @@ class IncomeProver {
         this.poseidon = await buildPoseidon();
     }
 
-    /**
-     * Generate cryptographic commitments.
-     * salt & nonce are reduced mod BN254_PRIME so they are valid field elements.
-     */
+    /** Generate salt + nonce as valid BN254 field elements, return as strings */
     generateCommitments(income) {
         const salt  = BigInt('0x' + crypto.randomBytes(32).toString('hex')) % BN254_PRIME;
         const nonce = BigInt('0x' + crypto.randomBytes(32).toString('hex')) % BN254_PRIME;
@@ -48,93 +48,85 @@ class IncomeProver {
             this.poseidon([incomeField, salt, nonce])
         );
 
+        // Return all as strings — snarkjs witness expects string or number, not BigInt
         return {
-            incomeHashCommit: commitment,
-            salt:  salt.toString(),
-            nonce: nonce.toString(),
+            incomeHashCommit: commitment.toString(),
+            salt:             salt.toString(),
+            nonce:            nonce.toString(),
         };
     }
 
-    /**
-     * Generate witness (circuit inputs).
-     * Signal names MUST match the Circom circuit exactly:
-     *   income, threshold, incomeHashCommit, salt, nonce
-     */
+    /** Build witness object — keys must exactly match circuit signal names */
     generateWitness(income, threshold, commitments) {
         return {
-            income:           BigInt(income).toString(),
-            threshold:        BigInt(threshold).toString(),
-            incomeHashCommit: commitments.incomeHashCommit.toString(),
-            salt:             commitments.salt,   // circuit signal name is 'salt'
+            income:           income.toString(),
+            threshold:        threshold.toString(),
+            incomeHashCommit: commitments.incomeHashCommit,
+            salt:             commitments.salt,
             nonce:            commitments.nonce,
         };
     }
 
-    /**
-     * Generate Groth16 proof with Fiat-Shamir security binding.
-     */
     async generateProof(income, threshold = '500000000', verifierId = 'verifier-default') {
         if (!this.poseidon) await this.initialize();
 
         const incomeInt    = BigInt(income);
         const thresholdInt = BigInt(threshold);
 
-        if (incomeInt < 0n)      throw new Error('Invalid income: must be non-negative integer');
-        if (thresholdInt <= 0n)  throw new Error('Invalid threshold: must be positive integer');
+        if (incomeInt < 0n)     throw new Error('Invalid income: must be non-negative');
+        if (thresholdInt <= 0n) throw new Error('Invalid threshold: must be positive');
 
         console.log('[*] Generating income proof...');
-        console.log(`[*] Income    : ${incomeInt.toString()}`);
-        console.log(`[*] Threshold : ${thresholdInt.toString()}\n`);
+        console.log(`[*] Income    : ${incomeInt}`);
+        console.log(`[*] Threshold : ${thresholdInt}\n`);
 
-        try {
-            const commitments = this.generateCommitments(incomeInt);
-            const witness     = this.generateWitness(incomeInt, thresholdInt, commitments);
+        const commitments = this.generateCommitments(incomeInt);
+        const witness     = this.generateWitness(incomeInt, thresholdInt, commitments);
 
-            console.log('[*] Computing witness...');
-            const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-                witness,
-                this.wasmPath,
-                this.zkeyPath
-            );
-            console.log('[✓] Proof generated successfully\n');
+        console.log('[*] Computing witness...');
+        const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+            witness,
+            this.wasmPath,
+            this.zkeyPath
+        );
+        console.log('[\u2713] Proof generated successfully\n');
 
-            const formattedProof = this.formatProof(proof);
-            const isValid        = parseInt(publicSignals[0]) === 1;
+        // Convert publicSignals to plain strings (snarkjs may return BigInt)
+        // Order: [0]=isValid  [1]=threshold  [2]=incomeHashCommit
+        const pubStr   = publicSignals.map(s => s.toString());
+        const isValid  = pubStr[0] === '1';
 
-            console.log('[*] Creating Fiat-Shamir challenge binding...');
-            const fiatShamirChallenge = FiatShamirBinding.createSecureChallenge({
-                threshold:        thresholdInt.toString(),
-                isValid:          isValid ? '1' : '0',
-                incomeHashCommit: commitments.incomeHashCommit.toString(),
-                verifierId:       verifierId,
-                timestamp:        new Date().toISOString(),
-            });
-            console.log('[✓] Fiat-Shamir binding created\n');
+        console.log('[*] Creating Fiat-Shamir challenge binding...');
+        const fiatShamirBinding = FiatShamirBinding.createSecureChallenge({
+            threshold:        pubStr[1],          // publicSignals[1] = threshold
+            isValid:          isValid ? '1' : '0',
+            incomeHashCommit: pubStr[2],           // publicSignals[2] = incomeHashCommit
+            verifierId,
+            timestamp:        new Date().toISOString(),
+        });
+        // Serialize Buffer in binding to hex string for JSON safety
+        const bindingForJson = Object.assign({}, fiatShamirBinding, {
+            challenge: fiatShamirBinding.challenge.toString('hex'),
+        });
+        console.log('[\u2713] Fiat-Shamir binding created\n');
 
-            return {
-                proof:             formattedProof,
-                publicSignals:     publicSignals,
-                commitments:       commitments,
-                fiatShamirBinding: fiatShamirChallenge,
-                timestamp:         new Date().toISOString(),
-                isValid:           isValid,
-                verifierId:        verifierId,
-            };
-        } catch (error) {
-            console.error('[!] Proof generation failed:', error.message);
-            throw error;
-        }
+        return {
+            proof:             this.formatProof(proof),
+            publicSignals:     pubStr,
+            commitments:       commitments,
+            fiatShamirBinding: bindingForJson,
+            timestamp:         new Date().toISOString(),
+            isValid,
+            verifierId,
+            threshold:         thresholdInt.toString(),
+        };
     }
 
     formatProof(proof) {
         return {
-            A: [proof.pi_a[0].toString(), proof.pi_a[1].toString(), proof.pi_a[2].toString()],
-            B: [
-                [proof.pi_b[0][1].toString(), proof.pi_b[0][0].toString()],
-                [proof.pi_b[1][1].toString(), proof.pi_b[1][0].toString()],
-                [proof.pi_b[2][1].toString(), proof.pi_b[2][0].toString()],
-            ],
-            C: [proof.pi_c[0].toString(), proof.pi_c[1].toString(), proof.pi_c[2].toString()],
+            pi_a: proof.pi_a.map(x => x.toString()),
+            pi_b: proof.pi_b.map(row => row.map(x => x.toString())),
+            pi_c: proof.pi_c.map(x => x.toString()),
             protocol: 'groth16',
             curve:    'bn254',
         };
@@ -142,18 +134,16 @@ class IncomeProver {
 
     async generateMultiProofs(income, threshold = '500000000', count = 3) {
         const proofs = [];
-        console.log(`[*] Generating ${count} unlinkable proofs...\n`);
         for (let i = 0; i < count; i++) {
             console.log(`[*] Generating proof ${i + 1}/${count}...`);
-            proofs.push(await this.generateProof(income, threshold));
+            proofs.push(await this.generateProof(income, threshold, `verifier-${i + 1}`));
         }
-        console.log(`\n[✓] Generated ${count} proofs with different salts`);
         return proofs;
     }
 }
 
 // ================================================================
-// FIAT-SHAMIR BINDING SECURITY MODULE
+// FIAT-SHAMIR BINDING
 // ================================================================
 
 const CIRCUIT_SPEC = {
@@ -167,15 +157,14 @@ const CIRCUIT_SPEC = {
 class FiatShamirBinding {
     static createSecureChallenge(publicValues, options = {}) {
         const validation = this.validatePublicValues(publicValues);
-        if (!validation.valid) {
-            throw new Error(`Fiat-Shamir binding validation failed: ${validation.errors.join('; ')}`);
-        }
-        const canonicalBinding = this.createCanonicalBinding(publicValues, options);
-        const challengeData    = this.computeSecureHash(canonicalBinding);
+        if (!validation.valid)
+            throw new Error(`Fiat-Shamir validation failed: ${validation.errors.join('; ')}`);
+        const bindingData  = this.createCanonicalBinding(publicValues, options);
+        const challengeData = this.computeSecureHash(bindingData);
         return {
-            challenge:      challengeData.digest,
+            challenge:      challengeData.digest,          // Buffer
             challengeHex:   challengeData.hex,
-            bindingData:    canonicalBinding,
+            bindingData,
             bindingHash:    challengeData.bindingHash,
             includedValues: validation.includedValues,
             timestamp:      new Date().toISOString(),
@@ -183,92 +172,64 @@ class FiatShamirBinding {
         };
     }
 
-    static validatePublicValues(publicValues) {
+    static validatePublicValues(pv) {
         const errors = [], included = [];
-        const check  = (key, extra) => {
-            if (publicValues[key] == null) {
-                errors.push(`Missing public value: ${key}`);
-            } else {
-                if (extra) extra();
-                included.push(key);
-            }
+        const need = (k, extra) => {
+            if (pv[k] == null) { errors.push(`Missing: ${k}`); }
+            else { if (extra) extra(); included.push(k); }
         };
-        check('threshold');
-        check('isValid', () => {
-            if (![0, 1, '0', '1'].includes(publicValues.isValid))
-                errors.push('isValid must be binary (0 or 1)');
-        });
-        check('incomeHashCommit');
-        check('verifierId');
-        check('timestamp');
-        if (publicValues.context) included.push('context');
+        need('threshold');
+        need('isValid', () => { if (!['0','1',0,1].includes(pv.isValid)) errors.push('isValid must be 0 or 1'); });
+        need('incomeHashCommit');
+        need('verifierId');
+        need('timestamp');
         return { valid: errors.length === 0, errors, includedValues: included };
     }
 
-    static createCanonicalBinding(publicValues, options = {}) {
+    static createCanonicalBinding(pv, options = {}) {
         const parts = [
             `CIRCUIT:${CIRCUIT_SPEC.circuitId}`,
             `VERSION:${CIRCUIT_SPEC.version}`,
             `PROTOCOL:${CIRCUIT_SPEC.protocol}`,
-            `THRESHOLD:${publicValues.threshold}`,
-            `IS_VALID:${publicValues.isValid}`,
-            `INCOME_HASH_COMMIT:${publicValues.incomeHashCommit}`,
-            `VERIFIER_ID:${publicValues.verifierId}`,
+            `THRESHOLD:${pv.threshold}`,
+            `IS_VALID:${pv.isValid}`,
+            `INCOME_HASH_COMMIT:${pv.incomeHashCommit}`,
+            `VERIFIER_ID:${pv.verifierId}`,
+            `TIMESTAMP:${pv.timestamp}`,
         ];
-        if (publicValues.context)     parts.push(`CONTEXT:${publicValues.context}`);
-        parts.push(`TIMESTAMP:${publicValues.timestamp}`);
-        if (options.protocolVersion)  parts.push(`PROTOCOL_VERSION:${options.protocolVersion}`);
         if (options.additionalBinding) parts.push(`ADDITIONAL:${options.additionalBinding}`);
         return parts.join('|');
     }
 
     static computeSecureHash(bindingData) {
-        const d1       = createHash('sha256').update(bindingData).digest();
-        const d2       = createHash('sha512').update(bindingData).digest();
-        const combined = Buffer.alloc(32);
-        for (let i = 0; i < 32; i++) combined[i] = d1[i] ^ d2[i];
+        const d1  = createHash('sha256').update(bindingData).digest();
+        const d2  = createHash('sha512').update(bindingData).digest();
+        const out = Buffer.alloc(32);
+        for (let i = 0; i < 32; i++) out[i] = d1[i] ^ d2[i];
         return {
-            digest:      combined,
-            hex:         combined.toString('hex'),
-            bindingHash: createHash('sha256').update(combined).digest('hex'),
+            digest:      out,
+            hex:         out.toString('hex'),
+            bindingHash: createHash('sha256').update(out).digest('hex'),
         };
     }
 
-    static verifyChallengeBind(publicValues, providedChallenge, options = {}) {
+    static verifyChallengeBind(publicValues, providedChallenge) {
         try {
-            const validation = this.validatePublicValues(publicValues);
-            if (!validation.valid)
-                return { valid: false, reason: 'Public values validation failed', errors: validation.errors };
-            const binding  = this.createSecureChallenge(publicValues, options);
+            const v = this.validatePublicValues(publicValues);
+            if (!v.valid) return { valid: false, reason: 'Validation failed', errors: v.errors };
+            const binding  = this.createSecureChallenge(publicValues);
             const provided = Buffer.isBuffer(providedChallenge)
                 ? providedChallenge
                 : Buffer.from(providedChallenge, 'hex');
             const match = provided.equals(binding.challenge);
             return match
-                ? { valid: true,  reason: 'Challenge properly bound', includedValues: validation.includedValues }
-                : { valid: false, reason: 'Challenge does not match — values missing or modified',
-                    expectedChallenge: binding.hex, providedChallenge: provided.toString('hex') };
+                ? { valid: true,  reason: 'Challenge matches' }
+                : { valid: false, reason: 'Challenge mismatch', expected: binding.challengeHex, got: provided.toString('hex') };
         } catch (e) {
-            return { valid: false, reason: `Binding verification error: ${e.message}` };
+            return { valid: false, reason: e.message };
         }
-    }
-
-    static createBindingReport(publicValues, options = {}) {
-        const validation    = this.validatePublicValues(publicValues);
-        const challengeData = validation.valid ? this.createSecureChallenge(publicValues, options) : null;
-        return {
-            timestamp:           new Date().toISOString(),
-            circuitSpec:         CIRCUIT_SPEC,
-            validationStatus:    validation.valid,
-            validationErrors:    validation.errors,
-            includedValues:      validation.includedValues,
-            totalValuesIncluded: validation.includedValues.length,
-            challenge:           challengeData ? challengeData.challengeHex : null,
-            bindingData:         challengeData ? challengeData.bindingData  : null,
-        };
     }
 }
 
-// Single clean export — no duplicate defineProperty
-module.exports                  = IncomeProver;
+module.exports                   = IncomeProver;
 module.exports.FiatShamirBinding = FiatShamirBinding;
