@@ -46,6 +46,9 @@ npm run frontend
 ### Option B: Full Backend (Real ZKP)
 If you want actual cryptographic proofs:
 ```bash
+# Verify everything works
+npm run test:all
+
 # Compile Circom circuits
 npm run compile
 
