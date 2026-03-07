@@ -220,6 +220,7 @@ async function main() {
 
         console.log('\n[\u2713] Trusted setup complete!');
         console.log('    Next: npm run prove\n');
+        process.exit(0);
 
     } catch (err) {
         console.error('\n[\u2717] Setup failed: ' + err.message);
