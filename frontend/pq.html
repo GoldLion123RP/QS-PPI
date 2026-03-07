@@ -170,8 +170,10 @@
     // Truncate public key
     function truncateHex(hex, startLen = 32, endLen = 8) {
       if (!hex) return '-';
-      if (hex.length <= startLen + endLen + 3) return hex;
-      return hex.slice(0, startLen) + '…' + hex.slice(-endLen);
+      // Convert to string if needed
+      const hexStr = String(hex);
+      if (hexStr.length <= startLen + endLen + 3) return hexStr;
+      return hexStr.slice(0, startLen) + '…' + hexStr.slice(-endLen);
     }
 
     let currentPublicKey = '';
@@ -196,7 +198,8 @@
           el('phaseValue').textContent = data.phase || 'Active';
           el('algorithmsValue').textContent = (data.algorithms || ['ML-DSA-65']).join(', ');
           
-          currentPublicKey = data.publicKey || '';
+          // Convert publicKey to string if needed
+          currentPublicKey = String(data.publicKey || '');
           el('publicKeyTruncated').textContent = truncateHex(currentPublicKey);
           
           el('pqOutput').textContent = JSON.stringify(data, null, 2);
