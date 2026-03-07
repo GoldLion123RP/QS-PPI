@@ -281,6 +281,17 @@ textarea.mono, .output-block {
   }
 }
 
+/* Three.js Dotted Surface Background */
+#dotted-surface-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
 /* ── Form Elements ───────────────────────────────────────────────── */
 .form-group {
   margin-bottom: 1rem;
