@@ -13,7 +13,7 @@
 node --version
 # Should show v18.x.x or higher
 ```
-1. 
+
 ### Step 2: Check Project Structure
 ```bash
 ls -la
