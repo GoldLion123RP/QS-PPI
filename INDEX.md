@@ -1,22 +1,26 @@
 # Documentation Index
 
-## Run after unzip
+## Quick Start
 
-- [AFTER_UNZIP.md](./AFTER_UNZIP.md) — open `docs/index.html` instantly, optional backend, optional React.
+- [README.md](./README.md) — Project overview
+- [QUICKSTART.md](./QUICKSTART.md) — 5-minute setup guide
 
-## Core docs
+## Core Documentation
 
-- [README.md](./README.md)
-- [START_HERE.md](./START_HERE.md)
-- [QUICKSTART.md](./QUICKSTART.md)
+- [START_HERE.md](./START_HERE.md) — Beginner's guide
+- [SETUP_GUIDE.md](./SETUP_GUIDE.md) — Detailed technical setup
 
-## Packaging / size
+## Project Details
 
-- [PACKAGING.md](./PACKAGING.md)
-- [COMMANDS.md](./COMMANDS.md)
+- [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) — Technical summary
+- [PACKAGING.md](./PACKAGING.md) — Package for submission (keep under 25MB)
 
 ## Submission
 
-- [SUBMISSION.md](./SUBMISSION.md)
-- [DELIVERABLES.md](./DELIVERABLES.md)
-- [COMPLETION_CHECKLIST.md](./COMPLETION_CHECKLIST.md)
+- [SUBMISSION.md](./SUBMISSION.md) — Hackathon submission guide
+- [DELIVERABLES.md](./DELIVERABLES.md) — Deliverables checklist
+- [COMPLETION_CHECKLIST.md](./COMPLETION_CHECKLIST.md) — 100% completion status
+
+## Commands
+
+- [COMMANDS.md](./COMMANDS.md) — Useful PowerShell commands
