@@ -178,7 +178,11 @@ async function main() {
         // This is the step that was MISSING in all previous versions.
         // snarkjs.zKey.newZKey needs a phase-2 prepared file.
         console.log('\n[*] Preparing phase-2 ptau (this takes ~20-40 sec)...');
-        await snarkjs.powersOfTau.preparePhase2(PTAU1_PATH, PTAU2_PATH);
+        if (fs.existsSync(PTAU2_PATH)) {
+            console.log('[*] Using cached phase-2 ptau...');
+        } else {
+            await snarkjs.powersOfTau.preparePhase2(PTAU1_PATH, PTAU2_PATH);
+        }
         console.log('[\u2713] Phase-2 ptau ready');
 
         const r1cs      = path.join(ARTIFACTS, CIRCUIT + '.r1cs');
@@ -188,6 +192,13 @@ async function main() {
 
         if (!fs.existsSync(r1cs)) {
             throw new Error('Circuit not compiled. Run: npm run compile\nExpected: ' + r1cs);
+        }
+
+        // Skip if already completed (use cached files)
+        if (fs.existsSync(zkeyFinal) && fs.existsSync(vkeyPath)) {
+            console.log('\n[✓] Trusted setup already complete! (using cached files)');
+            console.log('    Next: npm run prove\n');
+            process.exit(0);
         }
 
         // Clean stale keys from previous failed runs
