@@ -34,9 +34,11 @@
         <textarea id="proofInput" class="mono" rows="10" placeholder='{"proof": {...}, "publicSignals": [...]}'></textarea>
       </div>
 
-      <button class="btn-primary" onclick="verifyProof()">
-        ✅ Verify Proof
-      </button>
+      <div class="btn-right">
+        <button class="btn-primary btn-large" onclick="verifyProof()">
+          ✅ Verify Proof
+        </button>
+      </div>
 
       <!-- Loader -->
       <div id="verifyLoader" class="hidden">

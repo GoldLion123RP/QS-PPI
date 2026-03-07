@@ -58,7 +58,7 @@
         <input type="text" id="verifierId" value="demo-verifier-001">
       </div>
 
-      <button id="proveBtn" class="btn-primary" onclick="generateProof()">
+      <button id="proveBtn" class="btn-primary btn-large" onclick="generateProof()" style="width: 100%;">
         ⚡ Generate Proof
       </button>
 
@@ -75,11 +75,11 @@
       <pre id="proveOutput" class="output-block hidden"></pre>
 
       <!-- Action Buttons -->
-      <div id="actionButtons" class="hidden mt-2" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-        <button class="btn-secondary btn-small" onclick="copyProofJSON()">
+      <div id="actionButtons" class="btn-group-right" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <button class="btn-primary" onclick="copyProofJSON()">
           📋 Copy Proof JSON
         </button>
-        <button class="btn-secondary btn-small" onclick="verifyThisProof()">
+        <button class="btn-outline" onclick="verifyThisProof()">
           ✅ Verify This Proof
         </button>
       </div>
@@ -255,8 +255,24 @@
     function copyProofJSON() {
       const proof = el('proveOutput').textContent;
       navigator.clipboard.writeText(proof).then(() => {
-        showBanner('Proof JSON copied to clipboard!', 'ok');
+        showToast('Proof JSON copied to clipboard!', 'success');
+      }).catch(() => {
+        showToast('Failed to copy to clipboard', 'error');
       });
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+      // Remove existing toast if any
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 3000);
     }
 
     // Verify this proof

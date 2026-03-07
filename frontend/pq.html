@@ -90,9 +90,11 @@
     <div id="statusBanner" class="banner hidden"></div>
 
     <!-- Generate Button -->
-    <button class="btn-primary" onclick="generateKeyPair()" style="margin-bottom: 1.5rem;">
-      🔑 Generate ML-DSA-65 Key Pair
-    </button>
+    <div class="btn-right">
+      <button class="btn-primary btn-large" onclick="generateKeyPair()">
+        🔑 Generate ML-DSA-65 Key Pair
+      </button>
+    </div>
 
     <!-- Loader -->
     <div id="pqLoader" class="hidden">
@@ -217,9 +219,25 @@
     function copyPublicKey() {
       if (currentPublicKey) {
         navigator.clipboard.writeText(currentPublicKey).then(() => {
-          showBanner('Public key copied to clipboard!', 'ok');
+          showToast('Public key copied to clipboard!', 'success');
+        }).catch(() => {
+          showToast('Failed to copy to clipboard', 'error');
         });
       }
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+      // Remove existing toast if any
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 3000);
     }
   </script>
 </body>
