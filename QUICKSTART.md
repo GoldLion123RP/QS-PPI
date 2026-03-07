@@ -9,7 +9,7 @@ Open:
 Or PowerShell:
 
 ```powershell
-cd "<unzipped-folder>\zkp_v1"
+cd "<unzipped-folder>\QS-PID"
 start .\docs\index.html
 ```
 
@@ -18,7 +18,7 @@ start .\docs\index.html
 ## 2) Backend (optional)
 
 ```powershell
-cd "<unzipped-folder>\zkp_v1"
+cd "<unzipped-folder>\QS-PID"
 npm install
 node .\src\server.js
 ```
@@ -28,7 +28,7 @@ node .\src\server.js
 ## 3) React dashboard (optional)
 
 ```powershell
-cd "<unzipped-folder>\zkp_v1\qspid-dashboard"
+cd "<unzipped-folder>\QS-PID\qspid-dashboard"
 npm install
 npm run dev
 ```

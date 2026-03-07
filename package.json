@@ -1,5 +1,5 @@
 {
-  "name": "qs-pid",
+  "name": "QS-PID",
   "version": "1.0.0",
   "description": "Quantum-Safe Proof of Income Declaration - ZKP using Circom/SnarkJS with W3C VC 2.0 compliance",
   "main": "src/index.js",

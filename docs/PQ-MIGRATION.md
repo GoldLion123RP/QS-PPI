@@ -448,7 +448,7 @@ Changes to your integration:
 - No changes to ZK proof verification
 
 Code example:
-https://github.com/GoldLion123RP/zkp_v1/blob/main/docs/VERIFIER_GUIDE.md
+https://github.com/GoldLion123RP/QS-PID/blob/main/docs/VERIFIER_GUIDE.md
 
 Testing:
 - Staging environment available now

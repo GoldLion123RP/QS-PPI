@@ -263,7 +263,7 @@ ML-DSA Adoption: 56.76% (simulated)
 **[SCREEN: GitHub repo + contact info]**
 
 ```
-GitHub: https://github.com/GoldLion123RP/zkp_v1
+GitHub: https://github.com/GoldLion123RP/QS-PID
 Docs:   /docs/ARCHITECTURE.md
         /docs/SECURITY.md
         /docs/PQ-MIGRATION.md
@@ -392,9 +392,9 @@ npm test -- --testNamePattern="Multi-Verifier Unlinkability"
 ## 🚀 **Post-Demo Call to Action**
 
 **For Judges:**
-> "Try it yourself: `git clone https://github.com/GoldLion123RP/zkp_v1 && npm install && npm run test:all`
+> "Try it yourself: `git clone https://github.com/GoldLion123RP/QS-PID && npm install && npm run test:all`
 >
-> Documentation: [README.md](https://github.com/GoldLion123RP/zkp_v1)
+> Documentation: [README.md](https://github.com/GoldLion123RP/QS-PID)
 >
 > Questions? Open a GitHub issue or reach out at [your-email]"
 

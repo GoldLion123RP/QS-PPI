@@ -13,7 +13,7 @@ Open:
 Or PowerShell:
 
 ```powershell
-cd "<unzipped-folder>\zkp_v1"
+cd "<unzipped-folder>\QS-PID"
 start .\docs\index.html
 ```
 
@@ -26,7 +26,7 @@ start .\docs\index.html
 
 Your site will be available at:
 
-https://goldlion123rp.github.io/zkp_v1/
+https://goldlion123rp.github.io/QS-PID/
 
 ## Notes
 

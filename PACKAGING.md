@@ -22,7 +22,7 @@ These items are the main reason a folder becomes 500MB–4GB.
 ## Windows PowerShell cleanup (recommended)
 
 ```powershell
-cd "E:\Documents\Rahul Pal\Coding\Hackathon\zkp_v1\zkp_v1"
+cd "E:\Documents\Rahul Pal\Coding\Hackathon\QS-PID\QS-PID"
 Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force qspid-dashboard\node_modules -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force dashboard\node_modules -ErrorAction SilentlyContinue
@@ -33,7 +33,7 @@ Remove-Item -Recurse -Force circuits\*.ptau,circuits\*.zkey,circuits\*.r1cs,circ
 ## Verify folder size
 
 ```powershell
-cd "E:\Documents\Rahul Pal\Coding\Hackathon\zkp_v1\zkp_v1"
+cd "E:\Documents\Rahul Pal\Coding\Hackathon\QS-PID\QS-PID"
 Get-ChildItem -Recurse | Measure-Object -Property Length -Sum | Select-Object @{Name="Size(MB)";Expression={[math]::Round($_.Sum/1MB,2)}}
 ```
 
@@ -44,8 +44,8 @@ Option A (Explorer): Right-click folder → Send to → Compressed (zipped) fold
 Option B (PowerShell):
 
 ```powershell
-cd "E:\Documents\Rahul Pal\Coding\Hackathon\zkp_v1"
-Compress-Archive -Path .\zkp_v1 -DestinationPath .\zkp_v1_light.zip -Force
+cd "E:\Documents\Rahul Pal\Coding\Hackathon\QS-PID"
+Compress-Archive -Path .\QS-PID -DestinationPath .\QS-PID_light.zip -Force
 ```
 
 ## After unzip

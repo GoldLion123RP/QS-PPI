@@ -6,7 +6,7 @@
 
 <!-- ## 🎉 Live Demo
 
-**🔗 [https://goldlion123rp.github.io/zkp_v1/](https://goldlion123rp.github.io/zkp_v1/)** — Interactive dashboard (enable GitHub Pages first, see [docs/README.md](./docs/README.md)) -->
+**🔗 [https://goldlion123rp.github.io/QS-PID/](https://goldlion123rp.github.io/QS-PID/)** — Interactive dashboard (enable GitHub Pages first, see [docs/README.md](./docs/README.md)) -->
 ---
 
 ## 🎯 Problem Statement
@@ -40,7 +40,7 @@ Traditional income verification exposes your **exact salary** to:
 ### 1. GitHub Pages Dashboard (Recommended for Demo)
 
 **Location**: [`docs/index.html`](./docs/index.html)  
-**Live URL**: https://goldlion123rp.github.io/zkp_v1/ (after enabling Pages)
+**Live URL**: https://goldlion123rp.github.io/QS-PID/ (after enabling Pages)
 
 **Features**:
 - 📊 **Issuer Dashboard**: Live stats, PQ status banner, registry table
@@ -123,8 +123,8 @@ open index.html  # or double-click
 ### Installation
 
 ```bash
-git clone https://github.com/GoldLion123RP/zkp_v1.git
-cd zkp_v1
+git clone https://github.com/GoldLion123RP/QS-PID.git
+cd QS-PID
 npm install
 ```
 
@@ -282,7 +282,7 @@ Result: 28/28 passing
 ## 📦 Project Structure
 
 ```
-zkp_v1/
+QS-PID/
 ├── circuits/                 # ZKP circuits (Circom)
 │   └── circuits_incomeProof.circom
 ├── src/                     # Backend (Node.js)
@@ -311,15 +311,15 @@ zkp_v1/
 **Team**: Rahul Pal & Akash Dutta 
 **Track**: Privacy-First Finance  
 **Built With**: ZKP + Post-Quantum Cryptography  
-<!-- **Demo**: https://goldlion123rp.github.io/zkp_v1/  
-**GitHub**: https://github.com/GoldLion123RP/zkp_v1   -->
+<!-- **Demo**: https://goldlion123rp.github.io/QS-PID/  
+**GitHub**: https://github.com/GoldLion123RP/QS-PID   -->
 
 ---
 
 ## 🔗 Links
 
-- **Live Dashboard**: https://goldlion123rp.github.io/zkp_v1/
-- **GitHub Repo**: https://github.com/GoldLion123RP/zkp_v1
+- **Live Dashboard**: https://goldlion123rp.github.io/QS-PID/
+- **GitHub Repo**: https://github.com/GoldLion123RP/QS-PID
 - **Documentation**: [START_HERE.md](./START_HERE.md)
 - **W3C VC 2.0 Spec**: https://www.w3.org/TR/vc-data-model-2.0/
 - **ML-DSA (NIST FIPS 204)**: https://csrc.nist.gov/pubs/fips/204/final

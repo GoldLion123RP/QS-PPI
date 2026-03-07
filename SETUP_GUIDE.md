@@ -61,7 +61,7 @@ dir
 
 #### 6.2: Compiled Circuit
 ```powershell
-cd "E:\Documents\Rahul Pal\Coding\Hackathon\zkp_v1\zkp_v1\circuits"
+cd "E:\Documents\Rahul Pal\Coding\Hackathon\QS-PID\QS-PID\circuits"
 circom incomeProof.circom --r1cs --wasm --sym -o ..\artifacts
 ```
 **Result:**
@@ -105,7 +105,7 @@ snarkjs zkey export verificationkey circuit_final.zkey verification_key.json
 
 ### Step 8: Fix Naming Convention
 ```powershell
-cd "E:\Documents\Rahul Pal\Coding\Hackathon\zkp_v1\zkp_v1\artifacts"
+cd "E:\Documents\Rahul Pal\Coding\Hackathon\QS-PID\QS-PID\artifacts"
 Rename-Item circuit_final.zkey incomeProof_final.zkey
 ```
 **Reason:** Test suite expects `incomeProof_final.zkey`
@@ -176,7 +176,7 @@ npm run test:all
 ## Final Project Structure
 
 ```
-zkp_v1/
+QS-PID/
 ├── circuits/
 │   └── incomeProof.circom          (3.3 KB - Circuit definition)
 ├── artifacts/

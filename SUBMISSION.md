@@ -11,7 +11,7 @@
 This ZIP file contains the complete QS-PID system ready to run locally:
 
 ```
-zkp_v1/
+QS-PID/
 ├── README.md                    # Project overview
 ├── SUBMISSION.md                # This file (setup guide)
 ├── package.json                 # Node.js dependencies
@@ -31,8 +31,8 @@ zkp_v1/
 
 ```bash
 # Extract to your preferred location
-unzip zkp_v1.zip
-cd zkp_v1
+unzip QS-PID.zip
+cd QS-PID
 ```
 
 ### Step 2: Install Dependencies
@@ -409,9 +409,9 @@ See [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) for complete 3-5 minute presentat
 - **Developer 2**: Akash Dutta ([@Escape-thematrix](https://github.com/Escape-thematrix))
   - Email: akashdutta123456@gmail.com
 
-**GitHub**: [https://github.com/GoldLion123RP/zkp_v1](https://github.com/GoldLion123RP/zkp_v1)
+**GitHub**: [https://github.com/GoldLion123RP/QS-PID](https://github.com/GoldLion123RP/QS-PID)
 
-**Issues**: [zkp_v1/issues](https://github.com/GoldLion123RP/zkp_v1/issues)
+**Issues**: [QS-PID/issues](https://github.com/GoldLion123RP/QS-PID/issues)
 
 ---
 
