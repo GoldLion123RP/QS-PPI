@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+  <title>Verify Proof — QS-PID</title>
+  <meta name="theme-color" content="#020817">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .verify-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Header -->
+  <header class="page-header">
+    <a href="./index.html" class="back-btn">← Back</a>
+    <h1 class="page-title">VERIFY PROOF</h1>
+  </header>
+
+  <main class="verify-section">
+    <!-- Banner -->
+    <div id="statusBanner" class="banner hidden"></div>
+
+    <!-- Form -->
+    <div class="card">
+      <div class="form-group">
+        <label for="proofInput">Proof JSON</label>
+        <textarea id="proofInput" class="mono" rows="10" placeholder='{"proof": {...}, "publicSignals": [...]}'></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="verifyProof()">
+        ✅ Verify Proof
+      </button>
+
+      <!-- Loader -->
+      <div id="verifyLoader" class="hidden">
+        <div class="loader"></div>
+        <p class="loader-text">Verifying cryptographic proof…</p>
+      </div>
+
+      <!-- Result Banner -->
+      <div id="resultBanner" class="result-banner hidden"></div>
+
+      <!-- Output -->
+      <pre id="verifyOutput" class="output-block hidden"></pre>
+    </div>
+  </main>
+
+  <script>
+    // API Base URL detection
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:3000';
+      }
+      return 'https://zkp-v1-backend.onrender.com';
+    })();
+
+    // DOM helpers
+    function el(id) { return document.getElementById(id); }
+    function show(id) { el(id).classList.remove('hidden'); }
+    function hide(id) { el(id).classList.add('hidden'); }
+
+    // Show banner
+    function showBanner(msg, type = 'ok') {
+      const b = el('statusBanner');
+      b.textContent = msg;
+      b.className = `banner ${type}`;
+      show('statusBanner');
+      setTimeout(() => hide('statusBanner'), 6000);
+    }
+
+    // Verify proof
+    async function verifyProof() {
+      const raw = el('proofInput').value.trim();
+      if (!raw) {
+        showBanner('Paste a proof JSON first.', 'err');
+        return;
+      }
+
+      let proofData;
+      try {
+        proofData = JSON.parse(raw);
+      } catch (e) {
+        showBanner('Invalid JSON in proof box.', 'err');
+        return;
+      }
+
+      hide('verifyOutput');
+      hide('resultBanner');
+      show('verifyLoader');
+
+      try {
+        const res = await fetch(API_BASE + '/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ proofData })
+        });
+        const data = await res.json();
+
+        hide('verifyLoader');
+
+        if (data.error) {
+          el('verifyOutput').textContent = '❌ Error: ' + data.error;
+          el('verifyOutput').className = 'output-block error';
+          show('verifyOutput');
+          showBanner('Verification failed.', 'err');
+        } else {
+          // Show result banner
+          const banner = el('resultBanner');
+          if (data.valid) {
+            banner.className = 'result-banner valid';
+            banner.textContent = '✅ PROOF VALID';
+          } else {
+            banner.className = 'result-banner invalid';
+            banner.textContent = '❌ PROOF INVALID';
+          }
+          show('resultBanner');
+
+          // Add threshold info if available
+          const threshUnits = proofData.threshold || (proofData.publicSignals && proofData.publicSignals[1]);
+          if (threshUnits) {
+            const thresholdLPA = threshUnits / 100_000_000;
+            const thresholdINR = thresholdLPA * 100_000;
+            data._thresholdFormatted = thresholdLPA.toFixed(2) + ' LPA = ₹' + thresholdINR.toLocaleString('en-IN');
+          }
+
+          el('verifyOutput').textContent = JSON.stringify(data, null, 2);
+          el('verifyOutput').className = 'output-block';
+          show('verifyOutput');
+
+          showBanner(
+            data.valid ? '✅ Proof is VALID' : '❌ Proof is INVALID',
+            data.valid ? 'ok' : 'err'
+          );
+        }
+      } catch (e) {
+        hide('verifyLoader');
+        el('verifyOutput').textContent = '❌ Network error: ' + e.message;
+        el('verifyOutput').className = 'output-block error';
+        show('verifyOutput');
+      }
+    }
+
+    // Auto-fill from sessionStorage
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = sessionStorage.getItem('qspid_proof');
+      if (saved) {
+        el('proofInput').value = saved;
+        // Don't remove immediately - let user see it
+      }
+    });
+  </script>
+</body>
+</html>

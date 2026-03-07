@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+  <title>Post-Quantum ML-DSA — QS-PID</title>
+  <meta name="theme-color" content="#020817">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .pq-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .info-text {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+    .key-result {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .key-field {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border-glow);
+    }
+    .key-field:last-child {
+      border-bottom: none;
+    }
+    .key-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .key-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-teal);
+      text-align: right;
+      word-break: break-all;
+      max-width: 60%;
+    }
+    .public-key-truncated {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-teal);
+    }
+    .copy-btn {
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+    .info-footer {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-glow);
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Header -->
+  <header class="page-header">
+    <a href="./index.html" class="back-btn">← Back</a>
+    <h1 class="page-title">POST-QUANTUM CRYPTOGRAPHY</h1>
+  </header>
+
+  <main class="pq-section">
+    <!-- Info Banner -->
+    <div class="info-banner">
+      <h3>NIST FIPS 204 — ML-DSA-65</h3>
+      <p>
+        Module Lattice Digital Signature Algorithm. Quantum computers threaten classical ECC/RSA. 
+        ML-DSA-65 provides quantum-resistant security based on hard lattice problems.
+      </p>
+    </div>
+
+    <!-- Banner -->
+    <div id="statusBanner" class="banner hidden"></div>
+
+    <!-- Generate Button -->
+    <button class="btn-primary" onclick="generateKeyPair()" style="margin-bottom: 1.5rem;">
+      🔑 Generate ML-DSA-65 Key Pair
+    </button>
+
+    <!-- Loader -->
+    <div id="pqLoader" class="hidden">
+      <div class="loader"></div>
+      <p class="loader-text">Generating quantum-safe key pair…</p>
+    </div>
+
+    <!-- Key Result -->
+    <div id="keyResult" class="key-result hidden">
+      <div class="key-field">
+        <span class="key-label">Variant</span>
+        <span class="key-value" id="variantValue">ML-DSA-65</span>
+      </div>
+      <div class="key-field">
+        <span class="key-label">Created At</span>
+        <span class="key-value" id="createdValue">-</span>
+      </div>
+      <div class="key-field">
+        <span class="key-label">Phase</span>
+        <span class="key-value" id="phaseValue">-</span>
+      </div>
+      <div class="key-field">
+        <span class="key-label">Active Algorithms</span>
+        <span class="key-value" id="algorithmsValue">-</span>
+      </div>
+      <div class="key-field">
+        <span class="key-label">Public Key</span>
+        <span class="key-value">
+          <span class="public-key-truncated" id="publicKeyTruncated"></span>
+          <button class="btn-secondary btn-small copy-btn" onclick="copyPublicKey()">📋</button>
+        </span>
+      </div>
+      
+      <details>
+        <summary>View Full JSON</summary>
+        <pre id="pqOutput" class="output-block" style="margin-top: 0.5rem;"></pre>
+      </details>
+
+      <p class="info-footer">
+        🔒 Private key is generated server-side and never transmitted. Only the public key is returned.
+      </p>
+    </div>
+  </main>
+
+  <script>
+    // API Base URL detection
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:3000';
+      }
+      return 'https://zkp-v1-backend.onrender.com';
+    })();
+
+    // DOM helpers
+    function el(id) { return document.getElementById(id); }
+    function show(id) { el(id).classList.remove('hidden'); }
+    function hide(id) { el(id).classList.add('hidden'); }
+
+    // Show banner
+    function showBanner(msg, type = 'ok') {
+      const b = el('statusBanner');
+      b.textContent = msg;
+      b.className = `banner ${type}`;
+      show('statusBanner');
+      setTimeout(() => hide('statusBanner'), 6000);
+    }
+
+    // Format date
+    function formatDate(isoString) {
+      const date = new Date(isoString);
+      return date.toLocaleString();
+    }
+
+    // Truncate public key
+    function truncateHex(hex, startLen = 32, endLen = 8) {
+      if (!hex) return '-';
+      if (hex.length <= startLen + endLen + 3) return hex;
+      return hex.slice(0, startLen) + '…' + hex.slice(-endLen);
+    }
+
+    let currentPublicKey = '';
+
+    // Generate key pair
+    async function generateKeyPair() {
+      hide('keyResult');
+      show('pqLoader');
+
+      try {
+        const res = await fetch(API_BASE + '/api/pq');
+        const data = await res.json();
+
+        hide('pqLoader');
+
+        if (data.error) {
+          showBanner('❌ Error: ' + data.error, 'err');
+        } else {
+          // Update UI
+          el('variantValue').textContent = data.variant || 'ML-DSA-65';
+          el('createdValue').textContent = formatDate(data.createdAt);
+          el('phaseValue').textContent = data.phase || 'Active';
+          el('algorithmsValue').textContent = (data.algorithms || ['ML-DSA-65']).join(', ');
+          
+          currentPublicKey = data.publicKey || '';
+          el('publicKeyTruncated').textContent = truncateHex(currentPublicKey);
+          
+          el('pqOutput').textContent = JSON.stringify(data, null, 2);
+          
+          show('keyResult');
+          showBanner('✅ ML-DSA-65 key pair generated!', 'ok');
+        }
+      } catch (e) {
+        hide('pqLoader');
+        showBanner('❌ Network error: ' + e.message, 'err');
+      }
+    }
+
+    // Copy public key
+    function copyPublicKey() {
+      if (currentPublicKey) {
+        navigator.clipboard.writeText(currentPublicKey).then(() => {
+          showBanner('Public key copied to clipboard!', 'ok');
+        });
+      }
+    }
+  </script>
+</body>
+</html>

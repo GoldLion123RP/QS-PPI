@@ -1,127 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QS-PID Dashboard | Quantum-Safe Privacy-Preserving Identity</title>
-<meta name="description" content="Zero-knowledge income verification with post-quantum security">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
-<style>
-:root{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--accent:#14b8a6;--border:#475569}
-[data-theme=light]{--bg-primary:#fff;--bg-secondary:#f8fafc;--bg-card:#f1f5f9;--text-primary:#0f172a;--text-secondary:#475569;--accent:#0d9488;--border:#cbd5e1}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6;transition:background .3s}
-.header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-.logo{display:flex;align-items:center;gap:.75rem}
-.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#10b981);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.25rem}
-.logo-text h1{font-size:1.125rem;font-weight:600;color:var(--accent)}
-.logo-text p{font-size:.75rem;color:var(--text-secondary)}
-.nav-tabs{display:flex;gap:.5rem}
-.tab{padding:.5rem 1rem;background:0 0;border:none;color:var(--text-secondary);cursor:pointer;font-size:.875rem;font-weight:500;border-radius:6px;transition:all .2s}
-.tab:hover,.tab.active{color:var(--accent);background:var(--bg-card)}
-.theme-switcher{display:flex;gap:.25rem;background:var(--bg-card);padding:.25rem;border-radius:6px}
-.theme-btn{padding:.375rem .75rem;background:0 0;border:none;color:var(--text-secondary);cursor:pointer;font-size:.75rem;border-radius:4px;transition:all .2s}
-.theme-btn.active{background:var(--accent);color:#fff}
-.container{max-width:1200px;margin:0 auto;padding:2rem}
-.tab-content{display:none}
-.tab-content.active{display:block}
-.banner{background:linear-gradient(135deg,var(--bg-secondary),var(--bg-card));border:1px solid var(--border);border-radius:12px;padding:1rem 1.5rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:2rem}
-.stat-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
-.stat-value{font-size:1.5rem;font-weight:600;margin-bottom:.25rem}
-.card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
-.card-title{font-size:.875rem;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
-table{width:100%;border-collapse:collapse;font-size:.75rem}
-th{padding:.75rem 1rem;text-align:left;font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);font-weight:500;background:var(--bg-card)}
-td{padding:.75rem 1rem;border-top:1px solid var(--border)}
-tbody tr:hover{background:var(--bg-card)}
-.badge{display:inline-block;padding:.125rem .5rem;border-radius:9999px;font-size:.625rem;font-weight:600}
-.badge-private{background:rgba(239,68,68,.1);color:#ef4444}
-.badge-public{background:rgba(16,185,129,.1);color:#10b981}
-.mono{font-family:'Courier New',monospace;font-size:.6875rem}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
-@media(max-width:768px){.form-grid,.split-cards,.circuit-steps{grid-template-columns:1fr}}
-.form-group{margin-bottom:1rem}
-label{display:block;font-size:.75rem;font-weight:500;margin-bottom:.5rem}
-input,textarea,select{width:100%;padding:.625rem .75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:.875rem;transition:border .2s}
-input:focus,textarea:focus,select:focus{outline:0;border-color:var(--accent)}
-textarea{min-height:150px;font-family:'Courier New',monospace;font-size:.75rem}
-.small-text{font-size:.6875rem;color:var(--text-secondary);margin-top:.25rem}
-.toggle-group{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:.75rem;margin-bottom:1rem}
-.checkbox-item{display:flex;align-items:center;gap:.5rem;font-size:.75rem;margin-bottom:.25rem}
-.checkbox-item input[type=checkbox]{width:auto}
-.btn{width:100%;padding:.75rem 1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem}
-.btn:hover{background:#10b981;transform:translateY(-1px)}
-.btn-secondary{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border)}
-.btn-secondary:hover{background:var(--border);transform:none}
-.btn-group{display:flex;gap:.5rem;flex-wrap:wrap}
-.btn-small{width:auto;padding:.5rem .75rem;font-size:.75rem}
-.preview-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:.75rem}
-.preview-box pre{font-family:'Courier New',monospace;font-size:.6875rem;line-height:1.6;overflow-x:auto}
-.split-cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
-.circuit-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
-.step{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:1rem}
-.artifact{margin-bottom:.75rem}
-.artifact-value{font-family:'Courier New',monospace;font-size:.6875rem;background:var(--bg-card);padding:.5rem;border-radius:4px;color:var(--accent);overflow-wrap:break-word}
-.success-banner{background:rgba(16,185,129,.1);border:1px solid #10b981;color:#10b981;padding:1rem;border-radius:8px;margin-bottom:1rem;font-size:.875rem;display:none}
-.proof-output{background:var(--bg-card);border:1px solid #10b981;border-radius:8px;padding:1rem;margin-top:1rem;display:none}
-.proof-output pre{font-family:'Courier New',monospace;font-size:.6875rem;overflow-x:auto;max-height:300px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QS-PID — Redirecting…</title>
+  <meta http-equiv="refresh" content="0; url=../frontend/index.html">
+  <meta name="theme-color" content="#020817">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #020817;
+      color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #14b8a6;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    p {
+      color: #64748b;
+    }
+    a {
+      color: #14b8a6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
-<body data-theme="dark">
-<header class="header">
-<div class="logo"><div class="logo-icon">🔒</div><div class="logo-text"><h1>QS-PID</h1><p>Quantum-Safe Privacy-Preserving Identity</p></div></div>
-<nav class="nav-tabs">
-<button class="tab active" data-tab="issuer">Dashboard</button>
-<button class="tab" data-tab="issue">Issue Credential</button>
-<button class="tab" data-tab="wallet">Wallet</button>
-</nav>
-<div class="theme-switcher">
-<button class="theme-btn" data-theme="dark">🌙 Dark</button>
-<button class="theme-btn" data-theme="light">☀️ Light</button>
-<button class="theme-btn" data-theme="auto">🔄 Auto</button>
-</div>
-</header>
-<div class="container">
-<div class="tab-content active" id="issuer">
-<div class="banner"><div style="display:flex;align-items:center;gap:1rem"><div style="width:32px;height:32px;background:rgba(16,185,129,.1);color:#10b981;border-radius:50%;display:flex;align-items:center;justify-content:center">🔐</div><div><div style="font-family:'Courier New',monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:#10b981">NIST FIPS 204: ML-DSA-65 ACTIVE</div><div style="font-family:'Courier New',monospace;font-size:.75rem;color:var(--text-secondary);margin-top:.25rem">ZKP Curve: <span style="color:var(--accent)">BN254 (Groth16)</span></div></div></div></div>
-<div class="stats-grid">
-<div class="stat-card"><div style="font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:.5rem">Issued Credentials</div><div class="stat-value">1,248</div><div style="font-size:.75rem;color:var(--text-secondary)">Last 24h: 132</div></div>
-<div class="stat-card"><div style="font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:.5rem">Circuit Constraints</div><div class="stat-value">~145K</div><div style="font-size:.75rem;color:var(--text-secondary)">Groth16</div></div>
-<div class="stat-card"><div style="font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:.5rem">Avg. Proof Time</div><div class="stat-value">220 ms</div><div style="font-size:.75rem;color:var(--text-secondary)">Browser WASM</div></div>
-<div class="stat-card"><div style="font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:.5rem">Jaccard Similarity</div><div class="stat-value">&lt; 0.05</div><div style="font-size:.75rem;color:var(--text-secondary)">Unlinkable</div></div>
-</div>
-<div class="card"><div class="card-title">🗂️ Issuer Registry</div><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Holder ID</th><th>Income <span class="badge badge-private">PRIVATE</span></th><th>Salt <span class="badge badge-private">PRIVATE</span></th><th>Commitment <span class="badge badge-public">PUBLIC</span></th></tr></thead><tbody><tr><td>1</td><td class="mono">did:key:z6Mkh...a91</td><td>₹9,00,000</td><td class="mono">0x8f3a...d21c</td><td class="mono" style="color:var(--accent)">0x1267...89ab</td></tr><tr><td>2</td><td class="mono">did:key:z6Mkf...b72</td><td>₹6,00,000</td><td class="mono">0x4bc1...aa09</td><td class="mono" style="color:var(--accent)">0x9f42...77cd</td></tr><tr><td>3</td><td class="mono">did:key:z6Mkq...c33</td><td>₹5,00,000</td><td class="mono">0xbe23...01ff</td><td class="mono" style="color:var(--accent)">0x3a91...10ef</td></tr></tbody></table></div></div>
-</div>
-<div class="tab-content" id="issue">
-<div id="issuanceBanner" class="success-banner">✅ Credential issued! Click "Load into Wallet" below.</div>
-<div class="card"><div class="card-title">📝 Issue Credential</div><p style="font-size:.75rem;color:var(--text-secondary);margin-bottom:1.5rem">Issue W3C VC 2.0 income credentials with quantum-safe signatures.</p>
-<div class="form-grid"><div><div class="form-group"><label>FULL NAME</label><input type="text" id="name" value="Rahul Pal"></div><div class="form-group"><label>ANNUAL INCOME (INR)</label><input type="number" id="incomeInput" value="750000"><div class="small-text">1 Lakh = 100,000 INR. Example: 5 LPA = 500,000</div></div><div class="form-group"><label>EMPLOYER</label><select id="employer"><option>HDFC Bank</option><option>ICICI Bank</option><option>TCS</option><option>Infosys</option><option>Reliance</option></select></div><div class="form-group"><label>ISSUANCE DATE</label><input type="date" id="issueDate" value="2026-03-01"></div><div class="toggle-group"><div style="font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:.5rem">Cryptographic Pipeline</div><div class="checkbox-item"><input type="checkbox" checked disabled><span>32-byte Salt</span></div><div class="checkbox-item"><input type="checkbox" checked disabled><span>HybridSigner (ECDSA+ML-DSA)</span></div><div class="checkbox-item"><input type="checkbox" checked disabled><span>JSON-LD Format</span></div></div><button class="btn" onclick="issueCredential()">✓ Issue Credential</button><div class="btn-group" style="margin-top:.5rem"><button class="btn btn-secondary btn-small" onclick="downloadCredential()">⬇️ Download</button><button class="btn btn-secondary btn-small" onclick="copyCredential()">📋 Copy</button><button class="btn btn-secondary btn-small" onclick="loadIntoWallet()">📦 Load into Wallet</button></div></div><div><div style="display:flex;justify-content:space-between;margin-bottom:.75rem"><div class="card-title" style="margin:0">W3C VC 2.0 Preview</div><span style="background:var(--bg-card);padding:.25rem .75rem;border-radius:9999px;font-size:.6875rem;font-family:'Courier New',monospace;color:var(--accent)">application/vc+ld+json</span></div><div class="preview-box"><pre id="vcPreview"></pre></div></div></div></div>
-</div>
-<div class="tab-content" id="wallet">
-<div class="split-cards"><div class="card"><div class="card-title">Personal Info <span class="badge badge-private" style="margin-left:auto">PRIVATE</span></div><div style="display:flex;flex-direction:column;gap:.75rem;font-size:.875rem"><div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">Name</span><span id="walletName">Rahul Pal</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">Employer</span><span id="walletEmployer">HDFC Bank</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">Income</span><span id="walletIncome">₹7,50,000 (7.5 LPA)</span></div></div></div><div class="card"><div class="card-title">Crypto Artifacts <span class="badge badge-public" style="margin-left:auto">ZK-READY</span></div><div class="artifact"><div style="font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:.25rem">Poseidon Commitment</div><div class="artifact-value" id="walletCommit">0x1267942178626015729959527860566833613012679421786260157...</div></div><div class="artifact"><div style="font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:.25rem">Session Nonce</div><div class="artifact-value" id="walletNonce">0x9f83b1c0ee14a2f9d7c4a8bbd2ac019f...</div></div><div class="artifact"><div style="font-size:.6875rem;text-transform:uppercase;color:var(--text-secondary);margin-bottom:.25rem">ML-DSA-65 Signature</div><div class="artifact-value" style="color:#10b981" id="walletSig">mldsa65_sig_01fdd92d4f9b3c1a7e6c9b0e2a3f4d5c6b7a8e9f0d1c2b3...</div></div><div class="btn-group" style="margin-top:.75rem"><button class="btn btn-secondary btn-small" onclick="downloadWallet()">⬇️ Download</button></div></div></div>
-<div class="card"><div class="card-title">💻 ZKP Circuit Logic <span style="margin-left:auto;font-size:.6875rem;background:var(--bg-card);padding:.25rem .75rem;border-radius:9999px;font-family:'Courier New',monospace" id="circuitParams">income: 750,000 · threshold: 500,000</span></div><div class="circuit-steps"><div class="step"><div style="font-size:.75rem;font-weight:600;margin-bottom:.5rem"><span style="color:#10b981">✓</span> Num2Bits(32)</div><div style="font-size:.6875rem;color:var(--text-secondary)">Prevent field overflow (BN254)</div></div><div class="step"><div style="font-size:.75rem;font-weight:600;margin-bottom:.5rem"><span style="color:#10b981">✓</span> Income &gt; Threshold</div><div style="font-size:.6875rem;color:var(--text-secondary)">GreaterThan(32) comparison</div></div><div class="step"><div style="font-size:.75rem;font-weight:600;margin-bottom:.5rem"><span style="color:#10b981">✓</span> Fiat-Shamir</div><div style="font-size:.6875rem;color:var(--text-secondary)">Challenge binding (replay protection)</div></div></div></div>
-<div class="card"><div class="card-title">🔑 Verifier Challenge</div><div style="font-size:.75rem;color:var(--text-secondary);margin-bottom:1rem">Generate ZK proof showing income &gt; 5 LPA without revealing exact amount.</div><div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem"><div><div class="form-group"><label>Challenge (optional)</label><input type="text" id="verifierChallenge" placeholder="e.g., bank-loan-2026"><div class="small-text">Challenge included in Fiat-Shamir transcript</div></div></div><div style="display:flex;align-items:end"><button class="btn" onclick="generateProofForVerifier()">✓ Generate Proof</button></div></div><div id="proofOutput" class="proof-output"><div style="display:flex;justify-content:space-between;margin-bottom:.75rem"><span style="font-weight:600;color:#10b981">✅ ZK Proof Generated</span><div style="display:flex;gap:.5rem"><button class="btn btn-secondary btn-small" onclick="downloadProof()">⬇️ Download</button><button class="btn btn-secondary btn-small" onclick="copyProof()">📋 Copy</button></div></div><pre id="proofJSON"></pre></div></div>
-</div>
-</div>
-<script>
-let cred=null,proof=null;
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{const tab=t.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById(tab).classList.add('active')}));
-document.querySelectorAll('.theme-btn').forEach(b=>b.addEventListener('click',()=>{const th=b.dataset.theme;document.querySelectorAll('.theme-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(th==='auto'){const pd=window.matchMedia('(prefers-color-scheme: dark)').matches;document.body.dataset.theme=pd?'dark':'light'}else{document.body.dataset.theme=th}localStorage.setItem('qspid-theme',th)}));
-const saved=localStorage.getItem('qspid-theme')||'dark';document.querySelector(`[data-theme="${saved}"]`).click();
-function genHex(n){let r='';const c='0123456789abcdef';for(let i=0;i<n;i++)r+=c.charAt(Math.floor(Math.random()*c.length));return '0x'+r}
-function fmtIncome(i){const l=(i/100000).toFixed(1);return `₹${parseInt(i).toLocaleString('en-IN')} (${l} LPA)`}
-function updateVC(){const n=document.getElementById('name').value||'Rahul Pal',inc=document.getElementById('incomeInput').value||750000,emp=document.getElementById('employer').value,dt=document.getElementById('issueDate').value||'2026-03-01';const vc={"@context":["https://www.w3.org/ns/credentials/v2","https://schema.org"],type:["VerifiableCredential","IncomeCredential"],issuer:"did:key:issuer-bank-001",issuanceDate:dt,credentialSubject:{id:"did:key:subject-xyz",name:n,employer:emp,annualIncomeINR:parseInt(inc),thresholdINR:500000,jurisdiction:"IN"},proof:{type:"HybridSignature2024",created:new Date().toISOString(),ecdsaSignature:genHex(64),mldsaSignature:"mldsa65_sig_"+genHex(64)},cryptographicBinding:{blindingSalt:genHex(64),incomeHashCommit:genHex(64),sessionNonce:genHex(64)}};cred=vc;document.getElementById('vcPreview').textContent=JSON.stringify(vc,null,2)}
-document.getElementById('name').addEventListener('input',updateVC);document.getElementById('incomeInput').addEventListener('input',updateVC);document.getElementById('employer').addEventListener('change',updateVC);document.getElementById('issueDate').addEventListener('change',updateVC);
-function issueCredential(){updateVC();document.getElementById('issuanceBanner').style.display='block';setTimeout(()=>document.getElementById('issuanceBanner').style.display='none',5000)}
-function downloadCredential(){if(!cred){alert('⚠️ Issue credential first!');return}const b=new Blob([JSON.stringify(cred,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`qspid-credential-${Date.now()}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u)}
-function copyCredential(){if(!cred){alert('⚠️ Issue credential first!');return}navigator.clipboard.writeText(JSON.stringify(cred,null,2)).then(()=>alert('✅ Copied!'))}
-function loadIntoWallet(){if(!cred){alert('⚠️ Issue credential first!');return}const s=cred.credentialSubject,c=cred.cryptographicBinding;document.getElementById('walletName').textContent=s.name;document.getElementById('walletEmployer').textContent=s.employer;document.getElementById('walletIncome').textContent=fmtIncome(s.annualIncomeINR);document.getElementById('walletCommit').textContent=c.incomeHashCommit;document.getElementById('walletNonce').textContent=c.sessionNonce;document.getElementById('walletSig').textContent=cred.proof.mldsaSignature;document.getElementById('circuitParams').textContent=`income: ${s.annualIncomeINR.toLocaleString()} · threshold: 500,000`;document.querySelector('[data-tab="wallet"]').click();alert('✅ Loaded into wallet!')}
-function downloadWallet(){const w={personalInfo:{name:document.getElementById('walletName').textContent,employer:document.getElementById('walletEmployer').textContent,income:document.getElementById('walletIncome').textContent},cryptoArtifacts:{incomeHashCommit:document.getElementById('walletCommit').textContent,sessionNonce:document.getElementById('walletNonce').textContent,mldsaSignature:document.getElementById('walletSig').textContent},credential:cred},b=new Blob([JSON.stringify(w,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`qspid-wallet-${Date.now()}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u)}
-function generateProofForVerifier(){const ch=document.getElementById('verifierChallenge').value||'demo-challenge-'+Date.now(),inc=parseInt(document.getElementById('incomeInput').value)||750000,thr=500000,isV=inc>thr;const p={"@context":"https://w3id.org/security/v2",type:"Groth16ZKProof",created:new Date().toISOString(),verifierChallenge:ch,groth16Proof:{A:[genHex(64),genHex(64)],B:[[genHex(64),genHex(64)],[genHex(64),genHex(64)]],C:[genHex(64),genHex(64)]},publicSignals:{isValid:isV,threshold:thr,incomeHashCommit:document.getElementById('walletCommit').textContent,verifierId:"verifier-demo-001",timestamp:Math.floor(Date.now()/1000)},circuitInfo:{circuit:"circuits_incomeProof.circom",constraints:145238,curve:"BN254"},privacyGuarantee:{exactIncomeRevealed:false,verifierLearns:`Only that income ${isV?'>':'≤'} ${thr.toLocaleString()} INR`}};proof=p;document.getElementById('proofJSON').textContent=JSON.stringify(p,null,2);document.getElementById('proofOutput').style.display='block'}
-function downloadProof(){if(!proof){alert('⚠️ Generate proof first!');return}const b=new Blob([JSON.stringify(proof,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`qspid-zkproof-${Date.now()}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u)}
-function copyProof(){if(!proof){alert('⚠️ Generate proof first!');return}navigator.clipboard.writeText(JSON.stringify(proof,null,2)).then(()=>alert('✅ Proof copied!'))}
-updateVC();
-</script>
+<body>
+  <div class="loader"></div>
+  <p>Redirecting to QS-PID Dashboard…</p>
+  <p>If you're not redirected, <a href="../frontend/index.html">click here</a>.</p>
+  <script>
+    window.location.replace('../frontend/index.html');
+  </script>
 </body>
 </html>

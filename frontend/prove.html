@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+  <meta name="theme-color" content="#020817">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .prove-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Header -->
+  <header class="page-header">
+    <a href="./index.html" class="back-btn">← Back</a>
+    <h1 class="page-title">GENERATE INCOME PROOF</h1>
+  </header>
+
+  <main class="prove-section">
+    <p class="subtitle">
+      Your actual income is never revealed — only whether it exceeds the threshold.
+    </p>
+
+    <!-- Banner -->
+    <div id="statusBanner" class="banner hidden"></div>
+
+    <!-- Form -->
+    <div class="card">
+      <div class="form-group">
+        <label for="incomeLPA">Annual Income <span class="unit-badge">LPA</span></label>
+        <div class="input-wrap">
+          <input type="number" id="incomeLPA" placeholder="e.g. 7" min="0" step="0.1" oninput="onLPAInput('income')">
+          <span class="inr-tag" id="incomeINR">₹0</span>
+        </div>
+        <span class="helper">1 LPA = ₹1,00,000 · 5 LPA = ₹5,00,000</span>
+      </div>
+
+      <div class="form-group">
+        <label for="thresholdLPA">Threshold <span class="unit-badge">LPA</span></label>
+        <div class="input-wrap">
+          <input type="number" id="thresholdLPA" value="5" min="1" step="0.1" oninput="onLPAInput('threshold')">
+          <span class="inr-tag" id="thresholdINR">₹5,00,000</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="verifierId">Verifier ID</label>
+        <input type="text" id="verifierId" value="demo-verifier-001">
+      </div>
+
+      <button id="proveBtn" class="btn-primary" onclick="generateProof()">
+        ⚡ Generate Proof
+      </button>
+
+      <!-- Loader -->
+      <div id="proveLoader" class="hidden">
+        <div class="loader"></div>
+        <p class="loader-text">Generating cryptographic proof…</p>
+      </div>
+
+      <!-- Proof Summary -->
+      <div id="proveSummary"></div>
+
+      <!-- Output -->
+      <pre id="proveOutput" class="output-block hidden"></pre>
+
+      <!-- Action Buttons -->
+      <div id="actionButtons" class="hidden mt-2" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <button class="btn-secondary btn-small" onclick="copyProofJSON()">
+          📋 Copy Proof JSON
+        </button>
+        <button class="btn-secondary btn-small" onclick="verifyThisProof()">
+          ✅ Verify This Proof
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // API Base URL detection
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:3000';
+      }
+      return 'https://zkp-v1-backend.onrender.com';
+    })();
+
+    // Unit constants (from app.js)
+    const UNITS_PER_LPA = 100_000_000;
+    const RUPEES_PER_LPA = 100_000;
+
+    // DOM helpers
+    function el(id) { return document.getElementById(id); }
+    function show(id) { el(id).classList.remove('hidden'); }
+    function hide(id) { el(id).classList.add('hidden'); }
+
+    // Format INR
+    function formatINR(amount) {
+      const n = Math.round(parseFloat(amount || 0));
+      if (isNaN(n) || n === 0) return '₹0';
+      const s = n.toString();
+      if (s.length <= 3) return '₹' + s;
+      const last3 = s.slice(-3);
+      const rest = s.slice(0, -3);
+      const fmt = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+      return '₹' + fmt + ',' + last3;
+    }
+
+    // LPA to units
+    function lpaToUnits(lpa) {
+      return Math.round(parseFloat(lpa || 0) * UNITS_PER_LPA).toString();
+    }
+
+    // LPA input handler
+    function onLPAInput(field) {
+      const lpaVal = parseFloat(el(field + 'LPA').value || 0);
+      const rupees = lpaVal * RUPEES_PER_LPA;
+      el(field + 'INR').textContent = formatINR(rupees);
+    }
+
+    // Get form values
+    function getFormValues() {
+      const incomeLPA = parseFloat(el('incomeLPA').value || 0);
+      const thresholdLPA = parseFloat(el('thresholdLPA').value || 5);
+      const verifierId = el('verifierId').value.trim() || 'demo-verifier-001';
+      return {
+        income: lpaToUnits(incomeLPA),
+        threshold: lpaToUnits(thresholdLPA),
+        verifierId,
+        incomeLPA,
+        thresholdLPA,
+      };
+    }
+
+    // Show banner
+    function showBanner(msg, type = 'ok') {
+      const b = el('statusBanner');
+      b.textContent = msg;
+      b.className = `banner ${type}`;
+      show('statusBanner');
+      setTimeout(() => hide('statusBanner'), 6000);
+    }
+
+    // Render proof summary
+    function renderProofSummary(res, thresholdLPA) {
+      // Remove old summary if exists
+      const old = document.getElementById('proveSummary');
+      if (old) old.remove();
+
+      const income = res.isValid ? '≥ ' + thresholdLPA + ' LPA' : '< ' + thresholdLPA + ' LPA';
+      const incomeINR = res.isValid
+        ? '≥ ' + formatINR(thresholdLPA * RUPEES_PER_LPA)
+        : '< ' + formatINR(thresholdLPA * RUPEES_PER_LPA);
+
+      // Create summary div
+      const div = document.createElement('div');
+      div.id = 'proveSummary';
+      div.className = 'proof-summary';
+      div.innerHTML = `
+        <div class="row">
+          <span class="k">Result</span>
+          <span class="v ${res.isValid ? 'green' : 'red'}">
+            ${res.isValid ? '✅ Income ABOVE threshold' : '❌ Income BELOW threshold'}
+          </span>
+        </div>
+        <div class="row">
+          <span class="k">Threshold</span>
+          <span class="v">${thresholdLPA} LPA (${formatINR(thresholdLPA * RUPEES_PER_LPA)})</span>
+        </div>
+        <div class="row">
+          <span class="k">Your Income</span>
+          <span class="v">${income} (${incomeINR})</span>
+        </div>
+        <div class="row">
+          <span class="k">Privacy</span>
+          <span class="v green">🔐 Actual amount hidden</span>
+        </div>
+        ${res._demo ? '<div class="row"><span class="k">Mode</span><span class="v" style="color:#f59e0b">Demo (compile circuit for real proofs)</span></div>' : ''}
+      `;
+      
+      // Insert after the button
+      const btn = el('proveBtn');
+      btn.parentNode.insertBefore(div, btn.nextSibling);
+    }
+
+    // Generate proof
+    async function generateProof() {
+      const { income, threshold, verifierId, incomeLPA, thresholdLPA } = getFormValues();
+
+      if (!incomeLPA || incomeLPA <= 0) {
+        showBanner('Please enter your income in LPA (e.g. 7 for ₹7,00,000).', 'err');
+        return;
+      }
+
+      hide('proveOutput');
+      hide('proveSummary');
+      hide('actionButtons');
+      show('proveLoader');
+      el('proveBtn').disabled = true;
+
+      try {
+        const res = await fetch(API_BASE + '/api/prove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ income, threshold, verifierId })
+        });
+        const data = await res.json();
+
+        hide('proveLoader');
+        el('proveBtn').disabled = false;
+
+        if (data.error) {
+          el('proveOutput').textContent = '❌ Error: ' + data.error;
+          el('proveOutput').className = 'output-block error';
+          show('proveOutput');
+          showBanner('Proof generation failed.', 'err');
+        } else {
+          renderProofSummary(data, thresholdLPA);
+          el('proveOutput').textContent = JSON.stringify(data, null, 2);
+          el('proveOutput').className = 'output-block';
+          show('proveOutput');
+          show('actionButtons');
+          
+          // Store proof in sessionStorage
+          sessionStorage.setItem('qspid_proof', JSON.stringify(data));
+          
+          showBanner(
+            data.isValid
+              ? `✅ Income verified ≥ ${thresholdLPA} LPA (${formatINR(thresholdLPA * RUPEES_PER_LPA)})`
+              : `⚠️ Income is below ${thresholdLPA} LPA`,
+            data.isValid ? 'ok' : 'err'
+          );
+        }
+      } catch (e) {
+        hide('proveLoader');
+        el('proveBtn').disabled = false;
+        el('proveOutput').textContent = '❌ Network error: ' + e.message;
+        el('proveOutput').className = 'output-block error';
+        show('proveOutput');
+      }
+    }
+
+    // Copy proof JSON
+    function copyProofJSON() {
+      const proof = el('proveOutput').textContent;
+      navigator.clipboard.writeText(proof).then(() => {
+        showBanner('Proof JSON copied to clipboard!', 'ok');
+      });
+    }
+
+    // Verify this proof
+    function verifyThisProof() {
+      window.open('./verify.html?auto=1', '_blank');
+    }
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      el('incomeLPA').value = '';
+      el('thresholdLPA').value = '5';
+      onLPAInput('threshold');
+    });
+  </script>
+</body>
+</html>

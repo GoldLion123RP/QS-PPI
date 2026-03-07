@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+  <title>System Status — QS-PID</title>
+  <meta name="theme-color" content="#020817">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .status-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .status-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .status-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .status-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .status-value.online {
+      color: var(--accent-green);
+    }
+    .status-value.offline {
+      color: var(--accent-red);
+    }
+    .status-value.yes {
+      color: var(--accent-green);
+    }
+    .status-value.no {
+      color: var(--accent-red);
+    }
+    .api-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+    .api-table th {
+      padding: 0.75rem;
+      text-align: left;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    .api-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border-glow);
+      font-size: 0.8rem;
+    }
+    .method-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .method-post {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-green);
+    }
+    .method-get {
+      background: rgba(6, 182, 212, 0.2);
+      color: var(--accent-cyan);
+    }
+    .last-checked {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Header -->
+  <header class="page-header">
+    <a href="./index.html" class="back-btn">← Back</a>
+    <h1 class="page-title">SYSTEM STATUS</h1>
+  </header>
+
+  <main class="status-section">
+    <!-- Status Cards -->
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="status-label">Backend Status</div>
+        <div class="status-value" id="backendStatus">
+          <span class="status-dot"></span>
+          Checking...
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Artifacts Ready</div>
+        <div class="status-value" id="artifactsStatus">-</div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Node Version</div>
+        <div class="status-value" id="nodeVersion">-</div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Uptime</div>
+        <div class="status-value" id="uptime">-</div>
+      </div>
+    </div>
+
+    <!-- API Endpoints Table -->
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; font-family: 'Rajdhani', sans-serif;">API Endpoints</h3>
+      <table class="api-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody id="endpointsTable">
+          <tr>
+            <td><span class="method-badge method-post">POST</span></td>
+            <td>/api/prove</td>
+            <td>Generate ZKP income proof</td>
+          </tr>
+          <tr>
+            <td><span class="method-badge method-post">POST</span></td>
+            <td>/api/verify</td>
+            <td>Verify a proof</td>
+          </tr>
+          <tr>
+            <td><span class="method-badge method-get">GET</span></td>
+            <td>/api/pq</td>
+            <td>ML-DSA key pair demo</td>
+          </tr>
+          <tr>
+            <td><span class="method-badge method-get">GET</span></td>
+            <td>/api/status</td>
+            <td>System status</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Refresh Button -->
+      <button class="btn-secondary" onclick="fetchStatus()" style="width: 100%;">
+        🔄 Refresh Status
+      </button>
+
+      <!-- Raw JSON -->
+      <details style="margin-top: 1rem;">
+        <summary>View Raw JSON</summary>
+        <pre id="statusOutput" class="output-block" style="margin-top: 0.5rem;"></pre>
+      </details>
+
+      <div class="last-checked" id="lastChecked">
+        Last checked: -
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // API Base URL detection
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:3000';
+      }
+      return 'https://zkp-v1-backend.onrender.com';
+    })();
+
+    // DOM helpers
+    function el(id) { return document.getElementById(id); }
+
+    // Fetch status
+    async function fetchStatus() {
+      try {
+        const res = await fetch(API_BASE + '/api/status');
+        const data = await res.json();
+
+        // Update status cards
+        const backendStatus = el('backendStatus');
+        if (data.status === 'online') {
+          backendStatus.innerHTML = '<span class="status-dot online"></span>ONLINE';
+          backendStatus.className = 'status-value online';
+        } else {
+          backendStatus.innerHTML = '<span class="status-dot offline"></span>OFFLINE';
+          backendStatus.className = 'status-value offline';
+        }
+
+        const artifactsStatus = el('artifactsStatus');
+        if (data.artifactsReady) {
+          artifactsStatus.textContent = '✅ YES';
+          artifactsStatus.className = 'status-value yes';
+        } else {
+          artifactsStatus.textContent = '❌ NO';
+          artifactsStatus.className = 'status-value no';
+        }
+
+        el('nodeVersion').textContent = data.nodeVersion || '-';
+        el('nodeVersion').className = 'status-value';
+
+        el('uptime').textContent = data.uptime || '-';
+        el('uptime').className = 'status-value';
+
+        // Update raw JSON
+        el('statusOutput').textContent = JSON.stringify(data, null, 2);
+
+        // Update last checked
+        el('lastChecked').textContent = 'Last checked: ' + new Date().toLocaleTimeString();
+
+      } catch (e) {
+        // Backend unreachable
+        el('backendStatus').innerHTML = '<span class="status-dot offline"></span>OFFLINE';
+        el('backendStatus').className = 'status-value offline';
+        el('artifactsStatus').textContent = '❌ NO';
+        el('artifactsStatus').className = 'status-value no';
+        el('nodeVersion').textContent = '-';
+        el('uptime').textContent = '-';
+        el('statusOutput').textContent = 'Error: ' + e.message;
+        el('lastChecked').textContent = 'Last checked: ' + new Date().toLocaleTimeString() + ' (failed)';
+      }
+    }
+
+    // Fetch on load
+    window.addEventListener('DOMContentLoaded', fetchStatus);
+  </script>
+</body>
+</html>
