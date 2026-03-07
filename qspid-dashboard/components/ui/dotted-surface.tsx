@@ -4,11 +4,18 @@ import { useTheme } from 'next-themes';
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
+// Theme color constants for consistency
+const DARK_BG_COLOR = '#0a0a0a';
+const LIGHT_BG_COLOR = '#f5f5f5';
+const DARK_FOG_COLOR = 0x0a0a0a;
+const LIGHT_FOG_COLOR = 0xf5f5f5;
+
 type DottedSurfaceProps = Omit<React.ComponentProps<'div'>, 'ref'>;
 
 export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 	const { theme } = useTheme();
-	const [hasWebGL, setHasWebGL] = useState(true);
+	// Initialize as null to indicate "checking" state - prevents flash of wrong content
+	const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
 
 	const containerRef = useRef<HTMLDivElement>(null);
 	const sceneRef = useRef<{
@@ -21,10 +28,8 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 	} | null>(null);
 
 	useEffect(() => {
-		console.log('[DottedSurface] Component mounted, theme:', theme);
-
+		// WebGL check runs in useEffect to avoid SSR issues
 		if (!containerRef.current) {
-			console.error('[DottedSurface] Container ref is null!');
 			return;
 		}
 
@@ -33,7 +38,6 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 			const canvas = document.createElement('canvas');
 			const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 			if (!gl) {
-				console.warn('[DottedSurface] WebGL not supported, using fallback');
 				setHasWebGL(false);
 				// Add a fallback CSS background for offline/no-WebGL mode
 				// Default to dark mode pattern since that's the default theme
@@ -42,12 +46,10 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 					? 'radial-gradient(circle, rgba(100,100,100,0.4) 1px, transparent 1px)'
 					: 'radial-gradient(circle, rgba(0,0,0,0.15) 1px, transparent 1px)';
 				containerRef.current.style.backgroundSize = '30px 30px';
-				containerRef.current.style.backgroundColor = isDarkMode ? '#0a0a0a' : '#f5f5f5';
+				containerRef.current.style.backgroundColor = isDarkMode ? DARK_BG_COLOR : LIGHT_BG_COLOR;
 				return;
 			}
-			console.log('[DottedSurface] WebGL context available');
 		} catch (e) {
-			console.error('[DottedSurface] Error checking WebGL:', e);
 			setHasWebGL(false);
 			return;
 		}
@@ -58,11 +60,10 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 
 		// Determine if dark mode - default to dark if theme is undefined (offline/initial load)
 		const isDark = theme === 'dark' || theme === undefined;
-		console.log('[DottedSurface] Using dark mode:', isDark);
 
 		// Scene setup with fog that matches background
 		const scene = new THREE.Scene();
-		const fogColor = isDark ? 0x0a0a0a : 0xf5f5f5;
+		const fogColor = isDark ? DARK_FOG_COLOR : LIGHT_FOG_COLOR;
 		scene.fog = new THREE.Fog(fogColor, 2000, 10000);
 
 		const camera = new THREE.PerspectiveCamera(
@@ -178,8 +179,8 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 		};
 
 		// Cleanup function
+		// Note: hasWebGL intentionally not in deps - we only check once on mount
 		return () => {
-			console.log('[DottedSurface] Cleaning up Three.js resources');
 			window.removeEventListener('resize', handleResize);
 
 			if (sceneRef.current) {
@@ -206,7 +207,12 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 				}
 			}
 		};
-	}, [theme]);
+	}, [theme]); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// Render nothing while checking for WebGL (avoids flash of wrong content)
+	if (hasWebGL === null) {
+		return null;
+	}
 
 	// If no WebGL, return a pure CSS fallback
 	if (!hasWebGL) {
@@ -216,8 +222,8 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 				className={cn(
 					'pointer-events-none fixed inset-0 -z-10',
 					isDark 
-						? 'bg-[radial-gradient(circle,rgba(100,100,100,0.4)_1px,transparent_1px)] bg-[size:30px_30px] bg-[#0a0a0a]'
-						: 'bg-[radial-gradient(circle,rgba(0,0,0,0.15)_1px,transparent_1px)] bg-[size:30px_30px] bg-[#f5f5f5]',
+						? `bg-[radial-gradient(circle,rgba(100,100,100,0.4)_1px,transparent_1px)] bg-[size:30px_30px] bg-[${DARK_BG_COLOR}]`
+						: `bg-[radial-gradient(circle,rgba(0,0,0,0.15)_1px,transparent_1px)] bg-[size:30px_30px] bg-[${LIGHT_BG_COLOR}]`,
 					className
 				)}
 				{...props}
