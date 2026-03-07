@@ -16,7 +16,9 @@ node --version
 
 ### Step 2: Check Project Structure
 ```bash
-ls -la
+dir
+# Or
+Get-ChildItem | Format-List
 # You should see: frontend/, src/, circuits/, tests/, package.json
 ```
 

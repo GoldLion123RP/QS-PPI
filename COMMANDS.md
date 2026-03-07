@@ -28,6 +28,19 @@ Get-ChildItem -Directory | ForEach-Object {
 } | Sort-Object 'Size(MB)' -Descending | Format-Table -AutoSize
 ```
 
+## List files (use PowerShell, not bash)
+
+```powershell
+# Basic listing
+dir
+
+# Detailed listing
+Get-ChildItem | Format-List
+
+# Recursive listing
+Get-ChildItem -Recurse
+```
+
 ## Cleanup (make it small)
 
 ```powershell

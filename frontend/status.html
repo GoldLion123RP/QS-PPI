@@ -7,7 +7,6 @@
   <title>System Status — QS-PID</title>
   <meta name="theme-color" content="#020817">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="stylesheet" href="style.css">
   <style>
     .status-section {
@@ -95,8 +94,8 @@
   </style>
 </head>
 <body>
-  <!-- Three.js Dotted Surface Background -->
-  <div id="dotted-surface-container"></div>
+  <!-- CSS-only Dotted Surface Background (works offline!) -->
+  <div class="dotted-bg"></div>
 
   <!-- Page Header -->
   <header class="page-header">
@@ -247,99 +246,6 @@
 
     // Fetch on load
     window.addEventListener('DOMContentLoaded', fetchStatus);
-
-    // Three.js Dotted Surface Background
-    (function() {
-      const container = document.getElementById('dotted-surface-container');
-      if (!container || typeof THREE === 'undefined') return;
-
-      const SEPARATION = 150;
-      const AMOUNTX = 40;
-      const AMOUNTY = 60;
-
-      let scene, camera, renderer;
-      let particles, geometry, material;
-      let count = 0;
-
-      function init() {
-        // Scene
-        scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x020817, 2000, 10000);
-
-        // Camera
-        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.set(0, 355, 1220);
-
-        // Renderer
-        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x000000, 0);
-        container.appendChild(renderer.domElement);
-
-        // Create particles
-        const positions = [];
-        const colors = [];
-
-        for (let ix = 0; ix < AMOUNTX; ix++) {
-          for (let iy = 0; iy < AMOUNTY; iy++) {
-            const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
-            const y = 0;
-            const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
-
-            positions.push(x, y, z);
-            // Teal/cyan colors for QS-PID theme
-            colors.push(0.08, 0.72, 0.65); // teal-400
-          }
-        }
-
-        geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-        material = new THREE.PointsMaterial({
-          size: 8,
-          vertexColors: true,
-          transparent: true,
-          opacity: 0.6,
-          sizeAttenuation: true
-        });
-
-        particles = new THREE.Points(geometry, material);
-        scene.add(particles);
-
-        animate();
-      }
-
-      function animate() {
-        requestAnimationFrame(animate);
-
-        const positionAttribute = geometry.attributes.position;
-        const positions = positionAttribute.array;
-
-        let i = 0;
-        for (let ix = 0; ix < AMOUNTX; ix++) {
-          for (let iy = 0; iy < AMOUNTY; iy++) {
-            const index = i * 3;
-            positions[index + 1] = Math.sin((ix + count) * 0.3) * 50 + Math.sin((iy + count) * 0.5) * 50;
-            i++;
-          }
-        }
-
-        positionAttribute.needsUpdate = true;
-        renderer.render(scene, camera);
-        count += 0.1;
-      }
-
-      function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }
-
-      window.addEventListener('resize', onWindowResize);
-      init();
-    })();
   </script>
 </body>
 </html>

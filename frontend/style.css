@@ -292,6 +292,57 @@ textarea.mono, .output-block {
   pointer-events: none;
 }
 
+/* CSS-only Dotted Surface Background (offline compatible) */
+.dotted-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+.dotted-bg::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background-image: radial-gradient(var(--accent-teal) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.15;
+  animation: dottedWave 20s linear infinite;
+}
+
+.dotted-bg::after {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background-image: radial-gradient(var(--accent-cyan) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.1;
+  animation: dottedWaveReverse 30s linear infinite;
+}
+
+@keyframes dottedWave {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-20px) translateX(10px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes dottedWaveReverse {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(15px) translateX(-10px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
 /* ── Form Elements ───────────────────────────────────────────────── */
 .form-group {
   margin-bottom: 1rem;
