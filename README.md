@@ -2,12 +2,11 @@
 
 **A Zero-Knowledge Proof (ZKP) system for privacy-preserving income verification using post-quantum cryptography.**
 
----
+<!-- --- -->
 
 <!-- ## 🎉 Live Demo
 
 **🔗 [https://goldlion123rp.github.io/zkp_v1/](https://goldlion123rp.github.io/zkp_v1/)** — Interactive dashboard (enable GitHub Pages first, see [docs/README.md](./docs/README.md)) -->
-
 ---
 
 ## 🎯 Problem Statement
