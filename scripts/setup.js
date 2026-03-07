@@ -178,24 +178,56 @@ async function main() {
         // This is the step that was MISSING in all previous versions.
         // snarkjs.zKey.newZKey needs a phase-2 prepared file.
         console.log('\n[*] Preparing phase-2 ptau (this takes ~20-40 sec)...');
-        if (fs.existsSync(PTAU2_PATH)) {
+        const r1csPath = path.join(ARTIFACTS, CIRCUIT + '.r1cs');
+        
+        // Check if ptau needs regeneration (if r1cs is newer)
+        let needsRegen = !fs.existsSync(PTAU2_PATH);
+        if (!needsRegen && fs.existsSync(r1csPath)) {
+            try {
+                const ptauStat = fs.statSync(PTAU2_PATH);
+                const r1csStat = fs.statSync(r1csPath);
+                if (r1csStat.mtime > ptauStat.mtime || ptauStat.size < 1000) {
+                    console.log('[*] Circuit was recompiled, regenerating ptau...');
+                    needsRegen = true;
+                }
+            } catch (e) {
+                needsRegen = true;
+            }
+        }
+        
+        // Always delete before regenerating to avoid EPERM
+        if (needsRegen) {
+            safeDelete(PTAU2_PATH);
+        }
+        
+        if (!needsRegen) {
             console.log('[*] Using cached phase-2 ptau...');
         } else {
             await snarkjs.powersOfTau.preparePhase2(PTAU1_PATH, PTAU2_PATH);
         }
         console.log('[\u2713] Phase-2 ptau ready');
 
-        const r1cs      = path.join(ARTIFACTS, CIRCUIT + '.r1cs');
         const zkey0     = path.join(ARTIFACTS, CIRCUIT + '_0000.zkey');
         const zkeyFinal = path.join(ARTIFACTS, CIRCUIT + '_final.zkey');
         const vkeyPath  = path.join(ARTIFACTS, 'verification_key.json');
 
-        if (!fs.existsSync(r1cs)) {
-            throw new Error('Circuit not compiled. Run: npm run compile\nExpected: ' + r1cs);
+        if (!fs.existsSync(r1csPath)) {
+            throw new Error('Circuit not compiled. Run: npm run compile\nExpected: ' + r1csPath);
         }
 
-        // Skip if already completed (use cached files)
-        if (fs.existsSync(zkeyFinal) && fs.existsSync(vkeyPath)) {
+        // Skip if already completed (use cached files) - but only if not older than r1cs
+        let canSkip = fs.existsSync(zkeyFinal) && fs.existsSync(vkeyPath);
+        if (canSkip) {
+            const zkeyStat = fs.statSync(zkeyFinal);
+            const r1csStat = fs.statSync(r1csPath);
+            if (r1csStat.mtime > zkeyStat.mtime) {
+                console.log('[*] Circuit was recompiled, regenerating zkey...');
+                canSkip = false;
+                safeDelete(zkeyFinal);
+                safeDelete(vkeyPath);
+            }
+        }
+        if (canSkip) {
             console.log('\n[✓] Trusted setup already complete! (using cached files)');
             console.log('    Next: npm run prove\n');
             process.exit(0);
@@ -208,7 +240,7 @@ async function main() {
 
         // Step 3: Circuit-specific phase-2 setup
         console.log('[*] Groth16 phase-2 setup...');
-        await snarkjs.zKey.newZKey(r1cs, PTAU2_PATH, zkey0);
+        await snarkjs.zKey.newZKey(r1csPath, PTAU2_PATH, zkey0);
         console.log('[\u2713] Initial zkey created');
 
         // Step 4: Contribute randomness
