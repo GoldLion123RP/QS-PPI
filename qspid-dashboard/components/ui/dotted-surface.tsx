@@ -1,13 +1,14 @@
 'use client';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 type DottedSurfaceProps = Omit<React.ComponentProps<'div'>, 'ref'>;
 
 export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 	const { theme } = useTheme();
+	const [hasWebGL, setHasWebGL] = useState(true);
 
 	const containerRef = useRef<HTMLDivElement>(null);
 	const sceneRef = useRef<{
@@ -20,15 +21,49 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 	} | null>(null);
 
 	useEffect(() => {
-		if (!containerRef.current) return;
+		console.log('[DottedSurface] Component mounted, theme:', theme);
+
+		if (!containerRef.current) {
+			console.error('[DottedSurface] Container ref is null!');
+			return;
+		}
+
+		// Check if WebGL is available
+		try {
+			const canvas = document.createElement('canvas');
+			const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+			if (!gl) {
+				console.warn('[DottedSurface] WebGL not supported, using fallback');
+				setHasWebGL(false);
+				// Add a fallback CSS background for offline/no-WebGL mode
+				// Default to dark mode pattern since that's the default theme
+				const isDarkMode = theme === 'dark' || theme === undefined;
+				containerRef.current.style.background = isDarkMode
+					? 'radial-gradient(circle, rgba(100,100,100,0.4) 1px, transparent 1px)'
+					: 'radial-gradient(circle, rgba(0,0,0,0.15) 1px, transparent 1px)';
+				containerRef.current.style.backgroundSize = '30px 30px';
+				containerRef.current.style.backgroundColor = isDarkMode ? '#0a0a0a' : '#f5f5f5';
+				return;
+			}
+			console.log('[DottedSurface] WebGL context available');
+		} catch (e) {
+			console.error('[DottedSurface] Error checking WebGL:', e);
+			setHasWebGL(false);
+			return;
+		}
 
 		const SEPARATION = 150;
 		const AMOUNTX = 40;
 		const AMOUNTY = 60;
 
-		// Scene setup
+		// Determine if dark mode - default to dark if theme is undefined (offline/initial load)
+		const isDark = theme === 'dark' || theme === undefined;
+		console.log('[DottedSurface] Using dark mode:', isDark);
+
+		// Scene setup with fog that matches background
 		const scene = new THREE.Scene();
-		scene.fog = new THREE.Fog(0xffffff, 2000, 10000);
+		const fogColor = isDark ? 0x0a0a0a : 0xf5f5f5;
+		scene.fog = new THREE.Fog(fogColor, 2000, 10000);
 
 		const camera = new THREE.PerspectiveCamera(
 			60,
@@ -44,12 +79,11 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 		});
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.setClearColor(scene.fog.color, 0);
+		renderer.setClearColor(fogColor, 1); // Use fog color as clear color
 
 		containerRef.current.appendChild(renderer.domElement);
 
 		// Create particles
-		const particles: THREE.Points[] = [];
 		const positions: number[] = [];
 		const colors: number[] = [];
 
@@ -63,10 +97,11 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 				const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
 
 				positions.push(x, y, z);
-				if (theme === 'dark') {
-					colors.push(200, 200, 200);
+				// Use appropriate colors based on theme
+				if (isDark) {
+					colors.push(180, 180, 180); // Light gray for dark mode
 				} else {
-					colors.push(0, 0, 0);
+					colors.push(60, 60, 60); // Dark gray for light mode
 				}
 			}
 		}
@@ -92,7 +127,6 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 
 		let count = 0;
 		let animationId = 0;
-		let isFirstRender = true;
 
 		// Animation function
 		const animate = () => {
@@ -116,15 +150,6 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 			}
 
 			positionAttribute.needsUpdate = true;
-
-			// Update point sizes based on wave
-			const customMaterial = material as THREE.PointsMaterial & {
-				uniforms?: any;
-			};
-			if (!customMaterial.uniforms) {
-				// For dynamic size changes, we'd need a custom shader
-				// For now, keeping constant size for performance
-			}
 
 			renderer.render(scene, camera);
 			count += 0.1;
@@ -154,6 +179,7 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 
 		// Cleanup function
 		return () => {
+			console.log('[DottedSurface] Cleaning up Three.js resources');
 			window.removeEventListener('resize', handleResize);
 
 			if (sceneRef.current) {
@@ -181,6 +207,23 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 			}
 		};
 	}, [theme]);
+
+	// If no WebGL, return a pure CSS fallback
+	if (!hasWebGL) {
+		const isDark = theme === 'dark' || theme === undefined;
+		return (
+			<div
+				className={cn(
+					'pointer-events-none fixed inset-0 -z-10',
+					isDark 
+						? 'bg-[radial-gradient(circle,rgba(100,100,100,0.4)_1px,transparent_1px)] bg-[size:30px_30px] bg-[#0a0a0a]'
+						: 'bg-[radial-gradient(circle,rgba(0,0,0,0.15)_1px,transparent_1px)] bg-[size:30px_30px] bg-[#f5f5f5]',
+					className
+				)}
+				{...props}
+			/>
+		);
+	}
 
 	return (
 		<div
