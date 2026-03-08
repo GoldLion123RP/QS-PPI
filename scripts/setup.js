@@ -177,22 +177,22 @@ async function main() {
         // Step 2: Prepare phase-2 ptau (REQUIRED before zKey.newZKey)
         // This is the step that was MISSING in all previous versions.
         // snarkjs.zKey.newZKey needs a phase-2 prepared file.
-        console.log('\n[*] Preparing phase-2 ptau (this takes ~20-40 sec)...');
-        const r1csPath = path.join(ARTIFACTS, CIRCUIT + '.r1cs');
+        // NOTE: Phase-2 ptau is independent of the circuit - it only depends on the
+        // phase-1 ptau (pot14). We only need to regenerate if the ptau file is missing
+        // or corrupted, NOT when the circuit is recompiled.
+        console.log('\n[*] Preparing phase-2 ptau (this takes ~20-40 sec on first run only)...');
         
-        // Check if ptau needs regeneration (if r1cs is newer)
-        let needsRegen = !fs.existsSync(PTAU2_PATH);
-        if (!needsRegen && fs.existsSync(r1csPath)) {
-            try {
-                const ptauStat = fs.statSync(PTAU2_PATH);
-                const r1csStat = fs.statSync(r1csPath);
-                if (r1csStat.mtime > ptauStat.mtime || ptauStat.size < 1000) {
-                    console.log('[*] Circuit was recompiled, regenerating ptau...');
-                    needsRegen = true;
-                }
-            } catch (e) {
-                needsRegen = true;
+        // Check if ptau exists and is valid (not corrupted)
+        // Phase-2 ptau should be roughly same size as phase-1 (~18 MB for pot14)
+        let needsRegen = false;
+        const ptau2Size = fs.existsSync(PTAU2_PATH) ? fs.statSync(PTAU2_PATH).size : 0;
+        
+        // Only regenerate if file doesn't exist OR is too small (corrupted)
+        if (ptau2Size < 10 * 1024 * 1024) {  // Less than 10 MB means it's missing or corrupted
+            if (ptau2Size > 0) {
+                console.log('[*] Phase-2 ptau appears corrupted (' + (ptau2Size/1024/1024).toFixed(1) + ' MB), regenerating...');
             }
+            needsRegen = true;
         }
         
         // Always delete before regenerating to avoid EPERM
@@ -201,7 +201,7 @@ async function main() {
         }
         
         if (!needsRegen) {
-            console.log('[*] Using cached phase-2 ptau...');
+            console.log('[*] Using cached phase-2 ptau (no regeneration needed)...');
         } else {
             await snarkjs.powersOfTau.preparePhase2(PTAU1_PATH, PTAU2_PATH);
         }

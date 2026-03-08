@@ -132,8 +132,9 @@ if ($LASTEXITCODE -eq 0) {
 # ==============================================================================
 Write-Blue "8. Starting backend server..."
 $BackendFile = Join-Path $RootDir "src\index.js"
+$BackendDir = $RootDir.TrimEnd('\')
 if (Test-Path $BackendFile) {
-    Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host '=== QS-PID BACKEND SERVER ===' -ForegroundColor Green; Set-Location '\''$RootDir'\''; node src/index.js" -WindowStyle Normal
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host '=== QS-PID BACKEND SERVER ===' -ForegroundColor Green; cd \"$BackendDir\"; node src/index.js" -WindowStyle Normal
     Write-Green "Backend started in new window"
     Start-Sleep -Seconds 3
 } else {
@@ -144,7 +145,8 @@ if (Test-Path $BackendFile) {
 # STEP 9: Start Frontend Server
 # ==============================================================================
 Write-Blue "9. Starting frontend server (Next.js)..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host '=== QS-PID FRONTEND (Next.js) ===' -ForegroundColor Green; Set-Location '\''$FrontendDir'\''; npm run dev" -WindowStyle Normal
+$FrontendDirTrimmed = $FrontendDir.TrimEnd('\')
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host '=== QS-PID FRONTEND (Next.js) ===' -ForegroundColor Green; cd \"$FrontendDirTrimmed\"; npm run dev" -WindowStyle Normal
 Write-Green "Frontend started in new window"
 Start-Sleep -Seconds 5
 

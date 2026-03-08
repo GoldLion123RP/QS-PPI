@@ -1,9 +1,6 @@
-import { DottedSurface } from "@/components/ui/dotted-surface";
-
 export default function StatusPage() {
   return (
-    <div className="min-h-screen relative">
-      <DottedSurface />
+    <div className="min-h-screen bg-gray-900">
       <div className="relative z-10">
         <div className="max-w-4xl mx-auto p-8">
           <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
