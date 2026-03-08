@@ -1,3 +1,9 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'System Status',
+};
+
 export default function StatusPage() {
   return (
     <div className="min-h-screen bg-gray-900">

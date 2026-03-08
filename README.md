@@ -339,15 +339,14 @@ MIT License - See [LICENSE](./LICENSE) for details.
 - Location: Kolkata, West Bengal, India  
 - Education: Engineering Student (3rd Year, 6th Semester)  
 - Email: goldlion123.rp@gmail.com  
-- GitHub: [@GoldLion123RP](https://github.com/GoldLion123RP)  
+- GitHub: [@GoldLion123RP](https://github.com/GoldLion123RP)
 
 **Akash Dutta**  
 - Age: 26  
 - Location: Kolkata, West Bengal, India  
 - Education: Engineering Student (3rd Year, 6th Semester)  
 - Email: akashdutta0701@gmail.com
-- GitHub: [@Escape-thematrix](https://github.com/Escape-thematrix)  
-
+- GitHub: [@Escape-thematrix](https://github.com/Escape-thematrix)
 
 ---
 
