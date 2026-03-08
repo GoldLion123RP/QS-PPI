@@ -210,6 +210,7 @@ async function main() {
         const zkey0     = path.join(ARTIFACTS, CIRCUIT + '_0000.zkey');
         const zkeyFinal = path.join(ARTIFACTS, CIRCUIT + '_final.zkey');
         const vkeyPath  = path.join(ARTIFACTS, 'verification_key.json');
+        const r1csPath  = path.join(ARTIFACTS, CIRCUIT + '.r1cs');
 
         if (!fs.existsSync(r1csPath)) {
             throw new Error('Circuit not compiled. Run: npm run compile\nExpected: ' + r1csPath);
