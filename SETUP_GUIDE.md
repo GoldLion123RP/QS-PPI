@@ -31,7 +31,7 @@ npm run verify
 | Command | Description |
 |---------|-------------|
 | `npm install` | Install all Node.js dependencies |
-| `npm run compile` | Compile Circom circuit to R1CS and WASM |
+| `npm run compile` | Compile Circom circuit |
 | `npm run setup` | Run trusted setup (downloads ptau, generates keys) |
 | `npm run prove` | Generate a zero-knowledge proof |
 | `npm run verify` | Verify an existing proof |
