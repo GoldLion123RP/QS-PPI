@@ -135,7 +135,7 @@ async function handlePQ(req, res) {
         jsonResponse(res, {
             variant:    kp.variant,
             createdAt:  kp.createdAt,
-            publicKey:  kp.publicKey,
+            publicKey:  kp.publicKey.toString('hex'),
             phase:      mgr.phase || mgr.getCurrentPhase?.(),
             algorithms: mgr.getActiveAlgorithms?.() || ['ML-DSA-65'],
         });
