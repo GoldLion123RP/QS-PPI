@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+  <title>Wallet — QS-PID</title>
+  <meta name="theme-color" content="#020817">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .wallet-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .proof-output {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--accent-green);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .proof-output pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6875rem;
+      overflow-x: auto;
+      max-height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Header -->
+  <header class="page-header">
+    <a href="./index.html" class="back-btn">← Back</a>
+    <h1 class="page-title">WALLET</h1>
+  </header>
+
+  <main class="wallet-section">
+    <!-- Split Cards -->
+    <div class="split-cards">
+      <!-- Personal Info -->
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; font-family: 'Rajdhani', sans-serif;">
+          Personal Info <span class="badge badge-private" style="margin-left: auto;">PRIVATE</span>
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Name</span>
+            <span id="walletName">Rahul Pal</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Employer</span>
+            <span id="walletEmployer">HDFC Bank</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Income</span>
+            <span id="walletIncome">₹7,50,000 (7.5 LPA)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crypto Artifacts -->
+      <div class="card">
+        <h3 style="margin-bottom: 1rem; font-family: 'Rajdhani', sans-serif;">
+          Crypto Artifacts <span class="badge badge-public" style="margin-left: auto;">ZK-READY</span>
+        </h3>
+        
+        <div class="artifact">
+          <div style="font-size: 0.6875rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">
+            Poseidon Commitment
+          </div>
+          <div class="artifact-value" id="walletCommit">0x1267942178626015729959527860566833613012679421786260157...</div>
+        </div>
+        
+        <div class="artifact">
+          <div style="font-size: 0.6875rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">
+            Session Nonce
+          </div>
+          <div class="artifact-value" id="walletNonce">0x9f83b1c0ee14a2f9d7c4a8bbd2ac019f...</div>
+        </div>
+        
+        <div class="artifact">
+          <div style="font-size: 0.6875rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">
+            ML-DSA-65 Signature
+          </div>
+          <div class="artifact-value" style="color: var(--accent-green);" id="walletSig">
+            mldsa65_sig_01fdd92d4f9b3c1a7e6c9b0e2a3f4d5c6b7a8e9f0d1c2b3...
+          </div>
+        </div>
+
+        <div class="btn-right">
+          <button class="btn-primary" onclick="downloadWallet()">
+            ⬇️ Download Wallet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZKP Circuit Logic -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h3 style="margin-bottom: 1rem; font-family: 'Rajdhani', sans-serif;">
+        💻 ZKP Circuit Logic 
+        <span style="margin-left: auto; font-size: 0.6875rem; background: var(--bg-card); padding: 0.25rem 0.75rem; border-radius: 9999px; font-family: 'JetBrains Mono', monospace;" id="circuitParams">
+          income: 750,000 · threshold: 500,000
+        </span>
+      </h3>
+      
+      <div class="circuit-steps">
+        <div class="step">
+          <div style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem;">
+            <span style="color: var(--accent-green);">✓</span> Num2Bits(32)
+          </div>
+          <div style="font-size: 0.6875rem; color: var(--text-muted);">
+            Prevent field overflow (BN254)
+          </div>
+        </div>
+        
+        <div class="step">
+          <div style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem;">
+            <span style="color: var(--accent-green);">✓</span> Income > Threshold
+          </div>
+          <div style="font-size: 0.6875rem; color: var(--text-muted);">
+            GreaterThan(32) comparison
+          </div>
+        </div>
+        
+        <div class="step">
+          <div style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem;">
+            <span style="color: var(--accent-green);">✓</span> Fiat-Shamir
+          </div>
+          <div style="font-size: 0.6875rem; color: var(--text-muted);">
+            Challenge binding (replay protection)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verifier Challenge -->
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; font-family: 'Rajdhani', sans-serif;">
+        🔑 Verifier Challenge
+      </h3>
+      
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
+        <strong>How it works:</strong> Generate a ZK proof that proves your income exceeds the threshold (5 LPA) WITHOUT revealing your exact income. The verifier only learns if you qualify, not how much you earn.
+      </p>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
+        <strong>Use case:</strong> When applying for a loan, you can prove you meet the income requirement without revealing your actual salary to the bank.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+        <div>
+          <div class="form-group">
+            <label>Challenge (optional)</label>
+            <input type="text" id="verifierChallenge" placeholder="e.g., bank-loan-2026">
+            <div class="small-text">Challenge included in Fiat-Shamir transcript</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: flex-end;">
+          <button class="btn-primary" onclick="generateProofForVerifier()" style="width: 100%;">
+            ✓ Generate Proof
+          </button>
+        </div>
+      </div>
+
+      <!-- Proof Output -->
+      <div id="proofOutput" class="proof-output">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-weight: 600; color: var(--accent-green);">✅ ZK Proof Generated</span>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn-secondary btn-small" onclick="downloadProof()">⬇️ Download</button>
+            <button class="btn-secondary btn-small" onclick="copyProof()">📋 Copy</button>
+          </div>
+        </div>
+        <pre id="proofJSON"></pre>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let proof = null;
+
+    // Generate random hex string
+    function genHex(n) {
+      let r = '';
+      const c = '0123456789abcdef';
+      for (let i = 0; i < n; i++) {
+        r += c.charAt(Math.floor(Math.random() * c.length));
+      }
+      return '0x' + r;
+    }
+
+    // Format income
+    function fmtIncome(i) {
+      const l = (i / 100000).toFixed(1);
+      return '₹' + parseInt(i).toLocaleString('en-IN') + ' (' + l + ' LPA)';
+    }
+
+    // Load credential into wallet
+    function loadCredentialIntoWallet(cred) {
+      const s = cred.credentialSubject;
+      const c = cred.cryptographicBinding;
+      
+      document.getElementById('walletName').textContent = s.name;
+      document.getElementById('walletEmployer').textContent = s.employer;
+      document.getElementById('walletIncome').textContent = fmtIncome(s.annualIncomeINR);
+      document.getElementById('walletCommit').textContent = c.incomeHashCommit;
+      document.getElementById('walletNonce').textContent = c.sessionNonce;
+      document.getElementById('walletSig').textContent = cred.proof.mldsaSignature;
+      document.getElementById('circuitParams').textContent = 
+        'income: ' + s.annualIncomeINR.toLocaleString() + ' · threshold: 500,000';
+    }
+
+    // Download wallet
+    function downloadWallet() {
+      const w = {
+        personalInfo: {
+          name: document.getElementById('walletName').textContent,
+          employer: document.getElementById('walletEmployer').textContent,
+          income: document.getElementById('walletIncome').textContent
+        },
+        cryptoArtifacts: {
+          incomeHashCommit: document.getElementById('walletCommit').textContent,
+          sessionNonce: document.getElementById('walletNonce').textContent,
+          mldsaSignature: document.getElementById('walletSig').textContent
+        }
+      };
+      
+      const saved = localStorage.getItem('qspid_wallet_cred');
+      if (saved) {
+        w.credential = JSON.parse(saved);
+      }
+
+      const b = new Blob([JSON.stringify(w, null, 2)], { type: 'application/json' });
+      const u = URL.createObjectURL(b);
+      const a = document.createElement('a');
+      a.href = u;
+      a.download = 'qspid-wallet-' + Date.now() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(u);
+    }
+
+    // Generate proof for verifier
+    function generateProofForVerifier() {
+      const ch = document.getElementById('verifierChallenge').value || 'demo-challenge-' + Date.now();
+      
+      // Get income from wallet or use default
+      let inc = 750000;
+      const saved = localStorage.getItem('qspid_wallet_cred');
+      if (saved) {
+        try {
+          const cred = JSON.parse(saved);
+          inc = cred.credentialSubject.annualIncomeINR;
+        } catch (e) {}
+      }
+      
+      const thr = 500000;
+      const isV = inc > thr;
+
+      const p = {
+        "@context": "https://w3id.org/security/v2",
+        "type": "Groth16ZKProof",
+        "created": new Date().toISOString(),
+        "verifierChallenge": ch,
+        "groth16Proof": {
+          "A": [genHex(64), genHex(64)],
+          "B": [[genHex(64), genHex(64)], [genHex(64), genHex(64)]],
+          "C": [genHex(64), genHex(64)]
+        },
+        "publicSignals": {
+          "isValid": isV,
+          "threshold": thr,
+          "incomeHashCommit": document.getElementById('walletCommit').textContent,
+          "verifierId": "verifier-demo-001",
+          "timestamp": Math.floor(Date.now() / 1000)
+        },
+        "circuitInfo": {
+          "circuit": "circuits_incomeProof.circom",
+          "constraints": 145238,
+          "curve": "BN254"
+        },
+        "privacyGuarantee": {
+          "exactIncomeRevealed": false,
+          "verifierLearns": "Only that income " + (isV ? '>' : '≤') + ' ' + thr.toLocaleString() + ' INR'
+        }
+      };
+
+      proof = p;
+      document.getElementById('proofJSON').textContent = JSON.stringify(p, null, 2);
+      document.getElementById('proofOutput').style.display = 'block';
+    }
+
+    // Download proof
+    function downloadProof() {
+      if (!proof) {
+        alert('⚠️ Generate proof first!');
+        return;
+      }
+      const b = new Blob([JSON.stringify(proof, null, 2)], { type: 'application/json' });
+      const u = URL.createObjectURL(b);
+      const a = document.createElement('a');
+      a.href = u;
+      a.download = 'qspid-zkproof-' + Date.now() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(u);
+    }
+
+    // Copy proof
+    function copyProof() {
+      if (!proof) {
+        alert('⚠️ Generate proof first!');
+        return;
+      }
+      navigator.clipboard.writeText(JSON.stringify(proof, null, 2)).then(() => {
+        alert('✅ Proof copied!');
+      });
+    }
+
+    // Auto-load from localStorage on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('qspid_wallet_cred');
+      if (saved) {
+        try {
+          const cred = JSON.parse(saved);
+          loadCredentialIntoWallet(cred);
+        } catch (e) {
+          console.log('Could not load credential:', e);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

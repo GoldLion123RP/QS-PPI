@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+  <title>Issuer Registry Dashboard — QS-PID</title>
+  <meta name="theme-color" content="#020817">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .dashboard-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .info-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(20, 184, 166, 0.1);
+      border: 1px solid var(--accent-teal);
+      border-radius: 9999px;
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--accent-teal);
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Header -->
+  <header class="page-header">
+    <a href="./index.html" class="back-btn">← Back</a>
+    <h1 class="page-title">ISSUER REGISTRY DASHBOARD</h1>
+  </header>
+
+  <main class="dashboard-section">
+    <!-- Info Badge -->
+    <div class="info-pill">
+      <span>NIST FIPS 204: ML-DSA-65 ACTIVE</span>
+      <span>·</span>
+      <span>ZKP Curve: BN254 (Groth16)</span>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Issued Credentials</div>
+        <div class="stat-value">1,248</div>
+        <div class="stat-sub">Last 24h: 132</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Circuit Constraints</div>
+        <div class="stat-value">~145K</div>
+        <div class="stat-sub">Groth16</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg. Proof Time</div>
+        <div class="stat-value">220 ms</div>
+        <div class="stat-sub">Browser WASM</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Jaccard Similarity</div>
+        <div class="stat-value">< 0.05</div>
+        <div class="stat-sub">Unlinkable</div>
+      </div>
+    </div>
+
+    <!-- Issuer Registry Table -->
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; font-family: 'Rajdhani', sans-serif;">🗂️ Issuer Registry</h3>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Sample credential holders. In production, this would show real issued credentials with privacy-protected data.
+      </p>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Holder ID</th>
+              <th>Income <span class="badge badge-private">PRIVATE</span></th>
+              <th>Salt <span class="badge badge-private">PRIVATE</span></th>
+              <th>Commitment <span class="badge badge-public">PUBLIC</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td class="mono">did:key:z6Mkh...a91</td>
+              <td>₹9,00,000</td>
+              <td class="mono">0x8f3a...d21c</td>
+              <td class="mono" style="color: var(--accent-teal);">0x1267...89ab</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="mono">did:key:z6Mkf...b72</td>
+              <td>₹6,00,000</td>
+              <td class="mono">0x4bc1...aa09</td>
+              <td class="mono" style="color: var(--accent-teal);">0x9f42...77cd</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td class="mono">did:key:z6Mkq...c33</td>
+              <td>₹5,00,000</td>
+              <td class="mono">0xbe23...01ff</td>
+              <td class="mono" style="color: var(--accent-teal);">0x3a91...10ef</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .stat-label {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-teal);
+    }
+    .stat-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+  </style>
+</body>
+</html>

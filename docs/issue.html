@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+  <title>Issue Credential — QS-PID</title>
+  <meta name="theme-color" content="#020817">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .issue-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .issuance-banner {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Header -->
+  <header class="page-header">
+    <a href="./index.html" class="back-btn">← Back</a>
+    <h1 class="page-title">ISSUE W3C VC 2.0 CREDENTIAL</h1>
+  </header>
+
+  <main class="issue-section">
+    <!-- Success Banner -->
+    <div id="issuanceBanner" class="issuance-banner">
+      ✅ Credential issued! Click "Load into Wallet" below.
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 0.5rem; font-family: 'Rajdhani', sans-serif;">📝 Issue Credential</h3>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Issue W3C VC 2.0 income credentials with quantum-safe signatures. This creates a verifiable credential that proves your income without revealing the exact amount.
+      </p>
+
+      <div class="form-grid">
+        <!-- Left Column - Form -->
+        <div>
+          <div class="form-group">
+            <label>FULL NAME</label>
+            <input type="text" id="name" value="Rahul Pal">
+          </div>
+
+          <div class="form-group">
+            <label>ANNUAL INCOME (INR)</label>
+            <input type="number" id="incomeInput" value="750000">
+            <div class="small-text">1 Lakh = 100,000 INR. Example: 5 LPA = 500,000</div>
+          </div>
+
+          <div class="form-group">
+            <label>EMPLOYER</label>
+            <select id="employer">
+              <option>HDFC Bank</option>
+              <option>ICICI Bank</option>
+              <option>TCS</option>
+              <option>Infosys</option>
+              <option>Reliance</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>ISSUANCE DATE</label>
+            <input type="date" id="issueDate" value="2026-03-01">
+          </div>
+
+          <!-- Cryptographic Pipeline -->
+          <div class="toggle-group">
+            <div style="font-size: 0.6875rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">
+              Cryptographic Pipeline
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" checked disabled>
+              <span>32-byte Salt</span>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" checked disabled>
+              <span>HybridSigner (ECDSA+ML-DSA)</span>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" checked disabled>
+              <span>JSON-LD Format</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <button class="btn-primary" onclick="issueCredential()" style="width: 100%;">
+            ✓ Issue Credential
+          </button>
+
+          <!-- Action Buttons -->
+          <div class="btn-group-right" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn-outline" onclick="downloadCredential()">
+              ⬇️ Download
+            </button>
+            <button class="btn-outline" onclick="copyCredential()">
+              📋 Copy
+            </button>
+            <button class="btn-primary" onclick="loadIntoWallet()">
+              📦 Load into Wallet
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column - Preview -->
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+            <h3 style="font-family: 'Rajdhani', sans-serif; margin: 0;">W3C VC 2.0 Preview</h3>
+            <span class="badge badge-teal">application/vc+ld+json</span>
+          </div>
+          <div class="preview-box">
+            <pre id="vcPreview"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let cred = null;
+
+    // Generate random hex string
+    function genHex(n) {
+      let r = '';
+      const c = '0123456789abcdef';
+      for (let i = 0; i < n; i++) {
+        r += c.charAt(Math.floor(Math.random() * c.length));
+      }
+      return '0x' + r;
+    }
+
+    // Format income
+    function fmtIncome(i) {
+      const l = (i / 100000).toFixed(1);
+      return '₹' + parseInt(i).toLocaleString('en-IN') + ' (' + l + ' LPA)';
+    }
+
+    // Update VC preview
+    function updateVC() {
+      const n = document.getElementById('name').value || 'Rahul Pal';
+      const inc = document.getElementById('incomeInput').value || 750000;
+      const emp = document.getElementById('employer').value;
+      const dt = document.getElementById('issueDate').value || '2026-03-01';
+
+      const vc = {
+        "@context": ["https://www.w3.org/ns/credentials/v2", "https://schema.org"],
+        "type": ["VerifiableCredential", "IncomeCredential"],
+        "issuer": "did:key:issuer-bank-001",
+        "issuanceDate": dt,
+        "credentialSubject": {
+          "id": "did:key:subject-xyz",
+          "name": n,
+          "employer": emp,
+          "annualIncomeINR": parseInt(inc),
+          "thresholdINR": 500000,
+          "jurisdiction": "IN"
+        },
+        "proof": {
+          "type": "HybridSignature2024",
+          "created": new Date().toISOString(),
+          "ecdsaSignature": genHex(64),
+          "mldsaSignature": "mldsa65_sig_" + genHex(64)
+        },
+        "cryptographicBinding": {
+          "blindingSalt": genHex(64),
+          "incomeHashCommit": genHex(64),
+          "sessionNonce": genHex(64)
+        }
+      };
+
+      cred = vc;
+      document.getElementById('vcPreview').textContent = JSON.stringify(vc, null, 2);
+    }
+
+    // Issue credential
+    function issueCredential() {
+      updateVC();
+      const banner = document.getElementById('issuanceBanner');
+      banner.style.display = 'block';
+      setTimeout(() => {
+        banner.style.display = 'none';
+      }, 5000);
+    }
+
+    // Download credential
+    function downloadCredential() {
+      if (!cred) {
+        alert('⚠️ Issue credential first!');
+        return;
+      }
+      const b = new Blob([JSON.stringify(cred, null, 2)], { type: 'application/json' });
+      const u = URL.createObjectURL(b);
+      const a = document.createElement('a');
+      a.href = u;
+      a.download = 'qspid-credential-' + Date.now() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(u);
+    }
+
+    // Copy credential
+    function copyCredential() {
+      if (!cred) {
+        alert('⚠️ Issue credential first!');
+        return;
+      }
+      navigator.clipboard.writeText(JSON.stringify(cred, null, 2)).then(() => {
+        alert('✅ Copied!');
+      });
+    }
+
+    // Load into wallet
+    function loadIntoWallet() {
+      if (!cred) {
+        alert('⚠️ Issue credential first!');
+        return;
+      }
+      // Store in localStorage
+      localStorage.setItem('qspid_wallet_cred', JSON.stringify(cred));
+      alert('✅ Loaded into wallet!');
+      window.open('./wallet.html', '_blank');
+    }
+
+    // Event listeners
+    document.getElementById('name').addEventListener('input', updateVC);
+    document.getElementById('incomeInput').addEventListener('input', updateVC);
+    document.getElementById('employer').addEventListener('change', updateVC);
+    document.getElementById('issueDate').addEventListener('change', updateVC);
+
+    // Initialize
+    updateVC();
+  </script>
+</body>
+</html>

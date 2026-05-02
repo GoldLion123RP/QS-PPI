@@ -3,51 +3,348 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QS-PID — Redirecting…</title>
-  <meta http-equiv="refresh" content="0; url=../frontend/index.html">
+  <title>QS-PID — Quantum-Safe Privacy-Preserving Identity</title>
   <meta name="theme-color" content="#020817">
+  <meta name="description" content="Zero-knowledge income verification with post-quantum security">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #020817;
-      color: #f1f5f9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+    /* Page-specific styles for index.html */
+    .hero-section {
       min-height: 100vh;
-      margin: 0;
     }
-    .loader {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #14b8a6;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 1rem;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    p {
-      color: #64748b;
-    }
-    a {
-      color: #14b8a6;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
+    
+    /* Celestial Canvas Background */
+    #celestial-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <div class="loader"></div>
-  <p>Redirecting to QS-PID Dashboard…</p>
-  <p>If you're not redirected, <a href="../frontend/index.html">click here</a>.</p>
+  <!-- Celestial Orb Canvas Background -->
+  <canvas id="celestial-canvas"></canvas>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span>QUANTUM-SAFE</span>
+        <span>·</span>
+        <span>ZERO-KNOWLEDGE</span>
+        <span>·</span>
+        <span>POST-QUANTUM</span>
+        <span class="cursor-blink"></span>
+      </div>
+      
+      <h1 class="hero-title">QS-PPI</h1>
+      
+      <h2 class="hero-subtitle">Quantum-Safe Privacy-Preserving Identity</h2>
+      
+      <p class="hero-description">
+        Privacy-preserving identity verification using Groth16 ZKP and ML-DSA-65 Post-Quantum cryptography. 
+        Your actual identity is never revealed.
+      </p>
+      
+      <div class="hero-buttons">
+        <button class="btn-primary" onclick="scrollToModules()">
+          ⚡ Launch Demo
+        </button>
+        <button class="btn-outline" onclick="window.open('https://github.com/GoldLion123RP/QS-PID', '_blank')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          View Docs
+        </button>
+      </div>
+    </div>
+    
+    <!-- Scroll Down Arrow -->
+    <div class="scroll-down">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Status Bar -->
+  <div class="status-bar" id="statusBar">
+    <div class="status-bar-item">
+      <span class="status-dot" id="backendDot"></span>
+      <span id="backendStatus">Backend: Checking...</span>
+    </div>
+    <div class="status-bar-item">
+      <span>Artifacts Ready:</span>
+      <span id="artifactsStatus">-</span>
+    </div>
+    <div class="status-bar-item">
+      <span>Node:</span>
+      <span id="nodeVersion">-</span>
+    </div>
+    <div class="status-bar-item">
+      <span>Uptime:</span>
+      <span id="uptime">-</span>
+    </div>
+  </div>
+
+  <!-- System Modules Section -->
+  <section class="cards-section" id="modules">
+    <h2 class="section-title">SYSTEM MODULES</h2>
+    
+    <div class="cards-grid">
+      <!-- Card 1: Generate Income Proof -->
+      <div class="module-card" onclick="window.open('./prove.html', '_blank')">
+        <div class="module-icon">⚡</div>
+        <h3 class="module-title">Generate Income Proof</h3>
+        <p class="module-description">
+          Enter your income in LPA. A Groth16 ZKP is generated. Your actual income is never revealed — only whether it exceeds the threshold.
+        </p>
+        <span class="module-badge badge-backend">BACKEND</span>
+      </div>
+
+      <!-- Card 2: Verify Proof -->
+      <div class="module-card" onclick="window.open('./verify.html', '_blank')">
+        <div class="module-icon">✅</div>
+        <h3 class="module-title">Verify Proof</h3>
+        <p class="module-description">
+          Paste a proof JSON to cryptographically verify it against the circuit's verification key. Supports both real and demo proofs.
+        </p>
+        <span class="module-badge badge-backend">BACKEND</span>
+      </div>
+
+      <!-- Card 3: Post-Quantum ML-DSA -->
+      <div class="module-card" onclick="window.open('./pq.html', '_blank')">
+        <div class="module-icon">🔑</div>
+        <h3 class="module-title">Post-Quantum ML-DSA</h3>
+        <p class="module-description">
+          Generate a live ML-DSA-65 (NIST FIPS 204) key pair and inspect the active migration phase.
+        </p>
+        <span class="module-badge badge-backend">BACKEND</span>
+      </div>
+
+      <!-- Card 4: System Status -->
+      <div class="module-card" onclick="window.open('./status.html', '_blank')">
+        <div class="module-icon">📊</div>
+        <h3 class="module-title">System Status</h3>
+        <p class="module-description">
+          Live system health: backend uptime, Node version, circuit artifact status, and all available API endpoints.
+        </p>
+        <span class="module-badge badge-backend">BACKEND</span>
+      </div>
+
+      <!-- Card 5: Issuer Registry -->
+      <div class="module-card" onclick="window.open('./dashboard.html', '_blank')">
+        <div class="module-icon">🗂️</div>
+        <h3 class="module-title">Issuer Registry</h3>
+        <p class="module-description">
+          View the credential issuer dashboard with live stats: issued credentials count, avg proof time, circuit constraints.
+        </p>
+        <span class="module-badge badge-client">CLIENT-SIDE</span>
+      </div>
+
+      <!-- Card 6: Issue Credential -->
+      <div class="module-card" onclick="window.open('./issue.html', '_blank')">
+        <div class="module-icon">📝</div>
+        <h3 class="module-title">Issue Credential</h3>
+        <p class="module-description">
+          Issue W3C VC 2.0 income credentials with HybridSigner (ECDSA + ML-DSA-65). Download or copy the credential JSON.
+        </p>
+        <span class="module-badge badge-client">CLIENT-SIDE</span>
+      </div>
+
+      <!-- Card 7: Wallet -->
+      <div class="module-card" onclick="window.open('./wallet.html', '_blank')">
+        <div class="module-icon">💼</div>
+        <h3 class="module-title">Wallet</h3>
+        <p class="module-description">
+          Your personal credential wallet. View crypto artifacts, ZKP circuit steps, and generate a verifier challenge proof.
+        </p>
+        <span class="module-badge badge-client">CLIENT-SIDE</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>
+      QS-PID v1.0 · W3C VC 2.0 · Groth16 · BN254 · ML-DSA-65 · MIT License
+    </p>
+    <p style="margin-top: 0.5rem;">
+      <a href="https://github.com/GoldLion123RP/QS-PID" target="_blank">GitHub</a>
+    </p>
+  </footer>
+
+  <!-- Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
   <script>
-    window.location.replace('../frontend/index.html');
+    // API Base URL detection
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:3000';
+      }
+      return 'https://qspid-backend.onrender.com';
+    })();
+
+    // Celestial Orb Canvas Animation
+    const celestialCanvas = document.getElementById('celestial-canvas');
+    if (celestialCanvas) {
+      const ctx = celestialCanvas.getContext('2d');
+      
+      let particles = [];
+      let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      let animationFrameId;
+
+      const resizeCanvas = () => {
+        celestialCanvas.width = window.innerWidth;
+        celestialCanvas.height = window.innerHeight;
+      };
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      const handleMouseMove = (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      };
+      window.addEventListener('mousemove', handleMouseMove);
+
+      class Particle {
+        constructor(x, y, radius, color, isOrbiter = false) {
+          this.x = x;
+          this.y = y;
+          this.radius = radius;
+          this.color = color;
+          this.isOrbiter = isOrbiter;
+          this.orbitRadius = Math.random() * 150 + 100;
+          this.angle = Math.random() * Math.PI * 2;
+          this.speed = Math.random() * 0.02 + 0.01;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.shadowColor = this.color;
+          ctx.shadowBlur = 15;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        update(center) {
+          if (this.isOrbiter) {
+            this.angle += this.speed;
+            this.x = center.x + Math.cos(this.angle) * this.orbitRadius;
+            this.y = center.y + Math.sin(this.angle) * this.orbitRadius;
+          }
+          this.draw();
+        }
+      }
+
+      const centerPoint = {
+        x: celestialCanvas.width / 2,
+        y: celestialCanvas.height / 2,
+        targetX: celestialCanvas.width / 2,
+        targetY: celestialCanvas.height / 2,
+      };
+
+      const initParticles = () => {
+        particles = [];
+        // Central glowing orb
+        particles.push(
+          new Particle(centerPoint.x, centerPoint.y, 25, 'rgba(20, 184, 166, 0.9)')
+        );
+        // Orbiting particles
+        for (let i = 0; i < 60; i++) {
+          particles.push(
+            new Particle(
+              0,
+              0,
+              Math.random() * 3 + 1,
+              `hsl(${Math.random() * 60 + 180}, 80%, 60%)`,
+              true
+            )
+          );
+        }
+      };
+
+      const animate = () => {
+        animationFrameId = requestAnimationFrame(animate);
+        ctx.fillStyle = 'rgba(2, 8, 23, 0.15)';
+        ctx.fillRect(0, 0, celestialCanvas.width, celestialCanvas.height);
+
+        centerPoint.targetX = mouse.x;
+        centerPoint.targetY = mouse.y;
+        centerPoint.x += (centerPoint.targetX - centerPoint.x) * 0.05;
+        centerPoint.y += (centerPoint.targetY - centerPoint.y) * 0.05;
+
+        // Draw central orb with glow
+        particles[0].x = centerPoint.x;
+        particles[0].y = centerPoint.y;
+        
+        // Glow effect for center
+        const gradient = ctx.createRadialGradient(
+          particles[0].x, particles[0].y, 0,
+          particles[0].x, particles[0].y, 80
+        );
+        gradient.addColorStop(0, 'rgba(20, 184, 166, 0.3)');
+        gradient.addColorStop(0.5, 'rgba(6, 182, 212, 0.1)');
+        gradient.addColorStop(1, 'rgba(2, 8, 23, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, celestialCanvas.width, celestialCanvas.height);
+        
+        particles[0].draw();
+
+        // Update orbiting particles
+        for (let i = 1; i < particles.length; i++) {
+          particles[i].update(centerPoint);
+        }
+      };
+
+      initParticles();
+      animate();
+    }
+
+    // Scroll to modules section
+    function scrollToModules() {
+      document.getElementById('modules').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Fetch status on page load
+    async function fetchStatus() {
+      try {
+        const res = await fetch(API_BASE + '/api/status');
+        const data = await res.json();
+        
+        // Update status indicators
+        const backendDot = document.getElementById('backendDot');
+        const backendStatus = document.getElementById('backendStatus');
+        
+        if (data.status === 'online') {
+          backendDot.className = 'status-dot online';
+          backendStatus.textContent = 'Backend: ONLINE';
+        } else {
+          backendDot.className = 'status-dot offline';
+          backendStatus.textContent = 'Backend: OFFLINE';
+        }
+        
+        document.getElementById('artifactsStatus').textContent = data.artifactsReady ? 'YES' : 'NO';
+        document.getElementById('nodeVersion').textContent = data.nodeVersion || '-';
+        document.getElementById('uptime').textContent = data.uptime || '-';
+        
+      } catch (e) {
+        // Backend unreachable
+        const backendDot = document.getElementById('backendDot');
+        const backendStatus = document.getElementById('backendStatus');
+        backendDot.className = 'status-dot offline';
+        backendStatus.textContent = 'Backend: OFFLINE — Running in static mode';
+        document.getElementById('artifactsStatus').textContent = 'NO';
+      }
+    }
+
+    // Initialize
+    fetchStatus();
   </script>
 </body>
 </html>
