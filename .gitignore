@@ -43,3 +43,15 @@ logs/
 .env
 .env.local
 .env.*
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Debug
+.npm
+.eslintcache
+.stylelintcache
+
