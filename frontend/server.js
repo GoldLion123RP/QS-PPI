@@ -133,9 +133,7 @@ async function handlePQ(req, res) {
         const kp  = MLDSAKeyPair.generate('ML-DSA-65');
         const mgr = new MigrationStateManager();
         jsonResponse(res, {
-            variant:    kp.variant,
-            createdAt:  kp.createdAt,
-            publicKey:  kp.publicKey.toString('hex'),
+            keyPair:    kp,
             phase:      mgr.phase || mgr.getCurrentPhase?.(),
             algorithms: mgr.getActiveAlgorithms?.() || ['ML-DSA-65'],
         });

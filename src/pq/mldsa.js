@@ -138,6 +138,20 @@ class MLDSAKeyPair {
         return keyPair;
     }
 
+    /**
+     * toJSON — Ensures that when this object is serialized (e.g. via JSON.stringify or API response),
+     * the Buffers are converted to hex strings instead of the internal [object Object] structure.
+     */
+    toJSON() {
+        return {
+            publicKey:  this.publicKey ? this.publicKey.toString('hex') : null,
+            parameters: this.parameters,
+            variant:    this.variant,
+            createdAt:  this.createdAt,
+            // Private key omitted from JSON for security
+        };
+    }
+
     exportPublicKey() {
         return {
             algorithm:  'ML-DSA',
