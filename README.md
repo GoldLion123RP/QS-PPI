@@ -332,7 +332,7 @@ QS-PID/
 
 ## 📝 License
 
-MIT License - See [LICENSE](./LICENSE) for details.
+This project is licensed under the **Apache License 2.0**. See the [LICENSE](./LICENSE) and [LICENSE.md](./LICENSE.md) files for details.
 
 ---
 
