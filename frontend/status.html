@@ -229,6 +229,7 @@
         el('lastChecked').textContent = 'Last checked: ' + new Date().toLocaleTimeString();
 
       } catch (e) {
+        console.error('[QS-PID] Status fetch failed:', e);
         // Backend unreachable
         el('backendStatus').innerHTML = '<span class="status-dot offline"></span>OFFLINE';
         el('backendStatus').className = 'status-value offline';

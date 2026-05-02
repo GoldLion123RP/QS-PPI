@@ -53,11 +53,25 @@ function serveStatic(res, filePath) {
     res.end(data);
 }
 
-function jsonResponse(res, data, status = 200) {
+// ── Utility Handlers ─────────────────────────────────────────────────────────
+
+/**
+ * Send a JSON response with proper CORS headers.
+ * Fix: use consistent casing and include more security/interop headers.
+ */
+function jsonResponse(res, data, status = 200, req = null) {
     if (res.headersSent) return;
+    
+    // Set CORS headers for all responses
+    const origin = req ? (req.headers.origin || '*') : '*';
+    
     res.writeHead(status, {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Content-Type':                'application/json',
+        'Access-Control-Allow-Origin':  origin,
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+        'Access-Control-Max-Age':       '86400', // 24 hours
+        'Vary':                         'Origin',
     });
     res.end(JSON.stringify(data));
 }
@@ -90,23 +104,24 @@ async function handleProve(req, res) {
             proof:    { A: ['demo'], B: [['demo']], C: ['demo'], protocol: 'groth16', curve: 'bn254' },
             publicSignals: ['1'],
             timestamp: new Date().toISOString(),
-        });
+        }, 200, req);
     }
 
     try {
         const IncomeProver = require('../src/prover');
         const prover = new IncomeProver();
         await prover.initialize();
-        jsonResponse(res, await prover.generateProof(income, threshold, verifierId));
+        const result = await prover.generateProof(income, threshold, verifierId);
+        jsonResponse(res, result, 200, req);
     } catch (e) {
-        jsonResponse(res, { error: e.message }, 500);
+        jsonResponse(res, { error: e.message }, 500, req);
     }
 }
 
 async function handleVerify(req, res) {
     const body = await parseBody(req);
     const { proofData } = body;
-    if (!proofData) return jsonResponse(res, { error: 'Missing proofData' }, 400);
+    if (!proofData) return jsonResponse(res, { error: 'Missing proofData' }, 400, req);
 
     if (!artifactsReady() || proofData._demo) {
         return jsonResponse(res, {
@@ -114,16 +129,17 @@ async function handleVerify(req, res) {
             valid:     proofData.isValid === true,
             reason:    proofData._demo ? 'Demo mode — no real circuit verification' : 'Artifacts missing',
             timestamp: new Date().toISOString(),
-        });
+        }, 200, req);
     }
 
     try {
         const IncomeVerifier = require('../src/verifier');
         const verifier = new IncomeVerifier();
         await verifier.initialize();
-        jsonResponse(res, await verifier.verifyProof(proofData, proofData.verifierId || 'api-verifier'));
+        const result = await verifier.verifyProof(proofData, proofData.verifierId || 'api-verifier');
+        jsonResponse(res, result, 200, req);
     } catch (e) {
-        jsonResponse(res, { error: e.message }, 500);
+        jsonResponse(res, { error: e.message }, 500, req);
     }
 }
 
@@ -136,9 +152,9 @@ async function handlePQ(req, res) {
             ...kp.toJSON(),
             phase:      mgr.phase || mgr.getCurrentPhase?.(),
             algorithms: mgr.getActiveAlgorithms?.() || ['ML-DSA-65'],
-        });
+        }, 200, req);
     } catch (e) {
-        jsonResponse(res, { error: e.message }, 500);
+        jsonResponse(res, { error: e.message }, 500, req);
     }
 }
 
@@ -156,18 +172,21 @@ function handleStatus(req, res) {
             'GET  /api/pq':     'ML-DSA key pair demo',
             'GET  /api/status': 'System status',
         },
-    });
+    }, 200, req);
 }
 
 // ── Server ───────────────────────────────────────────────────────────────────
 
 const server = http.createServer(async (req, res) => {
-    // CORS preflight
+    // CORS preflight — respond to ANY OPTIONS request with 204
     if (req.method === 'OPTIONS') {
+        const origin = req.headers.origin || '*';
         res.writeHead(204, {
-            'Access-Control-Allow-Origin':  '*',
-            'Access-Control-Allow-Methods': 'GET,POST',
-            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin':  origin,
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+            'Access-Control-Max-Age':       '86400',
+            'Vary':                         'Origin',
         });
         return res.end();
     }

@@ -334,6 +334,7 @@
         document.getElementById('uptime').textContent = data.uptime || '-';
         
       } catch (e) {
+        console.error('[QS-PID] Status fetch failed:', e);
         // Backend unreachable
         const backendDot = document.getElementById('backendDot');
         const backendStatus = document.getElementById('backendStatus');
