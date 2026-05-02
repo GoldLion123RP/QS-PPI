@@ -2,6 +2,10 @@
 
 **A Zero-Knowledge Proof (ZKP) system for privacy-preserving income verification using post-quantum cryptography.**
 
+<p align="center">
+  <img src="docs/hero-screenshot.png" alt="QS-PID Landing Page" width="100%">
+</p>
+
 <!-- --- -->
 
 <!-- ## 🎉 Live Demo
