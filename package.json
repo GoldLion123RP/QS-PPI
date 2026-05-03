@@ -1,14 +1,14 @@
 {
-  "name": "QS-PID",
+  "name": "QS-PPI",
   "version": "1.0.0",
-  "description": "Quantum-Safe Proof of Income Declaration - ZKP using Circom/SnarkJS with W3C VC 2.0 compliance",
+  "description": "Quantum-Safe Privacy-Preserving Income Verification - ZKP using Circom/SnarkJS with W3C VC 2.0 compliance",
   "main": "src/index.js",
   "scripts": {
     "compile": "circom circuits/incomeProof.circom --r1cs --wasm --sym -o artifacts/ -l node_modules",
     "setup": "node scripts/setup.js",
     "prove": "node scripts/prove.js",
     "verify": "node scripts/verify.js",
-    "test": "node tests/testQSPID.js",
+    "test": "node tests/testQSPPI.js",
     "test:vc": "node tests/testVC.js",
     "test:pq": "node tests/testPQ.js",
     "test:security": "node tests/testSecurityAudit.js",

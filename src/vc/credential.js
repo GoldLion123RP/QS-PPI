@@ -12,7 +12,7 @@
  * to check credentials against off-chain and smart-contract registries
  */
 
-const INCOME_PROOF_CONTEXT = 'https://qs-pid.example/context/v1';
+const INCOME_PROOF_CONTEXT = 'https://QS-PPI.example/context/v1';
 const W3C_VC_CONTEXT = 'https://www.w3.org/2018/credentials/v1';
 const W3C_SECURITY_CONTEXT = 'https://w3id.org/security/v2';
 const W3C_STATUS_LIST_2021_CONTEXT = 'https://w3id.org/vc/status-list/2021/v1';
@@ -178,7 +178,7 @@ const VerifiablePresentationSchema = {
  */
 class StatusList2021Revocation {
     constructor(registryUrl = null, smartContractAddress = null) {
-        this.registryUrl = registryUrl || 'https://qs-pid.example/status/list';
+        this.registryUrl = registryUrl || 'https://QS-PPI.example/status/list';
         this.smartContractAddress = smartContractAddress || null;
         this.cachedStatusList = new Map();  // Cache status lists for performance
         this.cacheExpiry = 5 * 60 * 1000;  // 5-minute cache expiry
@@ -473,7 +473,7 @@ class StatusList2021Revocation {
     getStatusListFromRegistry(statusListUrl) {
         // Mock: Return basic status list structure
         // In production, fetch the actual status list credential
-        if ('https://qs-pid.example/status/list'.includes(statusListUrl)) {
+        if ('https://QS-PPI.example/status/list'.includes(statusListUrl)) {
             return {
                 id: statusListUrl,
                 type: 'StatusList2021Credential',
@@ -616,7 +616,7 @@ class IncomeProofCredential {
     generateCredentialId() {
         const timestamp = new Date().getTime();
         const random = Math.random().toString(36).substring(7);
-        return `urn:qs-pid:credential:${timestamp}:${random}`;
+        return `urn:QS-PPI:credential:${timestamp}:${random}`;
     }
 
     /**
@@ -634,7 +634,7 @@ class IncomeProofCredential {
             type: ['VerifiableCredential', 'IncomeProofCredential'],
             issuer: {
                 id: this.issuerId,
-                name: 'QS-PID Income Verifier',
+                name: 'QS-PPI Income Verifier',
             },
             issuanceDate: now.toISOString(),
             expirationDate: expirationDate.toISOString(),
@@ -663,11 +663,11 @@ class IncomeProofCredential {
         // Add revocation status if enabled
         if (this.options.revocationEnabled) {
             credential.credentialStatus = {
-                id: `https://qs-pid.example/revocation/${credential.id}`,
+                id: `https://QS-PPI.example/revocation/${credential.id}`,
                 type: 'StatusList2021Entry',
                 statusPurpose: 'revocation',
                 statusListIndex: Math.floor(Math.random() * 100000),
-                statusListCredential: 'https://qs-pid.example/status/list',
+                statusListCredential: 'https://QS-PPI.example/status/list',
             };
         }
 
@@ -693,7 +693,7 @@ class IncomeProofCredential {
             created: new Date().toISOString(),
             verificationMethod: `${this.issuerId}#key-1`,
             signatureValue: signature,
-            domain: 'qs-pid.example',
+            domain: 'QS-PPI.example',
             nonce: crypto.randomBytes(16).toString('hex'),
         };
 
@@ -839,3 +839,4 @@ module.exports = {
     W3C_SECURITY_CONTEXT,
     W3C_STATUS_LIST_2021_CONTEXT,
 };
+

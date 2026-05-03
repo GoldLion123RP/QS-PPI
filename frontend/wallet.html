@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
-  <title>Wallet — QS-PID</title>
+  <title>Wallet — QS-PPI</title>
   <meta name="theme-color" content="#020817">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -228,7 +228,7 @@
         }
       };
       
-      const saved = localStorage.getItem('qspid_wallet_cred');
+      const saved = localStorage.getItem('QSPPI_wallet_cred');
       if (saved) {
         w.credential = JSON.parse(saved);
       }
@@ -237,7 +237,7 @@
       const u = URL.createObjectURL(b);
       const a = document.createElement('a');
       a.href = u;
-      a.download = 'qspid-wallet-' + Date.now() + '.json';
+      a.download = 'QSPPI-wallet-' + Date.now() + '.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -250,7 +250,7 @@
       
       // Get income from wallet or use default
       let inc = 750000;
-      const saved = localStorage.getItem('qspid_wallet_cred');
+      const saved = localStorage.getItem('QSPPI_wallet_cred');
       if (saved) {
         try {
           const cred = JSON.parse(saved);
@@ -304,7 +304,7 @@
       const u = URL.createObjectURL(b);
       const a = document.createElement('a');
       a.href = u;
-      a.download = 'qspid-zkproof-' + Date.now() + '.json';
+      a.download = 'QSPPI-zkproof-' + Date.now() + '.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -324,7 +324,7 @@
 
     // Auto-load from localStorage on page load
     window.addEventListener('DOMContentLoaded', () => {
-      const saved = localStorage.getItem('qspid_wallet_cred');
+      const saved = localStorage.getItem('QSPPI_wallet_cred');
       if (saved) {
         try {
           const cred = JSON.parse(saved);
@@ -337,3 +337,4 @@
   </script>
 </body>
 </html>
+

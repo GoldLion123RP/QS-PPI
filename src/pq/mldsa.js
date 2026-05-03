@@ -1,7 +1,7 @@
 /**
  * ML-DSA (Module-Lattice-Based Digital Signature Algorithm) Integration
  *
- * Post-quantum cryptography migration for QS-PID
+ * Post-quantum cryptography migration for QS-PPI
  * Based on NIST FIPS 204 standard
  *
  * BUG FIXED:
@@ -381,3 +381,4 @@ module.exports = {
     HybridSigner,
     MigrationStateManager,
 };
+

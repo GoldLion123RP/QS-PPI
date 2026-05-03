@@ -1,15 +1,15 @@
-# QS-PID: Complete Project Deliverables
+# QS-PPI: Complete Project Deliverables
 
 ## 📦 Package Contents
 
 ### Directory Structure
 ```
-qs-pid/
+qs-ppi/
 ├── circuits/                           # Cryptographic circuits
 │   └── incomeProof.circom             # Circom circuit for income > 5 LPA proof
 │
 ├── src/                               # Main source code
-│   ├── index.js                       # Main QSPID class (entry point)
+│   ├── index.js                       # Main QSPPI class (entry point)
 │   ├── prover.js                      # Proof generation with SnarkJS
 │   ├── verifier.js                    # Proof verification
 │   ├── ceremony.js                    # Trusted setup ceremony
@@ -20,7 +20,7 @@ qs-pid/
 │       └── mldsa.js                  # ML-DSA integration (NIST FIPS 204)
 │
 ├── tests/                             # Comprehensive test suites
-│   ├── testQSPID.js                  # 9 core ZKP tests
+│   ├── testQSPPI.js                  # 9 core ZKP tests
 │   ├── testVC.js                     # 8 W3C VC 2.0 tests
 │   └── testPQ.js                     # 8 post-quantum tests
 │
@@ -52,7 +52,7 @@ qs-pid/
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| [src/index.js](src/index.js) | 120 | Main QSPID class, system orchestration |
+| [src/index.js](src/index.js) | 120 | Main QSPPI class, system orchestration |
 | [src/prover.js](src/prover.js) | 180 | Proof generation using Groth16 |
 | [src/verifier.js](src/verifier.js) | 220 | Proof verification with anti-replay |
 | [src/ceremony.js](src/ceremony.js) | 280 | Trusted setup ceremony, Powers of Tau |
@@ -60,7 +60,7 @@ qs-pid/
 | [src/vc/presentation.js](src/vc/presentation.js) | 220 | Presentation creation and verification |
 | [src/pq/mldsa.js](src/pq/mldsa.js) | 380 | ML-DSA integration, hybrid signing |
 | [circuits/incomeProof.circom](circuits/incomeProof.circom) | 140 | Circom circuit for range proof |
-| [tests/testQSPID.js](tests/testQSPID.js) | 450 | 9 core ZKP tests |
+| [tests/testQSPPI.js](tests/testQSPPI.js) | 450 | 9 core ZKP tests |
 | [tests/testVC.js](tests/testVC.js) | 420 | 8 W3C VC 2.0 tests |
 | [tests/testPQ.js](tests/testPQ.js) | 520 | 8 post-quantum migration tests |
 
@@ -95,7 +95,7 @@ qs-pid/
 - [circuits/incomeProof.circom](circuits/incomeProof.circom) - Circom circuit
 - [src/prover.js](src/prover.js) - SnarkJS proof generation
 - [src/verifier.js](src/verifier.js) - SnarkJS proof verification
-- Tests: [testQSPID.js](tests/testQSPID.js) - 6 tests for various income levels
+- Tests: [testQSPPI.js](tests/testQSPPI.js) - 6 tests for various income levels
 
 ### Requirement: W3C VC 2.0 Compliance
 ✅ **COMPLETE**
@@ -109,7 +109,7 @@ qs-pid/
 - Implemented in [src/prover.js](src/prover.js) - blinding factor generation
 - Anti-replay in [src/verifier.js](src/verifier.js) - nonce + challenge
 - Unlinkability in [src/vc/presentation.js](src/vc/presentation.js)
-- Tests: [testQSPID.js](tests/testQSPID.js) Test 4 - unlinkability verification
+- Tests: [testQSPPI.js](tests/testQSPPI.js) Test 4 - unlinkability verification
 
 ### Requirement: Post-Quantum Migration Plan to ML-DSA
 ✅ **COMPLETE**
@@ -120,11 +120,11 @@ qs-pid/
 
 ### Requirement: Test Script for Successful & Failed Verifications
 ✅ **COMPLETE**
-- Valid proofs: [testQSPID.js](tests/testQSPID.js) Test 1 (6 LPA, 10 LPA, etc.)
-- Invalid proofs: [testQSPID.js](tests/testQSPID.js) Test 2 (4 LPA, 0, etc.)
-- Boundary cases: [testQSPID.js](tests/testQSPID.js) Test 3
-- Batch verification: [testQSPID.js](tests/testQSPID.js) Test 5
-- Anti-replay: [testQSPID.js](tests/testQSPID.js) Test 6
+- Valid proofs: [testQSPPI.js](tests/testQSPPI.js) Test 1 (6 LPA, 10 LPA, etc.)
+- Invalid proofs: [testQSPPI.js](tests/testQSPPI.js) Test 2 (4 LPA, 0, etc.)
+- Boundary cases: [testQSPPI.js](tests/testQSPPI.js) Test 3
+- Batch verification: [testQSPPI.js](tests/testQSPPI.js) Test 5
+- Anti-replay: [testQSPPI.js](tests/testQSPPI.js) Test 6
 - Total: 25 tests across 3 test suites
 
 ---
@@ -260,15 +260,15 @@ const mldsaKeyPair = MLDSAKeyPair.generate('ML-DSA-65');
 
 | Requirement | Status | Deliverable |
 |------------|--------|-------------|
-| ZKP project named QS-PID | ✅ | Entire project |
+| ZKP project named QS-PPI | ✅ | Entire project |
 | Prove "Income > 5 LPA" | ✅ | [incomeProof.circom](circuits/incomeProof.circom) |
 | Using Circom/SnarkJS | ✅ | [prover.js](src/prover.js), [verifier.js](src/verifier.js) |
 | W3C VC 2.0 compliant | ✅ | [credential.js](src/vc/credential.js), [presentation.js](src/vc/presentation.js) |
 | Post-Quantum ML-DSA plan | ✅ | [MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md) |
 | Multi-verifier unlinkability | ✅ | [prover.js](src/prover.js) + [presentation.js](src/vc/presentation.js) |
 | Blinding factors | ✅ | Implemented in [prover.js](src/prover.js) |
-| Test script (success) | ✅ | [testQSPID.js](tests/testQSPID.js) Test 1 |
-| Test script (failure) | ✅ | [testQSPID.js](tests/testQSPID.js) Test 2 |
+| Test script (success) | ✅ | [testQSPPI.js](tests/testQSPPI.js) Test 1 |
+| Test script (failure) | ✅ | [testQSPPI.js](tests/testQSPPI.js) Test 2 |
 
 ---
 

@@ -1,5 +1,5 @@
 /**
- * QS-PID Prover
+ * QS-PPI Prover
  *
  * publicSignals[] order:
  *   [0] isValid          — output (1 = income > threshold)
@@ -169,7 +169,7 @@ const CIRCUIT_SPEC = {
     version:   '1.0.0',
     protocol:  'Groth16',
     curve:     'BN254',
-    circuitId: 'QS-PID-INCOME-VERIFICATION-V1',
+    circuitId: 'QS-PPI-INCOME-VERIFICATION-V1',
 };
 
 class FiatShamirBinding {
@@ -276,3 +276,4 @@ class FiatShamirBinding {
 
 module.exports                   = IncomeProver;
 module.exports.FiatShamirBinding = FiatShamirBinding;
+

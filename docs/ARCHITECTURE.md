@@ -1,8 +1,8 @@
-# QS-PID System Architecture
+# QS-PPI System Architecture
 
 **Quantum-Safe Privacy-Preserving Income Verification System**
 
-This document describes the technical architecture, component interactions, and design decisions behind the QS-PID system.
+This document describes the technical architecture, component interactions, and design decisions behind the QS-PPI system.
 
 ---
 
@@ -171,7 +171,7 @@ const challenge = SHA256(
 {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
-    "https://qs-pid.example/contexts/v1"
+    "https://QS-PPI.example/contexts/v1"
   ],
   "type": ["VerifiableCredential", "IncomeProofCredential"],
   "issuer": "did:key:zQ3shokF...",
@@ -601,3 +601,4 @@ Load Balancer
 - **Circom Documentation**: [circom.io](https://docs.circom.io/)
 - **W3C VC 2.0 Spec**: [W3C Verifiable Credentials](https://www.w3.org/TR/vc-data-model-2.0/)
 - **ML-DSA Standard**: [NIST FIPS 204](https://csrc.nist.gov/pubs/fips/204/final)
+

@@ -1,7 +1,7 @@
 pragma circom 2.0.0;
 
 /**
- * QS-PID Income Verification Circuit
+ * QS-PPI Income Verification Circuit
  * Circom 2.0 — Groth16 / BN254
  *
  * FIX (2026-03-01 v3):
@@ -70,3 +70,4 @@ template IncomeProof() {
 
 // publicSignals[] order: [isValid(out), threshold(pub-in), incomeHashCommit(pub-in)]
 component main { public [threshold, incomeHashCommit] } = IncomeProof();
+

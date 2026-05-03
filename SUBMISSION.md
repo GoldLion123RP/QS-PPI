@@ -1,4 +1,4 @@
-# QS-PID Hackathon Submission Package
+# QS-PPI Hackathon Submission Package
 
 **Project**: Quantum-Safe Privacy-Preserving Income Verification  
 **Team**: Rahul Pal & Akash Dutta  
@@ -8,10 +8,10 @@
 
 ## 📦 Package Contents
 
-This ZIP file contains the complete QS-PID system ready to run locally:
+This ZIP file contains the complete QS-PPI system ready to run locally:
 
 ```
-QS-PID/
+QS-PPI/
 ├── README.md                    # Project overview
 ├── SUBMISSION.md                # This file (setup guide)
 ├── package.json                 # Node.js dependencies
@@ -31,8 +31,8 @@ QS-PID/
 
 ```bash
 # Extract to your preferred location
-unzip QS-PID.zip
-cd QS-PID
+unzip QS-PPI.zip
+cd QS-PPI
 ```
 
 ### Step 2: Install Dependencies
@@ -409,9 +409,9 @@ See [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) for complete 3-5 minute presentat
 - **Developer 2**: Akash Dutta ([@Escape-thematrix](https://github.com/Escape-thematrix))
   - Email: akashdutta123456@gmail.com
 
-**GitHub**: [https://github.com/GoldLion123RP/QS-PID](https://github.com/GoldLion123RP/QS-PID)
+**GitHub**: [https://github.com/GoldLion123RP/QS-PPI](https://github.com/GoldLion123RP/QS-PPI)
 
-**Issues**: [QS-PID/issues](https://github.com/GoldLion123RP/QS-PID/issues)
+**Issues**: [QS-PPI/issues](https://github.com/GoldLion123RP/QS-PPI/issues)
 
 ---
 
@@ -432,6 +432,6 @@ MIT License - Open source, free to use and modify
 ---
 
 <p align="center">
-  <strong>Thank you for evaluating QS-PID!</strong><br>
+  <strong>Thank you for evaluating QS-PPI!</strong><br>
   <em>Built with 🔐 for a privacy-first future</em>
 </p>

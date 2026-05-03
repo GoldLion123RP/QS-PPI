@@ -1,4 +1,4 @@
-# QS-PID Demo Script
+# QS-PPI Demo Script
 
 **Duration**: 3-5 minutes  
 **Audience**: Hackathon judges, technical evaluators  
@@ -10,22 +10,22 @@
 
 ### **Opening (30 seconds)**
 
-**[SCREEN: Title slide with QS-PID logo]**
+**[SCREEN: Title slide with QS-PPI logo]**
 
-> "Hi! I'm Rahul Pal, and I'm excited to show you **QS-PID** — a quantum-safe, privacy-preserving income verification system.
+> "Hi! I'm Rahul Pal, and I'm excited to show you **QS-PPI** — a quantum-safe, privacy-preserving income verification system.
 >
 > Today, when you apply for a loan or rent an apartment, you expose your **exact salary** to verifiers. This creates:
 > - Privacy violations
 > - Cross-platform tracking
 > - Discrimination risk
 >
-> QS-PID solves this using **zero-knowledge proofs**. You can prove your income exceeds a threshold **without revealing the exact amount**. Let me show you how."
+> QS-PPI solves this using **zero-knowledge proofs**. You can prove your income exceeds a threshold **without revealing the exact amount**. Let me show you how."
 
 ---
 
 ### **Problem Demonstration (45 seconds)**
 
-**[SCREEN: Split view — Traditional KYC vs. QS-PID]**
+**[SCREEN: Split view — Traditional KYC vs. QS-PPI]**
 
 **Traditional Approach:**
 ```
@@ -39,7 +39,7 @@ User → Bank: "My salary is ₹7,50,000"
 
 > "In the traditional system, Alice applies to Bank A and reveals she earns ₹7.5 LPA. Later, she applies to Bank B — same disclosure. Now both banks can **correlate** her applications. Her financial profile is being tracked."
 
-**QS-PID Approach:**
+**QS-PPI Approach:**
 ```
 User → Bank: ZK Proof("income > ₹5 LPA" = TRUE)
          ↓
@@ -49,7 +49,7 @@ User → Bank: ZK Proof("income > ₹5 LPA" = TRUE)
     Cannot link across banks
 ```
 
-> "With QS-PID, Alice generates a **zero-knowledge proof** that says: 'My income exceeds ₹5 LPA — trust me, but I won't tell you how much.' Bank A verifies: ✓ Valid. Bank B gets a **different proof** — they can't link it to the same person. Privacy preserved."
+> "With QS-PPI, Alice generates a **zero-knowledge proof** that says: 'My income exceeds ₹5 LPA — trust me, but I won't tell you how much.' Bank A verifies: ✓ Valid. Bank B gets a **different proof** — they can't link it to the same person. Privacy preserved."
 
 ---
 
@@ -158,7 +158,7 @@ Proof 3 (Landlord):
 **[SCREEN: Migration dashboard / timeline graphic]**
 
 ```
-QS-PID Post-Quantum Migration:
+QS-PPI Post-Quantum Migration:
 
 Phase 1 (2025 Q1): ECDSA only
 Phase 2 (2025 Q2): Hybrid (ECDSA + ML-DSA)
@@ -170,7 +170,7 @@ ML-DSA Adoption: 56.76% (simulated)
 
 > "But there's a problem: current signatures (ECDSA) are vulnerable to **quantum computers** (expected by 2030).
 >
-> QS-PID includes a **4-phase migration plan** to ML-DSA — a NIST-standardized, lattice-based signature scheme. By 2026, all credentials will be **quantum-resistant**. Your income proofs stay secure for the next 20+ years."
+> QS-PPI includes a **4-phase migration plan** to ML-DSA — a NIST-standardized, lattice-based signature scheme. By 2026, all credentials will be **quantum-resistant**. Your income proofs stay secure for the next 20+ years."
 
 ---
 
@@ -180,7 +180,7 @@ ML-DSA Adoption: 56.76% (simulated)
 
 ```
 ╔════════════════════════════════════════════════╗
-║          QS-PID Performance                    ║
+║          QS-PPI Performance                    ║
 ╠════════════════════════════════════════════════╣
 ║  Proof Generation    : ~200ms                  ║
 ║  Proof Verification  : ~18ms                   ║
@@ -207,7 +207,7 @@ ML-DSA Adoption: 56.76% (simulated)
 
 ```
 ┌─────────────────────────────────────────────┐
-│         QS-PID Architecture                 │
+│         QS-PPI Architecture                 │
 ├─────────────────────────────────────────────┤
 │  Layer 5: Application (Loan, Rental, Job)  │
 │  Layer 4: W3C VC 2.0 (Credential Format)   │
@@ -250,7 +250,7 @@ ML-DSA Adoption: 56.76% (simulated)
    - Tax compliance (prove income bracket)
    - Social welfare (means testing)
 
-> "QS-PID applies to any scenario requiring income verification:
+> "QS-PPI applies to any scenario requiring income verification:
 > - Banks verify loan eligibility **without salary leaks**
 > - Landlords check tenant affordability **without discrimination**
 > - Employers validate experience **without bias**
@@ -263,7 +263,7 @@ ML-DSA Adoption: 56.76% (simulated)
 **[SCREEN: GitHub repo + contact info]**
 
 ```
-GitHub: https://github.com/GoldLion123RP/QS-PID
+GitHub: https://github.com/GoldLion123RP/QS-PPI
 Docs:   /docs/ARCHITECTURE.md
         /docs/SECURITY.md
         /docs/PQ-MIGRATION.md
@@ -272,7 +272,7 @@ Tests:  npm run test:all
         → 28/28 passing ✓
 ```
 
-> "QS-PID is **production-ready**:
+> "QS-PPI is **production-ready**:
 > - Open-source on GitHub
 > - Comprehensive documentation (75 KB of technical specs)
 > - 100% test coverage (28 tests across 4 suites)
@@ -392,14 +392,14 @@ npm test -- --testNamePattern="Multi-Verifier Unlinkability"
 ## 🚀 **Post-Demo Call to Action**
 
 **For Judges:**
-> "Try it yourself: `git clone https://github.com/GoldLion123RP/QS-PID && npm install && npm run test:all`
+> "Try it yourself: `git clone https://github.com/GoldLion123RP/QS-PPI && npm install && npm run test:all`
 >
-> Documentation: [README.md](https://github.com/GoldLion123RP/QS-PID)
+> Documentation: [README.md](https://github.com/GoldLion123RP/QS-PPI)
 >
 > Questions? Open a GitHub issue or reach out at [your-email]"
 
 **For Users:**
-> "QS-PID is open-source. Integrate it into your app with our SDK (coming soon).
+> "QS-PPI is open-source. Integrate it into your app with our SDK (coming soon).
 >
 > Star the repo ⭐ if you believe in privacy-first identity verification!"
 
@@ -417,3 +417,4 @@ npm test -- --testNamePattern="Multi-Verifier Unlinkability"
 ---
 
 **Good luck with your demo! 🎉**
+

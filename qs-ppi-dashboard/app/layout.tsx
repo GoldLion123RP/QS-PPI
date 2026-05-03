@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QS-PID - Quantum-Safe Proof of Income Declaration",
+  title: "QS-PPI - Quantum-Safe Proof of Income Declaration",
   description: "Zero-Knowledge Proof income verification with W3C VC 2.0 compliance",
 };
 
@@ -40,3 +40,4 @@ export default function RootLayout({
     </html>
   );
 }
+

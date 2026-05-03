@@ -1,5 +1,5 @@
 /**
- * testSecurityAudit.js — Security Audit Tests for QS-PID
+ * testSecurityAudit.js — Security Audit Tests for QS-PPI
  *
  * Tests covered:
  *   1. Fiat-Shamir binding completeness
@@ -184,3 +184,4 @@ console.log(`  Security Audit Results: ${passed} passed, ${failed} failed`);
 console.log('============================================\n');
 
 if (failed > 0) process.exit(1);
+

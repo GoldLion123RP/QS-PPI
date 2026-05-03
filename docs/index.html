@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QS-PID — Quantum-Safe Privacy-Preserving Identity</title>
+  <title>QS-PPI — Quantum-Safe Privacy-Preserving Identity</title>
   <meta name="theme-color" content="#020817">
   <meta name="description" content="Zero-knowledge income verification with post-quantum security">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
@@ -43,7 +43,7 @@
         <span class="cursor-blink"></span>
       </div>
       
-      <h1 class="hero-title">QS-PID</h1>
+      <h1 class="hero-title">QS-PPI</h1>
       
       <h2 class="hero-subtitle">Quantum-Safe Privacy-Preserving Identity</h2>
       
@@ -56,7 +56,7 @@
         <button class="btn-primary" onclick="scrollToModules()">
           ⚡ Launch Demo
         </button>
-        <button class="btn-outline" onclick="window.open('https://github.com/GoldLion123RP/QS-PID', '_blank')">
+        <button class="btn-outline" onclick="window.open('https://github.com/GoldLion123RP/QS-PPI', '_blank')">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
           View Docs
         </button>
@@ -171,10 +171,10 @@
   <!-- Footer -->
   <footer class="footer">
     <p>
-      QS-PID v1.0 · W3C VC 2.0 · Groth16 · BN254 · ML-DSA-65 · MIT License
+      QS-PPI v1.0 · W3C VC 2.0 · Groth16 · BN254 · ML-DSA-65 · MIT License
     </p>
     <p style="margin-top: 0.5rem;">
-      <a href="https://github.com/GoldLion123RP/QS-PID" target="_blank">GitHub</a>
+      <a href="https://github.com/GoldLion123RP/QS-PPI" target="_blank">GitHub</a>
     </p>
   </footer>
 
@@ -187,7 +187,7 @@
       if (host === 'localhost' || host === '127.0.0.1') {
         return 'http://localhost:3000';
       }
-      return 'https://qspid-backend.onrender.com';
+      return 'https://QSPPI-backend.onrender.com';
     })();
 
     // Celestial Orb Canvas Animation
@@ -334,7 +334,7 @@
         document.getElementById('uptime').textContent = data.uptime || '-';
         
       } catch (e) {
-        console.error('[QS-PID] Status fetch failed:', e);
+        console.error('[QS-PPI] Status fetch failed:', e);
         // Backend unreachable
         const backendDot = document.getElementById('backendDot');
         const backendStatus = document.getElementById('backendStatus');
@@ -351,3 +351,4 @@
 </html>
 ody>
 </html>
+

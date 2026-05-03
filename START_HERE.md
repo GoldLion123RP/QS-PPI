@@ -21,7 +21,7 @@ This is the single-file dashboard (Dashboard / Issue Credential / Holder Wallet)
 - `docs/index.html`: GitHub Pages / offline demo dashboard.
 - `src/`: Node backend (optional).
 - `circuits/`: Circom circuits and (optionally) generated artifacts.
-- `qspid-dashboard/`: React/Next dashboard (optional).
+- `qs-ppi-dashboard/`: React/Next dashboard (optional).
 
 ---
 

@@ -1,8 +1,8 @@
-# QS-PID Post-Quantum Migration Plan
+# QS-PPI Post-Quantum Migration Plan
 
 ## Executive Summary
 
-QS-PID will transition from ECDSA-based signatures to ML-DSA (Module-Lattice-Based Digital Signature Algorithm) to maintain cryptographic security in the post-quantum era. This plan outlines a phased migration approach that maintains backward compatibility and security throughout the transition.
+QS-PPI will transition from ECDSA-based signatures to ML-DSA (Module-Lattice-Based Digital Signature Algorithm) to maintain cryptographic security in the post-quantum era. This plan outlines a phased migration approach that maintains backward compatibility and security throughout the transition.
 
 ---
 
@@ -41,7 +41,7 @@ QS-PID will transition from ECDSA-based signatures to ML-DSA (Module-Lattice-Bas
 - 688-byte signature
 - Security: ~128 bits
 
-**ML-DSA-65** (Recommended for QS-PID)
+**ML-DSA-65** (Recommended for QS-PPI)
 - 96-byte private key, 48-byte public key
 - 1032-byte signature
 - Security: ~192 bits
@@ -60,7 +60,7 @@ QS-PID will transition from ECDSA-based signatures to ML-DSA (Module-Lattice-Bas
 **Timeline**: Immediate deployment
 
 **Activities**:
-- Deploy QS-PID v1.0 with ECDSA-Secp256k1
+- Deploy QS-PPI v1.0 with ECDSA-Secp256k1
 - Implement ML-DSA infrastructure (key generation, signing)
 - Create automated test suite for backward compatibility
 - Begin ML-DSA code audits
@@ -422,7 +422,7 @@ describe('Phase 2: Hybrid Signing', () => {
 ### 9.1 Timeline & Announcements
 
 **Q1 2025**: Phase 1 announcement
-- "QS-PID supports ECDSA with planned post-quantum migration"
+- "QS-PPI supports ECDSA with planned post-quantum migration"
 - Publish migration roadmap
 - Open-source ML-DSA integration code
 
@@ -468,7 +468,7 @@ describe('Phase 2: Hybrid Signing', () => {
 
 ## 11. Appendix: Migration Checklist
 
-- [ ] Phase 1: Deploy ECDSA-based QS-PID v1.0
+- [ ] Phase 1: Deploy ECDSA-based QS-PPI v1.0
 - [ ] Develop and audit ML-DSA integration code
 - [ ] Create hybrid signing implementation
 - [ ] Update W3C VC context with ML-DSA proof types
@@ -485,3 +485,4 @@ describe('Phase 2: Hybrid Signing', () => {
 **Document Version**: 1.0  
 **Last Updated**: December 2025  
 **Next Review**: Q2 2026
+

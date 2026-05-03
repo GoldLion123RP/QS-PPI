@@ -1,5 +1,5 @@
 /**
- * QS-PID Main Entry Point
+ * QS-PPI Main Entry Point
  * 
  * Zero-Knowledge Proof system for income verification (> 5 LPA)
  * W3C VC 2.0 compliant with post-quantum migration to ML-DSA
@@ -20,9 +20,9 @@ const {
 } = require('./pq/mldsa');
 
 /**
- * QS-PID Main Class
+ * QS-PPI Main Class
  */
-class QSPID {
+class QSPPI {
     constructor(issuerDid, holderDid, options = {}) {
         this.issuerDid = issuerDid;
         this.holderDid = holderDid;
@@ -43,7 +43,7 @@ class QSPID {
     async initialize() {
         await this.prover.initialize();
         await this.verifier.initialize();
-        console.log('[✓] QS-PID system initialized');
+        console.log('[✓] QS-PPI system initialized');
     }
 
     /**
@@ -172,4 +172,5 @@ class QSPID {
     }
 }
 
-module.exports = QSPID;
+module.exports = QSPPI;
+

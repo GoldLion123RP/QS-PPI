@@ -72,7 +72,7 @@ export function IssuerDashboard() {
             </div>
             <div>
               <div className="text-sm font-semibold tracking-wide text-teal-300">
-                QS-PID
+                QS-PPI
               </div>
               <div className="text-xs text-slate-400">
                 Quantum-Safe Privacy-Preserving Identity
@@ -215,3 +215,4 @@ export function IssuerDashboard() {
     </div>
   );
 }
+

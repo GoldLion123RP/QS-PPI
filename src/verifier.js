@@ -1,5 +1,5 @@
 /**
- * QS-PID Verifier
+ * QS-PPI Verifier
  *
  * publicSignals[] order (matches circuit):
  *   [0] isValid          — 1 if income > threshold
@@ -182,3 +182,4 @@ class IncomeVerifier {
 }
 
 module.exports = IncomeVerifier;
+

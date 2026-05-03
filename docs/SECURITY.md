@@ -1,4 +1,4 @@
-# QS-PID Security Model
+# QS-PPI Security Model
 
 **Comprehensive threat analysis and cryptographic guarantees for the Quantum-Safe Privacy-Preserving Income Verification System**
 
@@ -298,7 +298,7 @@ Zero-Knowledge Property:
 - Even with 2^64 compute, cannot reverse commitment
 ```
 
-**Test Case**: `tests/testQSPID.js:Test 1` (Valid income proofs)
+**Test Case**: `tests/testQSPPI.js:Test 1` (Valid income proofs)
 
 ---
 
@@ -329,7 +329,7 @@ Since random_a ≠ random_b (cryptographic randomness):
   Adversary cannot link (commitments independent)
 ```
 
-**Test Case**: `tests/testQSPID.js:Test 4` (Multi-Verifier Unlinkability)
+**Test Case**: `tests/testQSPPI.js:Test 4` (Multi-Verifier Unlinkability)
 
 **Result**: 3 proofs for same income → 3 unique commitments (0% linkability)
 
@@ -372,7 +372,7 @@ if (challenge_tampered !== proof.binding.challenge) {
 }
 ```
 
-**Test Case**: `tests/testQSPID.js:Test 9.3` (Detect binding tampering)
+**Test Case**: `tests/testQSPPI.js:Test 9.3` (Detect binding tampering)
 
 **Result**: Modified commitment detected, verification fails
 
@@ -415,7 +415,7 @@ function verifyProof(proof) {
 }
 ```
 
-**Test Case**: `tests/testQSPID.js:Test 6` (Anti-Replay Protection)
+**Test Case**: `tests/testQSPPI.js:Test 6` (Anti-Replay Protection)
 
 **Result**: Same proof to different verifiers accepted (unlinkable), but nonces tracked separately
 
@@ -721,7 +721,7 @@ function verifyHybrid(credential) {
 
 ## Conclusion
 
-**QS-PID Security Summary**:
+**QS-PPI Security Summary**:
 
 ✅ **Privacy**: Zero-knowledge proofs ensure income confidentiality  
 ✅ **Unlinkability**: Random blinding prevents cross-verifier tracking  
@@ -742,3 +742,4 @@ function verifyHybrid(credential) {
 - [W3C VC 2.0](https://www.w3.org/TR/vc-data-model-2.0/): Verifiable Credentials Data Model
 - [GDPR Compliance Guide](https://gdpr.eu/): EU Data Protection Regulation
 - [Powers of Tau](https://github.com/privacy-scaling-explorations/perpetualpowersoftau): Trusted Setup Ceremony
+

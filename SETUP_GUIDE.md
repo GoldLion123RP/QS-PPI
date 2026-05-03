@@ -1,12 +1,12 @@
-# QS-PID Zero-Knowledge Proof Setup Guide
+# QS-PPI Zero-Knowledge Proof Setup Guide
 
 ## Quick Start Commands
 
-Run these commands in order to set up the entire QS-PID system:
+Run these commands in order to set up the entire QS-PPI system:
 
 ```powershell
 # Navigate to project directory
-cd "e:\Documents\Rahul Pal\Coding\Hackathon\QS-PID"
+cd "e:\Documents\Rahul Pal\Coding\Hackathon\QS-PPI"
 
 # Step 1: Install all dependencies
 npm install
@@ -206,7 +206,7 @@ Ensure you've run the full setup:
 ## Project Structure
 
 ```
-QS-PID/
+QS-PPI/
 ├── circuits/
 │   └── incomeProof.circom      # ZK circuit definition
 ├── artifacts/                   # Generated files

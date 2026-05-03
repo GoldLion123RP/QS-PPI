@@ -106,7 +106,7 @@ async function testCredentialSigning() {
     assert(credential.proof.signatureValue !== undefined, 'Signature value present');
     assert(credential.proof.verificationMethod !== undefined, 'Verification method present');
     assert(credential.proof.created !== undefined, 'Creation timestamp present');
-    assert(credential.proof.domain === 'qs-pid.example', 'Domain set correctly');
+    assert(credential.proof.domain === 'QS-PPI.example', 'Domain set correctly');
 
     console.log(`   └─ Signature: ${credential.proof.signatureValue.substring(0, 16)}...`);
     console.log(`   └─ Verification Method: ${credential.proof.verificationMethod}\n`);
@@ -435,3 +435,4 @@ if (require.main === module) {
 }
 
 module.exports = { runAllTests };
+

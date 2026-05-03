@@ -1,5 +1,5 @@
 /**
- * QS-PID Ceremony Setup
+ * QS-PPI Ceremony Setup
  * 
  * Generates trusted setup parameters for Groth16 zkSNARK
  * Uses Powers of Tau for secure multi-party computation
@@ -80,7 +80,7 @@ async function powersOfTauPhase2(ptauPath) {
     
     // Add entropy contribution
     const entropy = crypto.randomBytes(64).toString('hex');
-    const name = 'QS-PID Ceremony Participant';
+    const name = 'QS-PPI Ceremony Participant';
     
     try {
         await snarkjs.powersOfTau.contribute(ptauPath, ptauPath_2, name, entropy);
@@ -138,7 +138,7 @@ async function circuitSetup(r1csPath, ptauPath) {
         const { path: contributionPath_1 } = await snarkjs.zkey.contribute(
             zkey_0,
             zkey_1,
-            'QS-PID Setup Participant 1',
+            'QS-PPI Setup Participant 1',
             entropy_1
         );
         console.log('[✓] Setup contribution 1 complete');
@@ -148,7 +148,7 @@ async function circuitSetup(r1csPath, ptauPath) {
         await snarkjs.zkey.contribute(
             zkey_1,
             zkey_final,
-            'QS-PID Setup Participant 2',
+            'QS-PPI Setup Participant 2',
             entropy_2
         );
         console.log('[✓] Setup contribution 2 complete');
@@ -196,7 +196,7 @@ async function exportVerificationKey(zkey_final) {
  */
 async function runCeremony() {
     console.log('═══════════════════════════════════════════════════════════');
-    console.log('  QS-PID Trusted Setup Ceremony');
+    console.log('  QS-PPI Trusted Setup Ceremony');
     console.log('═══════════════════════════════════════════════════════════\n');
     
     try {
@@ -242,3 +242,4 @@ if (require.main === module) {
 }
 
 module.exports = { runCeremony };
+

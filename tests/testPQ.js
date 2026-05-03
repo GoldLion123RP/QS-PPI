@@ -344,7 +344,7 @@ async function testBackwardCompatibility() {
 async function testMigrationTimeline() {
     testGroup('Test 8: Migration Timeline Simulation');
 
-    console.log('[*] Simulating QS-PID migration timeline\n');
+    console.log('[*] Simulating QS-PPI migration timeline\n');
 
     const timeline = [];
 
@@ -439,3 +439,4 @@ if (require.main === module) {
 }
 
 module.exports = { runAllTests };
+

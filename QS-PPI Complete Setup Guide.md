@@ -1,4 +1,4 @@
-# 🚀 QS-PID Complete Setup Guide
+# 🚀 QS-PPI Complete Setup Guide
 
 ## Prerequisites
 - Node.js (v18+) installed
@@ -40,7 +40,7 @@ npm run frontend
 
 **Expected Output:**
 ```
-[✓] QS-PID frontend running at http://localhost:3000
+[✓] QS-PPI frontend running at http://localhost:3000
 [*] Artifacts ready : false
 [*] Press Ctrl+C to stop
 ```
@@ -82,7 +82,7 @@ npm run frontend
 
 **What you see:**
 - Animated 3D wireframe (Three.js) - rotating icosahedron
-- "QS-PID" title with "QUANTUM-SAFE · ZERO-KNOWLEDGE · POST-QUANTUM" badge
+- "QS-PPI" title with "QUANTUM-SAFE · ZERO-KNOWLEDGE · POST-QUANTUM" badge
 - Two buttons: "⚡ Launch Demo" and "📖 View Docs"
 - 7 clickable cards (section cards)
 

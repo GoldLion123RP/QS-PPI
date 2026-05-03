@@ -1,5 +1,5 @@
 /**
- * app.js — QS-PID Frontend Logic
+ * app.js — QS-PPI Frontend Logic
  *
  * Unit system:
  *   Internal circuit unit: 1 LPA = 100,000,000 internal units
@@ -13,7 +13,7 @@ const API = (() => {
     if (host === 'localhost' || host === '127.0.0.1') {
         return window.location.origin;
     }
-    return 'https://qspid-backend.onrender.com';
+    return 'https://QSPPI-backend.onrender.com';
 })();
 
 // ── Unit constants ────────────────────────────────────────────────────────────
@@ -253,3 +253,4 @@ window.addEventListener('DOMContentLoaded', () => {
     onLPAInput('threshold');   // show ₹5,00,000 badge on load
     getStatus();
 });
+

@@ -1,6 +1,6 @@
-# Contributing to QS-PID
+# Contributing to QS-PPI
 
-Thank you for your interest in QS-PID. To maintain the cryptographic integrity, security standards, and legal clarity of this project, we enforce **strict guidelines** for all contributions.
+Thank you for your interest in QS-PPI. To maintain the cryptographic integrity, security standards, and legal clarity of this project, we enforce **strict guidelines** for all contributions.
 
 By contributing to this project, you agree to abide by the terms of the [Apache License 2.0](./LICENSE) and this contribution guide.
 

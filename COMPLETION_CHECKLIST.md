@@ -1,4 +1,4 @@
-# QS-PID Project Completion Checklist
+# QS-PPI Project Completion Checklist
 
 ## ✅ Project Completion Status: 100%
 
@@ -106,7 +106,7 @@ Each proof presentation includes:
 **Test Coverage**: 25 comprehensive tests across 3 test suites
 
 **Deliverables**:
-- [tests/testQSPID.js](tests/testQSPID.js) - 9 core ZKP tests
+- [tests/testQSPPI.js](tests/testQSPPI.js) - 9 core ZKP tests
 - [tests/testVC.js](tests/testVC.js) - 8 W3C VC tests
 - [tests/testPQ.js](tests/testPQ.js) - 8 post-quantum tests
 
@@ -143,7 +143,7 @@ Each proof presentation includes:
 - [x] Modular architecture (prover, verifier, VC, PQ)
 - [x] Clear separation of concerns
 - [x] Reusable components
-- [x] Main entry point class (QSPID)
+- [x] Main entry point class (QSPPI)
 - [x] Consistent naming conventions
 - [x] Comprehensive error handling
 - [x] Input validation
@@ -196,7 +196,7 @@ Each proof presentation includes:
 
 ### Source Code (15 files)
 ```
-✅ src/index.js                    - Main QSPID class
+✅ src/index.js                    - Main QSPPI class
 ✅ src/prover.js                   - Proof generation (SnarkJS)
 ✅ src/verifier.js                 - Proof verification
 ✅ src/ceremony.js                 - Trusted setup ceremony
@@ -204,7 +204,7 @@ Each proof presentation includes:
 ✅ src/vc/presentation.js          - VC presentations
 ✅ src/pq/mldsa.js                 - ML-DSA integration
 ✅ circuits/incomeProof.circom    - Circom circuit
-✅ tests/testQSPID.js             - Core ZKP tests
+✅ tests/testQSPPI.js             - Core ZKP tests
 ✅ tests/testVC.js                - W3C VC tests
 ✅ tests/testPQ.js                - Post-quantum tests
 ```
@@ -322,7 +322,7 @@ Each proof presentation includes:
 - ✅ Poseidon hash (modern ZK hash)
 - ✅ ML-DSA (NIST FIPS 204 standard)
 
-**"Plan and implement a ZKP project named QS-PID"**
+**"Plan and implement a ZKP project named QS-PPI"**
 - ✅ Complete project planning done
 - ✅ Full implementation delivered
 - ✅ Production-ready code

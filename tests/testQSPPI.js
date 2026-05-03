@@ -1,5 +1,5 @@
 /**
- * QS-PID Core Test Suite
+ * QS-PPI Core Test Suite
  *
  * CURRENCY SCALING (CORRECTED):
  * - 1 Lakh = 100,000 (₹1,00,000)
@@ -420,7 +420,7 @@ async function testPerformance() {
 // ====================================================================
 async function runAllTests() {
     console.log('\n\u2554' + '\u2550'.repeat(60) + '\u2557');
-    console.log('\u2551          QS-PID Core ZKP Test Suite                        \u2551');
+    console.log('\u2551          QS-PPI Core ZKP Test Suite                        \u2551');
     console.log('\u2551     Testing Income Verification with Zero-Knowledge        \u2551');
     console.log('\u2551     WITH FIAT-SHAMIR BINDING SECURITY VALIDATION          \u2551');
     console.log('\u2551     CURRENCY: Indian Rupees (1 Lakh = 1,00,000)           \u2551');
@@ -454,3 +454,4 @@ async function runAllTests() {
 
 if (require.main === module) runAllTests();
 module.exports = { runAllTests };
+

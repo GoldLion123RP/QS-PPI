@@ -28,7 +28,7 @@ async function main() {
             throw new Error(`Verification key not found. Run: npm run setup\nExpected: ${vkeyPath}`);
         }
 
-        console.log('\n========== QS-PID PROOF VERIFICATION ==========\n');
+        console.log('\n========== QS-PPI PROOF VERIFICATION ==========\n');
 
         const proofData = JSON.parse(fs.readFileSync(proofPath, 'utf8'));
         const verifier  = new IncomeVerifier();
@@ -54,3 +54,4 @@ async function main() {
 }
 
 main();
+

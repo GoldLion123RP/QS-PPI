@@ -1,4 +1,4 @@
-# QS-PID Implementation Guide
+# QS-PPI Implementation Guide
 
 ## Quick Start
 
@@ -6,7 +6,7 @@
 
 ```bash
 # Clone the repository
-cd /path/to/qs-pid
+cd /path/to/QS-PPI
 
 # Install dependencies
 npm install
@@ -62,7 +62,7 @@ npm run test:pq
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    QS-PID System                             │
+│                    QS-PPI System                             │
 ├─────────────────────────────────────────────────────────────┤
 │                                                               │
 │  ┌──────────────────┐         ┌──────────────────────────┐ │
@@ -520,3 +520,4 @@ MIT License - See LICENSE file for details
 - [W3C VC Data Model 2.0](https://www.w3.org/TR/vc-data-model-2.0/)
 - [NIST FIPS 204 (ML-DSA)](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf)
 - [Zero-Knowledge Proofs Primer](https://blog.cryptographyengineering.com/2014/11/27/zero-knowledge-proofs-illustrated-primer/)
+

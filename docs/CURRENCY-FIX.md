@@ -35,7 +35,7 @@ In Indian numbering system:
 
 ## 🛠️ Files Fixed
 
-### 1. **tests/testQSPID.js**
+### 1. **tests/testQSPPI.js**
 
 **Changes**:
 ```javascript
@@ -279,7 +279,7 @@ console.log('4 LPA < 5 LPA:', proof2.isValid); // Should be false
 
 ### **Commits**:
 
-1. `8c7d6e2` - fix: correct Indian currency LPA scaling in tests (testQSPID.js)
+1. `8c7d6e2` - fix: correct Indian currency LPA scaling in tests (testQSPPI.js)
 2. `8f1fdcf` - fix: correct LPA scaling in W3C VC credential schema (credential.js)
 3. `e744907` - fix: correct LPA scaling in prover default threshold (prover.js)
 
@@ -303,3 +303,4 @@ console.log('4 LPA < 5 LPA:', proof2.isValid); // Should be false
   <strong>✅ Currency Scaling Now Correct!</strong><br>
   <em>1 Lakh = 100,000 | 5 LPA = 500,000 (₹5,00,000)</em>
 </p>
+

@@ -28,7 +28,7 @@ async function main() {
         const threshold = process.env.THRESHOLD || '500000000';  // 5 LPA
         const verifier  = process.env.VERIFIER  || 'demo-verifier-001';
 
-        console.log('\n========== QS-PID PROOF GENERATION ==========\n');
+        console.log('\n========== QS-PPI PROOF GENERATION ==========\n');
         console.log(`Income    : ${income}`);
         console.log(`Threshold : ${threshold}`);
         console.log(`Verifier  : ${verifier}\n`);
@@ -52,3 +52,4 @@ async function main() {
 }
 
 main();
+

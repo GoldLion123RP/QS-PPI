@@ -1,16 +1,16 @@
-# QS-PID: Quantum-Safe Privacy-Preserving Income Verification
+# QS-PPI: Quantum-Safe Privacy-Preserving Income Verification
 
 **A Zero-Knowledge Proof (ZKP) system for privacy-preserving income verification using post-quantum cryptography.**
 
 <p align="center">
-  <img src="docs/hero-screenshot.png" alt="QS-PID Landing Page" width="100%">
+  <img src="docs/hero-screenshot.png" alt="QS-PPI Landing Page" width="100%">
 </p>
 
 <!-- --- -->
 
 <!-- ## 🎉 Live Demo
 
-**🔗 [https://goldlion123rp.github.io/QS-PID/](https://goldlion123rp.github.io/QS-PID/)** — Interactive dashboard (enable GitHub Pages first, see [docs/README.md](./docs/README.md)) -->
+**🔗 [https://goldlion123rp.github.io/QS-PPI/](https://goldlion123rp.github.io/QS-PPI/)** — Interactive dashboard (enable GitHub Pages first, see [docs/README.md](./docs/README.md)) -->
 ---
 
 ## 🎯 Problem Statement
@@ -24,9 +24,9 @@ Traditional income verification exposes your **exact salary** to:
 
 ---
 
-## ✨ Solution: QS-PID
+## ✨ Solution: QS-PPI
 
-**QS-PID** uses **Zero-Knowledge Proofs (ZKPs)** to prove your income exceeds a threshold **without revealing the exact amount**.
+**QS-PPI** uses **Zero-Knowledge Proofs (ZKPs)** to prove your income exceeds a threshold **without revealing the exact amount**.
 
 ### Key Features
 
@@ -44,7 +44,7 @@ Traditional income verification exposes your **exact salary** to:
 ### 1. GitHub Pages Dashboard (Recommended for Demo)
 
 **Location**: [`docs/index.html`](./docs/index.html)  
-**Live URL**: https://goldlion123rp.github.io/QS-PID/ (after enabling Pages)
+**Live URL**: https://goldlion123rp.github.io/QS-PPI/ (after enabling Pages)
 
 **Features**:
 - 📊 **Issuer Dashboard**: Live stats, PQ status banner, registry table
@@ -57,7 +57,7 @@ Traditional income verification exposes your **exact salary** to:
 
 ### 2. React Dashboard (Advanced)
 
-**Location**: [`qspid-dashboard/`](./qspid-dashboard/)  
+**Location**: [`qsppi-dashboard/`](./qsppi-dashboard/)  
 **Tech**: Next.js 15 + React 18 + Tailwind CSS + Lucide Icons
 
 **Features**:
@@ -67,7 +67,7 @@ Traditional income verification exposes your **exact salary** to:
 
 **Setup**:
 ```bash
-cd qspid-dashboard
+cd qsppi-dashboard
 npm install
 npm run dev
 # Visit http://localhost:3000
@@ -127,8 +127,8 @@ open index.html  # or double-click
 ### Installation
 
 ```bash
-git clone https://github.com/GoldLion123RP/QS-PID.git
-cd QS-PID
+git clone https://github.com/GoldLion123RP/QS-PPI.git
+cd QS-PPI
 npm install
 ```
 
@@ -286,7 +286,7 @@ Result: 28/28 passing
 ## 📦 Project Structure
 
 ```
-QS-PID/
+QS-PPI/
 ├── circuits/                 # ZKP circuits (Circom)
 │   └── circuits_incomeProof.circom
 ├── src/                     # Backend (Node.js)
@@ -298,7 +298,7 @@ QS-PID/
 ├── docs/                    # GitHub Pages dashboard
 │   ├── index.html             # Single-page UI
 │   └── README.md              # Pages setup guide
-├── qspid-dashboard/         # React dashboard (optional)
+├── qsppi-dashboard/         # React dashboard (optional)
 │   ├── app/
 │   ├── components/
 │   └── lib/
@@ -315,15 +315,15 @@ QS-PID/
 **Team**: Rahul Pal & Akash Dutta 
 **Track**: Privacy-First Finance  
 **Built With**: ZKP + Post-Quantum Cryptography  
-<!-- **Demo**: https://goldlion123rp.github.io/QS-PID/  
-**GitHub**: https://github.com/GoldLion123RP/QS-PID   -->
+<!-- **Demo**: https://goldlion123rp.github.io/QS-PPI/  
+**GitHub**: https://github.com/GoldLion123RP/QS-PPI   -->
 
 ---
 
 ## 🔗 Links
 
-- **Live Dashboard**: https://goldlion123rp.github.io/QS-PID/
-- **GitHub Repo**: https://github.com/GoldLion123RP/QS-PID
+- **Live Dashboard**: https://goldlion123rp.github.io/QS-PPI/
+- **GitHub Repo**: https://github.com/GoldLion123RP/QS-PPI
 - **Documentation**: [START_HERE.md](./START_HERE.md)
 - **W3C VC 2.0 Spec**: https://www.w3.org/TR/vc-data-model-2.0/
 - **ML-DSA (NIST FIPS 204)**: https://csrc.nist.gov/pubs/fips/204/final

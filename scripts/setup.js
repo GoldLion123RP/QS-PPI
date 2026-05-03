@@ -1,5 +1,5 @@
 /**
- * setup.js — Trusted Setup for QS-PID Circuit
+ * setup.js — Trusted Setup for QS-PPI Circuit
  *
  * Run: npm run setup
  * Requires: npm run compile  (artifacts/incomeProof.r1cs must exist)
@@ -169,7 +169,7 @@ async function ensurePhase1Ptau() {
 
 async function main() {
     try {
-        console.log('\n========== QS-PID TRUSTED SETUP ==========\n');
+        console.log('\n========== QS-PPI TRUSTED SETUP ==========\n');
 
         // Step 1: Get phase-1 ptau file
         await ensurePhase1Ptau();
@@ -248,8 +248,8 @@ async function main() {
         console.log('[*] Contributing randomness...');
         await snarkjs.zKey.contribute(
             zkey0, zkeyFinal,
-            'QS-PID Contributor',
-            'qs-pid-entropy-' + Date.now()
+            'QS-PPI Contributor',
+            'QS-PPI-entropy-' + Date.now()
         );
         console.log('[\u2713] Contribution done');
 
@@ -273,3 +273,4 @@ async function main() {
 }
 
 main();
+

@@ -1,6 +1,6 @@
-# QS-PID Benchmark Report
+# QS-PPI Benchmark Report
 
-**Project:** QS-PID (Quantum-Safe Proof of Income Declaration)  
+**Project:** QS-PPI (Quantum-Safe Proof of Income Declaration)  
 **Date:** March 8, 2026  
 **Version:** 1.0.0  
 **Developer 1:** Rahul Pal  
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-This benchmark report provides performance metrics and technical specifications for the QS-PID system—a zero-knowledge proof (ZKP) based income verification system with post-quantum cryptography (PQC) migration support.
+This benchmark report provides performance metrics and technical specifications for the QS-PPI system—a zero-knowledge proof (ZKP) based income verification system with post-quantum cryptography (PQC) migration support.
 
 **Key Findings:**
 - Groth16 proof generation: ~8-15 seconds average
@@ -182,7 +182,7 @@ This benchmark report provides performance metrics and technical specifications 
 | Method | Verification Time | Privacy |
 |--------|------------------|---------|
 | Traditional (bank statement) | Minutes/hours | None |
-| ZKP (QS-PID) | ~100ms | Full (income hidden) |
+| ZKP (QS-PPI) | ~100ms | Full (income hidden) |
 
 ### 6.2 Classical vs Post-Quantum
 
@@ -254,7 +254,7 @@ This benchmark report provides performance metrics and technical specifications 
 ### 9.2 File Structure
 
 ```
-QS-PID/
+QS-PPI/
 ├── circuits/
 │   └── incomeProof.circom     # ZKP circuit
 ├── src/
@@ -263,7 +263,7 @@ QS-PID/
 │   └── pq/
 │       └── mldsa.js            # Post-quantum crypto
 ├── tests/
-│   ├── testQSPID.js            # Core ZKP tests
+│   ├── testQSPPI.js            # Core ZKP tests
 │   ├── testPQ.js               # PQC tests
 │   └── testVC.js               # Verifiable Credential tests
 └── frontend/                   # Web interface
@@ -272,4 +272,4 @@ QS-PID/
 ---
 
 **Report Generated:** March 8, 2026  
-**QS-PID Version:** 1.0.0  
+**QS-PPI Version:** 1.0.0  

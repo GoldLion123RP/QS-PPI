@@ -1,6 +1,6 @@
 # Post-Quantum Migration Roadmap
 
-**QS-PID Transition to ML-DSA (Quantum-Resistant Signatures)**
+**QS-PPI Transition to ML-DSA (Quantum-Resistant Signatures)**
 
 ---
 
@@ -52,10 +52,10 @@
 | Variant | Classical Security | Quantum Security | Signature Size | Use Case |
 |---------|-------------------|------------------|----------------|----------|
 | **ML-DSA-44** | 128-bit | 64-bit | ~2.4 KB | IoT, Mobile |
-| **ML-DSA-65** | 192-bit | 96-bit | ~3.3 KB | Standard (QS-PID) |
+| **ML-DSA-65** | 192-bit | 96-bit | ~3.3 KB | Standard (QS-PPI) |
 | **ML-DSA-87** | 256-bit | 128-bit | ~4.6 KB | High-security |
 
-**QS-PID Choice**: ML-DSA-65 (balance security + performance)
+**QS-PPI Choice**: ML-DSA-65 (balance security + performance)
 
 ### Performance Comparison
 
@@ -289,7 +289,7 @@ function verifyPhase3Credential(credential) {
 {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
-    "https://qs-pid.example/contexts/pq/v1"  // Post-quantum context
+    "https://QS-PPI.example/contexts/pq/v1"  // Post-quantum context
   ],
   "type": ["VerifiableCredential", "IncomeProofCredential"],
   "issuer": "did:key:zDna...",  // did:key with ML-DSA multicodec
@@ -378,7 +378,7 @@ Legend:
 
 ```
 ┌──────────────────────────────────────────────────┐
-│       QS-PID ML-DSA Adoption Over Time           │
+│       QS-PPI ML-DSA Adoption Over Time           │
 ├──────────────────────────────────────────────────┤
 │  100%|                                   ■■■■■  │
 │   90%|                              ■■■■■      │
@@ -409,7 +409,7 @@ Legend:
 ```
 Subject: 🔒 Upgrade to Quantum-Resistant Credentials (Free)
 
-Dear QS-PID User,
+Dear QS-PPI User,
 
 We're upgrading your income verification credentials to be quantum-resistant!
 
@@ -423,24 +423,24 @@ Why this matters:
 - ML-DSA ensures your credentials stay secure for 20+ years
 
 Action required:
-1. Log in to your QS-PID wallet
+1. Log in to your QS-PPI wallet
 2. Click "Upgrade to Quantum-Resistant"
 3. Re-verify your income (one-time)
 
 [Upgrade Now Button]
 
-Questions? Visit our FAQ: https://qs-pid.example/pq-faq
+Questions? Visit our FAQ: https://QS-PPI.example/pq-faq
 ```
 
 #### For Verifiers (Banks, Landlords, Employers)
 
 **Phase 2 Technical Briefing** (March 2025):
 ```
-Subject: [TECHNICAL] QS-PID Adding ML-DSA Support (April 1, 2025)
+Subject: [TECHNICAL] QS-PPI Adding ML-DSA Support (April 1, 2025)
 
 Dear Verifier Partner,
 
-Starting April 1, 2025, QS-PID credentials will include ML-DSA signatures.
+Starting April 1, 2025, QS-PPI credentials will include ML-DSA signatures.
 
 Changes to your integration:
 - Accept credentials with EITHER ECDSA or ML-DSA signatures
@@ -448,14 +448,14 @@ Changes to your integration:
 - No changes to ZK proof verification
 
 Code example:
-https://github.com/GoldLion123RP/QS-PID/blob/main/docs/VERIFIER_GUIDE.md
+https://github.com/GoldLion123RP/QS-PPI/blob/main/docs/VERIFIER_GUIDE.md
 
 Testing:
 - Staging environment available now
-- Test credentials: https://staging.qs-pid.example/test-credentials
+- Test credentials: https://staging.QS-PPI.example/test-credentials
 
 Support:
-- Technical docs: https://qs-pid.example/docs/ml-dsa
+- Technical docs: https://QS-PPI.example/docs/ml-dsa
 - Integration support: [email protected]
 ```
 
@@ -467,7 +467,7 @@ Subject: [ACTION REQUIRED] Transition to ML-DSA-Only Signing (Oct 1)
 
 Dear Issuer,
 
-On October 1, 2025, QS-PID will stop issuing ECDSA credentials.
+On October 1, 2025, QS-PPI will stop issuing ECDSA credentials.
 
 Action items:
 1. Upgrade issuer software to v3.0 (ML-DSA-only)
@@ -567,7 +567,7 @@ Need help? Schedule onboarding call: [calendly link]
 - ☑ 100% of credentials quantum-resistant
 - ☑ 0 ECDSA credentials active
 - ☑ System survives quantum computer announcement (no emergency rollback)
-- ☑ Public announcement: "QS-PID is quantum-safe"
+- ☑ Public announcement: "QS-PPI is quantum-safe"
 
 ---
 
@@ -592,7 +592,7 @@ Need help? Schedule onboarding call: [calendly link]
 
 ## Conclusion
 
-**QS-PID Post-Quantum Migration** ensures long-term security against quantum threats through a carefully planned 4-phase transition:
+**QS-PPI Post-Quantum Migration** ensures long-term security against quantum threats through a carefully planned 4-phase transition:
 
 1. ✅ **Phase 1** (Q1 2025): ECDSA-only (current)
 2. 🚧 **Phase 2** (Q2-Q3 2025): Hybrid signing (ECDSA + ML-DSA)
@@ -616,3 +616,4 @@ Need help? Schedule onboarding call: [calendly link]
 - [NIST PQC Migration Guide](https://csrc.nist.gov/Projects/post-quantum-cryptography): Post-Quantum Cryptography Project
 - [Quantum Threat Timeline](https://globalriskinstitute.org/): Global Risk Institute Analysis
 - [W3C VC Implementation Guide](https://w3c.github.io/vc-imp-guide/): Verifiable Credentials Best Practices
+

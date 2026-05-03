@@ -1,8 +1,8 @@
-# QS-PID Project Summary
+# QS-PPI Project Summary
 
 ## Executive Summary
 
-**QS-PID (Quantum-Safe Proof of Income Declaration)** is a complete zero-knowledge proof system implementing the following requirements:
+**QS-PPI (Quantum-Safe Proof of Income Declaration)** is a complete zero-knowledge proof system implementing the following requirements:
 
 ✅ **Proves**: Annual income > 5 LPA without revealing actual amount  
 ✅ **Technology**: Circom circuits + SnarkJS Groth16  
@@ -72,7 +72,7 @@ Output: 1 if income > threshold, 0 otherwise
 {
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
-    "https://qs-pid.example/context/v1"
+    "https://qs-ppi.example/context/v1"
   ],
   "type": ["VerifiableCredential", "IncomeProofCredential"],
   "issuer": "did:key:z6MkhaXgBZDvotDkL5257faWLpa...",
@@ -126,7 +126,7 @@ For each presentation:
 
 **Test Files**:
 
-#### [tests/testQSPID.js](tests/testQSPID.js) - Core ZKP Tests
+#### [tests/testQSPPI.js](tests/testQSPPI.js) - Core ZKP Tests
 ```
 ✓ Test 1: Valid Income Proofs
   - 6 LPA (> 5 LPA)
@@ -257,7 +257,7 @@ For each presentation:
 ## Project Structure
 
 ```
-qs-pid/
+qs-ppi/
 │
 ├── 📄 README.md                          # Overview & features
 ├── 📄 QUICKSTART.md                      # Quick reference guide
@@ -267,7 +267,7 @@ qs-pid/
 │   └── incomeProof.circom               # Circom circuit (range proof)
 │
 ├── src/                                   # Main source code
-│   ├── index.js                         # Entry point / QSPID class
+│   ├── index.js                         # Entry point / QSPPI class
 │   ├── prover.js                        # Proof generation (SnarkJS)
 │   ├── verifier.js                      # Proof verification
 │   ├── ceremony.js                      # Trusted setup ceremony
@@ -278,7 +278,7 @@ qs-pid/
 │       └── mldsa.js                    # ML-DSA integration
 │
 ├── tests/                                # Test suites
-│   ├── testQSPID.js                    # 9 tests: ZKP core functionality
+│   ├── testQSPPI.js                    # 9 tests: ZKP core functionality
 │   ├── testVC.js                       # 8 tests: W3C VC 2.0 compliance
 │   └── testPQ.js                       # 8 tests: Post-quantum migration
 │
@@ -420,30 +420,30 @@ npm test
 ### Integration Example
 
 ```javascript
-const QSPID = require('./src/index');
+const QSPPI = require('./src/index');
 
 // Initialize
-const qspid = new QSPID(
+const qsppi = new QSPPI(
     'did:key:issuer...',
     'did:key:holder...'
 );
-await qspid.initialize();
+await qsppi.initialize();
 
 // 1. Generate proof
-const proof = await qspid.generateIncomeProof('700000000');
+const proof = await qsppi.generateIncomeProof('700000000');
 
 // 2. Issue credential
-const credential = await qspid.issueCredential(proof);
+const credential = await qsppi.issueCredential(proof);
 
 // 3. Create presentation
-const presentation = await qspid.createPresentation(
+const presentation = await qsppi.createPresentation(
     credential,
     'challenge-123',
     'verifier.example.com'
 );
 
 // 4. Verify (by verifier)
-const result = await qspid.verifyPresentation(
+const result = await qsppi.verifyPresentation(
     presentation,
     'verifier.example.com',
     'verifier-1'
@@ -537,7 +537,7 @@ MIT License - Open source and freely available
 
 ## Conclusion
 
-QS-PID is a **production-ready, comprehensive zero-knowledge proof system** that:
+QS-PPI is a **production-ready, comprehensive zero-knowledge proof system** that:
 
 ✅ Implements secure income verification (> 5 LPA)  
 ✅ Achieves multi-verifier unlinkability  

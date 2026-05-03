@@ -1,5 +1,5 @@
 /**
- * server.js — Local HTTP backend for QS-PID frontend
+ * server.js — Local HTTP backend for QS-PPI frontend
  *
  * Run:  npm run frontend
  * Open: http://localhost:3000
@@ -214,7 +214,8 @@ server.on('error', (err) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`\n[✓] QS-PID frontend running at http://localhost:${PORT}`);
+    console.log(`\n[✓] QS-PPI frontend running at http://localhost:${PORT}`);
     console.log(`[*] Artifacts ready : ${artifactsReady()}`);
     console.log('[*] Press Ctrl+C to stop\n');
 });
+

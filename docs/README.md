@@ -1,4 +1,4 @@
-# GitHub Pages (QS-PID Dashboard)
+# GitHub Pages (QS-PPI Dashboard)
 
 This folder contains the single-file demo dashboard that works:
 - On GitHub Pages
@@ -13,7 +13,7 @@ Open:
 Or PowerShell:
 
 ```powershell
-cd "<unzipped-folder>\QS-PID"
+cd "<unzipped-folder>\QS-PPI"
 start .\docs\index.html
 ```
 
@@ -26,8 +26,9 @@ start .\docs\index.html
 
 Your site will be available at:
 
-https://goldlion123rp.github.io/QS-PID/
+https://goldlion123rp.github.io/QS-PPI/
 
 ## Notes
 
 This demo is intentionally dependency-free so judges can run it immediately.
+
